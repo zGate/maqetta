@@ -1,4 +1,7 @@
-define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
+define(["dojo/_base/html", "dojo/_base/connect","dojo/_base/Color", "dojo/fx","./_base"], function() {
+//kernel,lang->(sniff,array,has),sniff,unload,window
+
+	dojo.getObject("fx.flip", true, dojox);
 
 	dojo.experimental("dojox.fx.flip");
 	// because ShrinkSafe will eat this up:
@@ -26,24 +29,24 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 		//		darkColor: the darkest color reached during the animation
 		//		lightColor: the brightest color
 		//		endColor: the final backgroundColor for the node
-        //
-        //		depth: Float
+		//
+		//		depth: Float
 		//			 0 <= depth <= 1 overrides the computed "depth"
-        //          (0: min distorsion, 1: max distorsion)
-        //
-        //      whichAnim: String
-        //          "first"          : the first half animation
-        //          "last"           : the second one
-        //          "both" (default) : both
-        //
-        //      axis: String
-        //          "center" (default)    : the node is flipped around his center
-        //          "shortside"           : the node is flipped around his "short" (in perspective) side
-        //          "longside"            : the node is flipped around his "long" (in perspective) side
-        //          "cube"                : the node flips around the central axis of the cube
-        //
-        //      shift: Integer
-        //          node translation, perpendicular to the rotation axis
+		//			(0: min distorsion, 1: max distorsion)
+		//
+		//		whichAnim: String
+		//			"first"			 : the first half animation
+		//			"last"			 : the second one
+		//			"both" (default) : both
+		//
+		//		axis: String
+		//			"center" (default)	  : the node is flipped around his center
+		//			"shortside"			  : the node is flipped around his "short" (in perspective) side
+		//			"longside"			  : the node is flipped around his "long" (in perspective) side
+		//			"cube"				  : the node flips around the central axis of the cube
+		//
+		//		shift: Integer
+		//			node translation, perpendicular to the rotation axis
 		//
 		//	example:
 		//	|	var anim = dojox.fx.flip({
@@ -164,7 +167,7 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 		p0[borderConst + pn[1] + widthConst] = 0;
 		p0[borderConst + pn[1] + "Color"] = darkColor;
 		p0[borderConst + pn[2] + widthConst] = p0[borderConst + pn[3] + widthConst] = axis != "cube"
-			? (dims["end" + pn[5] +  "Max"] - dims["end" + pn[5] + "Min"]) / 2
+			? (dims["end" + pn[5] +	 "Max"] - dims["end" + pn[5] + "Min"]) / 2
 			: dims[pn[6]] / 2
 		;
 		p0[pn[7].toLowerCase()] = dims[pn[7].toLowerCase()] + dims[pn[4].toLowerCase()] / 2 + (args.shift || 0);
@@ -351,7 +354,7 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 			position: "absolute",
 			width  : w + "px",
 			height : h + "px",
-			top    : y + "px",
+			top	   : y + "px",
 			left   : x + "px",
 			visibility: "hidden"
 		});
@@ -364,7 +367,7 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 				startColor = r ? endColor : args.startColor || n.style.backgroundColor
 			;
 			hn[i] = dojo.clone(helperNode);
-			var	finalize = function(x){
+			var finalize = function(x){
 					return function(){
 						dojo.destroy(hn[x]);
 					}
@@ -378,16 +381,16 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 			hs[i][pn[dir][0]] = coords[pn[dir][2]] + shiftMultiplier[dir][0] * i * coords[pn[dir][3]] + "px";
 			dojo.style(hn[i], hs[i]);
 			anims.push(dojox.fx.flip({
-			    node: hn[i],
-			    dir: d,
-			    axis: "shortside",
-			    depth: args.depth,
-			    duration: args.duration / 2,
-			    shift: shiftMultiplier[dir][i] * coords[pn[dir][3]] / 2,
+				node: hn[i],
+				dir: d,
+				axis: "shortside",
+				depth: args.depth,
+				duration: args.duration / 2,
+				shift: shiftMultiplier[dir][i] * coords[pn[dir][3]] / 2,
 				darkColor: darkColor,
 				lightColor: lightColor,
-			    whichAnim: wa,
-			    endColor: endColor
+				whichAnim: wa,
+				endColor: endColor
 			}));
 			dojo.connect(anims[i], "onEnd", finalize);
 		}
@@ -403,10 +406,10 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 		//		Behaves the same as `dojox.fx.flip`, using the same attributes and
 		//		other standard `dojo.Animation` properties and
 		//
-        //      cols: Integer columns
-        //      rows: Integer rows
+		//		cols: Integer columns
+		//		rows: Integer rows
 		//
-		//      duration: the single flip duration
+		//		duration: the single flip duration
 		//
 		//	example:
 		//		See `dojox.fx.flip`
@@ -445,7 +448,7 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 				left: x + "px",
 				clip: "rect(" + i * h + "px," + nw + "px," + nh + "px,0)"
 			});
-	     	dojo.body().appendChild(cn);
+			dojo.body().appendChild(cn);
 			anims[i] = [];
 			for(var j = 0; j < cols; j++){
 				var hn = dojo.clone(helperNode),
@@ -464,12 +467,12 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 						}
 					}
 				}(cn, i, j);
-	     		dojo.body().appendChild(hn);
-	     		dojo.style(hn, {
-	     		    left: x + l * w + "px",
-	     		    top: y + i * h + "px",
+				dojo.body().appendChild(hn);
+				dojo.style(hn, {
+					left: x + l * w + "px",
+					top: y + i * h + "px",
 					visibility: "hidden"
-	     		});
+				});
 				var a = dojox.fx.flipPage({
 				   node: hn,
 				   dir: d,
@@ -498,5 +501,5 @@ define("dojox/fx/flip", ["dojo", "dojo/fx"], function(dojo) {
 		});
 		return dojo.fx.combine(cAnims);
 	};
-	return dojox.fx.flip;
+	return dojox.fx;
 });

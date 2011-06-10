@@ -1,4 +1,9 @@
-define("dojo/cldr/supplemental", ["dojo", "dojo/i18n"], function(dojo) {
+define(["../main", "../i18n"], function(dojo) {
+	// module:
+	//		dojo/cldr/supplemental
+	// summary:
+	//		TODOC
+
 dojo.getObject("cldr.supplemental", true, dojo);
 
 dojo.cldr.supplemental.getFirstDayOfWeek = function(/*String?*/locale){

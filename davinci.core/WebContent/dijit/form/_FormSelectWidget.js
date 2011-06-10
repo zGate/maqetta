@@ -1,4 +1,24 @@
-define("dijit/form/_FormSelectWidget", ["dojo", "dijit", "dijit/form/_FormWidget", "dojo/data/util/sorter"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"./_FormWidget",
+	"dojo/data/util/sorter", // dojo.data.util.sorter.createSortFunction
+	"dojo/_base/NodeList", // .map
+	"dojo/_base/array", // dojo.filter dojo.forEach dojo.map dojo.some
+	"dojo/_base/connect", // dojo.connect dojo.disconnect
+	"dojo/_base/html", // dojo.setSelectable dojo.toggleClass
+	"dojo/_base/lang", // dojo.delegate dojo.isArray dojo.isObject
+	"dojo/data/api/Identity", // dojo.data.api.Identity
+	"dojo/data/api/Notification", // dojo.data.api.Notification
+	"dojo/query" // dojo.query
+], function(dojo, dijit){
+
+// module:
+//		dijit/form/_FormSelectWidget
+// summary:
+//		Extends _FormValueWidget in order to provide "select-specific"
+//		values - i.e., those values that are unique to <select> elements.
+
 
 /*=====
 dijit.form.__SelectOption = function(){
@@ -127,7 +147,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 			}
 		}
 		if(typeof lookupValue == "number" && lookupValue >= 0 && lookupValue < l){
-			return this.options[lookupValue] // dijit.form.__SelectOption
+			return this.options[lookupValue]; // dijit.form.__SelectOption
 		}
 		return null; // null
 	},
@@ -236,7 +256,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 							attribute: store.getLabelAttributes(items[0])[0]
 						}], store));
 					}
-	
+
 					if(fetchArgs.onFetch){
 							items = fetchArgs.onFetch.call(this, items, opts);
 					}
@@ -244,13 +264,13 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 					dojo.forEach(items, function(i){
 						this._addOptionForItem(i);
 					}, this);
-	
+
 					// Set our value (which might be undefined), and then tweak
 					// it to send a change event with the real value
 					this._loadingStore = false;
 						this.set("value", "_pendingValue" in this ? this._pendingValue : selectedValue);
 					delete this._pendingValue;
-	
+
 					if(!this.loadChildrenOnOpen){
 						this._loadChildren();
 					}else{
@@ -362,7 +382,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 					return child.option && (v === child.option.value);
 				});
 				dojo.toggleClass(child.domNode, this.baseClass + "SelectedOption", isSelected);
-				dijit.setWaiState(child.domNode, "selected", isSelected);
+				child.domNode.setAttribute("aria-selected", isSelected);
 			}, this);
 		}
 	},
@@ -426,7 +446,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 		var store = this.store;
 		if(!store.isItemLoaded(item)){
 			// We are not loaded - so let's load it and add later
-			store.loadItem({item: item, onComplete: function(i){
+			store.loadItem({item: item, onItem: function(i){
 				this._addOptionForItem(item);
 			},
 			scope: this});
@@ -455,7 +475,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 		//		function.
 		var opts = this.options;
 		if(!opts){
-			opts = this.options = this.srcNodeRef ? dojo.query(">",
+			opts = this.options = this.srcNodeRef ? dojo.query("> *",
 						this.srcNodeRef).map(function(node){
 							if(node.getAttribute("type") === "separator"){
 								return { value: "", label: "", selected: false, disabled: false };
@@ -474,7 +494,7 @@ dojo.declare("dijit.form._FormSelectWidget", dijit.form._FormValueWidget, {
 		if(!this.value){
 			this._set("value", this._getValueFromOpts());
 		}else if(this.multiple && typeof this.value == "string"){
-			this_set("value", this.value.split(","));
+			this._set("value", this.value.split(","));
 		}
 	},
 

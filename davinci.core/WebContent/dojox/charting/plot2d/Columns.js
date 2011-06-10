@@ -1,26 +1,17 @@
-dojo.provide("dojox.charting.plot2d.Columns");
+define(["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/declare", "./Base", "./common", "dojox/lang/functional", "dojox/lang/functional/reversed", "dojox/lang/utils", "dojox/gfx/fx"], 
+	function(dojo, lang, declare, Base, dc, df, dfr, du, fx){
 
-dojo.require("dojox.charting.plot2d.common");
-dojo.require("dojox.charting.plot2d.Base");
-dojo.require("dojox.gfx.fx");
+	var purgeGroup = df.lambda("item.purgeGroup()");
 
-dojo.require("dojox.lang.utils");
-dojo.require("dojox.lang.functional");
-dojo.require("dojox.lang.functional.reversed");
-
-(function(){
-	var df = dojox.lang.functional, du = dojox.lang.utils,
-		dc = dojox.charting.plot2d.common,
-		purgeGroup = df.lambda("item.purgeGroup()");
-
-	dojo.declare("dojox.charting.plot2d.Columns", dojox.charting.plot2d.Base, {
+	return dojo.declare("dojox.charting.plot2d.Columns", dojox.charting.plot2d.Base, {
 		//	summary:
 		//		The plot object representing a column chart (vertical bars).
 		defaultParams: {
 			hAxis: "x",		// use a horizontal axis named "x"
 			vAxis: "y",		// use a vertical axis named "y"
 			gap:	0,		// gap between columns in pixels
-			animate: null   // animate bars into place
+			animate: null,  // animate bars into place
+			enableCache: false
 		},
 		optionalParams: {
 			minBarSize:	1,	// minimal column width in pixels
@@ -37,7 +28,7 @@ dojo.require("dojox.lang.functional.reversed");
 		constructor: function(chart, kwArgs){
 			//	summary:
 			//		The constructor for a columns chart.
-			//	chart: dojox.charting.Chart2D
+			//	chart: dojox.charting.Chart
 			//		The chart this plot belongs to.
 			//	kwArgs: dojox.charting.plot2d.__BarCtorArgs?
 			//		An optional keyword arguments object to help define the plot.
@@ -60,6 +51,22 @@ dojo.require("dojox.lang.functional.reversed");
 			stats.hmax += 0.5;
 			return stats;
 		},
+		
+		createRect: function(run, creator, params){
+			var rect;
+			if(this.opt.enableCache && run._rectFreePool.length > 0){
+				rect = run._rectFreePool.pop();
+				rect.setShape(params);
+				// was cleared, add it back
+				creator.add(rect);
+			}else{
+				rect = creator.createRect(params);
+			}
+			if(this.opt.enableCache){
+				run._rectUsePool.push(rect);
+			}
+			return rect;
+		},
 
 		render: function(dim, offsets){
 			//	summary:
@@ -73,6 +80,7 @@ dojo.require("dojox.lang.functional.reversed");
 			if(this.zoom && !this.isDataDirty()){
 				return this.performZoom(dim, offsets);
 			}
+			var t = this.getSeriesStats();
 			this.resetEvents();
 			this.dirty = this.isDirty();
 			if(this.dirty){
@@ -87,6 +95,7 @@ dojo.require("dojox.lang.functional.reversed");
 				vt = this._vScaler.scaler.getTransformerFromModel(this._vScaler),
 				baseline = Math.max(0, this._vScaler.bounds.lower),
 				baselineHeight = vt(baseline),
+				min = Math.max(0, Math.floor(this._hScaler.bounds.from - 1)), max = Math.ceil(this._hScaler.bounds.to),
 				events = this.events();
 			f = dc.calculateBarSize(this._hScaler.bounds.scale, this.opt);
 			gap = f.gap;
@@ -99,9 +108,14 @@ dojo.require("dojox.lang.functional.reversed");
 					continue;
 				}
 				run.cleanGroup();
+				if(this.opt.enableCache){
+					run._rectFreePool = (run._rectFreePool?run._rectFreePool:[]).concat(run._rectUsePool?run._rectUsePool:[]);
+					run._rectUsePool = [];
+				}
 				var theme = t.next("column", [this.opt, run]), s = run.group,
 					eventSeries = new Array(run.data.length);
-				for(var j = 0; j < run.data.length; ++j){
+				var l = Math.min(run.data.length, max);
+				for(var j = min; j < l; ++j){
 					var value = run.data[j];
 					if(value !== null){
 						var v = typeof value == "number" ? value : value.y,
@@ -119,7 +133,7 @@ dojo.require("dojox.lang.functional.reversed");
 							};
 							var specialFill = this._plotFill(finalTheme.series.fill, dim, offsets);
 							specialFill = this._shapeFill(specialFill, rect);
-							var shape = s.createRect(rect).setFill(specialFill).setStroke(finalTheme.series.stroke);
+							var shape = this.createRect(run, s, rect).setFill(specialFill).setStroke(finalTheme.series.stroke);
 							run.dyn.fill   = shape.getFill();
 							run.dyn.stroke = shape.getStroke();
 							if(events){
@@ -147,7 +161,7 @@ dojo.require("dojox.lang.functional.reversed");
 			return this;	//	dojox.charting.plot2d.Columns
 		},
 		_animateColumn: function(shape, voffset, vsize){
-			dojox.gfx.fx.animateTransform(dojo.delegate({
+			fx.animateTransform(dojo.delegate({
 				shape: shape,
 				duration: 1200,
 				transform: [
@@ -158,4 +172,4 @@ dojo.require("dojox.lang.functional.reversed");
 			}, this.animate)).play();
 		}
 	});
-})();
+});

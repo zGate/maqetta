@@ -1,8 +1,5 @@
-dojo.provide("dojox.form.uploader.plugins.Flash");
+define(['dojo', 'dojox/form/uploader/plugins/HTML5', 'dojox/embed/Flash'],function(dojo){
 
-dojo.require("dojox.form.uploader.plugins.HTML5");
-dojo.require("dojox.embed.flashVars");
-dojo.require("dojox.embed.Flash");
 
 dojo.declare("dojox.form.uploader.plugins.Flash", [], {
 	//
@@ -126,22 +123,23 @@ dojo.declare("dojox.form.uploader.plugins.Flash", [], {
 	 *	   Private Methods	 *
 	 *************************/
 
-	uploadFlash: function(){
+	uploadFlash: function(/*Object ? */formData){
 		// summary:
 		// 		Uploads selected files. Alias "upload()" should be used instead.
 		// tags:
 		//		private
 		this.onBegin(this.getFileList());
-		this.flashMovie.doUpload();
+		this.flashMovie.doUpload(formData);
 	},
 
-	submitFlash: function(/* Object */formParams){
+	submitFlash: function(/* form node ? */form){
 		// summary:
 		// 		Uploads selected files with form data. Alias "submit()" should be used instead.
 		// tags:
 		//		private
+		var formData = form ? dojo.formToObject(form) : null;
 		this.onBegin(this.getFileList());
-		this.flashMovie.doUpload(formParams);
+		this.flashMovie.doUpload(formData);
 	},
 
 
@@ -312,3 +310,7 @@ dojo.declare("dojox.form.uploader.plugins.Flash", [], {
 	}
 });
 dojox.form.addUploaderPlugin(dojox.form.uploader.plugins.Flash);
+
+
+return dojox.form.uploader.plugins.Flash;
+});

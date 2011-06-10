@@ -1,4 +1,29 @@
-define("dijit/_editor/plugins/FullScreen", ["dojo", "dijit", "dojo/window", "dojo/i18n", "dijit/_editor/_Plugin", "dijit/form/Button", "i18n!dijit/_editor/nls/commands"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"../..",
+	"../../focus",			// dijit.focus()
+	"../../_base/focus",	// dijit.getFocus(),
+	"dojo/window", // dojo.window.getBox dojo.window.scrollIntoView
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"../_Plugin",
+	"../../form/ToggleButton",
+	"dojo/i18n!../nls/commands",
+	"dojo/_base/connect", // dojo.connect dojo.disconnect dojo.keys.F11 dojo.keys.TAB
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.marginBox dojo.removeClass dojo.style
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/sniff", // dojo.isIE dojo.isQuirks
+	"dojo/_base/window" // dojo.body
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/plugins/FullScreen
+// summary:
+//		This plugin provides FullScreen cabability to the editor.  When
+//		toggled on, it will render the editor into the full window and
+//		overlay everything.  It also binds to the hotkey: CTRL-SHIFT-F11
+//		for toggling fullscreen mode.
+
 
 dojo.declare("dijit._editor.plugins.FullScreen",dijit._editor._Plugin,{
 	// summary:
@@ -131,7 +156,7 @@ dojo.declare("dijit._editor.plugins.FullScreen",dijit._editor._Plugin,{
 		var extents = dojo._getPadBorderExtents(this.editor.domNode);
 		var fcpExtents = dojo._getPadBorderExtents(this.editor.iframe.parentNode);
 		var fcmExtents = dojo._getMarginExtents(this.editor.iframe.parentNode);
-		
+
 		var cHeight = vp.h - (hHeight + extents.h + fHeight);
 		dojo.marginBox(this.editor.iframe.parentNode, {
 			h: cHeight,
@@ -176,7 +201,7 @@ dojo.declare("dijit._editor.plugins.FullScreen",dijit._editor._Plugin,{
 
 			// Save off the resize function.  We want to kill its behavior.
 			this._editorResizeHolder = this.editor.resize;
-			ed.resize = function() {} ;
+			ed.resize = function(){} ;
 
 			// Try to constrain focus control.
 			ed._fullscreen_oldOnKeyDown = ed.onKeyDown;
@@ -323,13 +348,13 @@ dojo.declare("dijit._editor.plugins.FullScreen",dijit._editor._Plugin,{
 				clearTimeout(this._rst);
 				this._rst = null;
 			}
-			
+
 			//Remove all position static class assigns.
 			while(editorParent && editorParent !== dojo.body()){
 				dojo.removeClass(editorParent, "dijitForceStatic");
 				editorParent = editorParent.parentNode;
 			}
-			
+
 			// Restore resize function
 			if(this._editorResizeHolder){
 				this.editor.resize = this._editorResizeHolder;

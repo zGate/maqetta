@@ -1,25 +1,20 @@
-dojo.provide("dojox.widget.ColorPicker");
-dojo.experimental("dojox.widget.ColorPicker"); // level: beta //TODO: which?
+define(["dojo/_base/html","dojo/_base/connect","dojo/fx","dojo/dnd/move",
+		"dijit/form/_FormWidget",
+		"dijit/focus",		// dijit.focus()
+		"dijit/typematic",
+		"dojox/color",
+		"dojo/i18n","dojo/i18n!./nls/ColorPicker","dojo/i18n!dojo/cldr/nls/number",
+		"dojo/text!./ColorPicker/ColorPicker.html"],
+			function(dojo,connect,fx,move,formwidget,focus,typematic,color,i18n,bundle1,bundle2,template){
 
-dojo.requireLocalization("dojox.widget","ColorPicker");
-dojo.requireLocalization("dojo.cldr","number");
-
-dojo.require("dijit.form._FormWidget");
-dojo.require("dojo.dnd.move");
-dojo.require("dojo.fx");
-dojo.require("dojox.color");
-dojo.require("dojo.i18n");
-
-(function(d){
+	dojo.experimental("dojox.widget.ColorPicker");
 	
 	var webSafeFromHex = function(hex){
 		// stub, this is planned later:
 		return hex;
 	};
 	
-	dojo.declare("dojox.widget.ColorPicker",
-		dijit.form._FormWidget,
-		{
+	return dojo.declare("dojox.widget.ColorPicker", dijit.form._FormWidget, {
 		// summary: a HSV color picker - similar to Photoshop picker
 		//
 		// description:
@@ -102,18 +97,17 @@ dojo.require("dojo.i18n");
 		//	to cause the points to adjust and the values to reflect the current color.
 		value: "#ffffff",
 		
-		_underlay: d.moduleUrl("dojox.widget","ColorPicker/images/underlay.png"),
+		_underlay: dojo.moduleUrl("dojox.widget","ColorPicker/images/underlay.png"),
 
-		_hueUnderlay: d.moduleUrl("dojox.widget","ColorPicker/images/hue.png"),
+		_hueUnderlay: dojo.moduleUrl("dojox.widget","ColorPicker/images/hue.png"),
 
-		_pickerPointer: d.moduleUrl("dojox.widget","ColorPicker/images/pickerPointer.png"),
+		_pickerPointer: dojo.moduleUrl("dojox.widget","ColorPicker/images/pickerPointer.png"),
 
-		_huePickerPointer: d.moduleUrl("dojox.widget","ColorPicker/images/hueHandle.png"),
+		_huePickerPointer: dojo.moduleUrl("dojox.widget","ColorPicker/images/hueHandle.png"),
 
-		_huePickerPointerAlly: d.moduleUrl("dojox.widget","ColorPicker/images/hueHandleA11y.png"),
+		_huePickerPointerAlly: dojo.moduleUrl("dojox.widget","ColorPicker/images/hueHandleA11y.png"),
 
-		// don't change to d.moduleUrl, build won't intern it.
-		templateString: dojo.cache("dojox.widget","ColorPicker/ColorPicker.html"),
+		templateString: template,
 
 		postMixInProperties: function(){
 			if(dojo.hasClass(dojo.body(), "dijit_a11y")){
@@ -121,8 +115,8 @@ dojo.require("dojo.i18n");
 				this._huePickerPointer = this._huePickerPointerAlly;
 			}
 			this._uId = dijit.getUniqueId(this.id);
-			dojo.mixin(this, dojo.i18n.getLocalization("dojox.widget", "ColorPicker"));
-			dojo.mixin(this, dojo.i18n.getLocalization("dojo.cldr", "number"));
+			dojo.mixin(this, i18n.getLocalization("dojox.widget", "ColorPicker"));
+			dojo.mixin(this, i18n.getLocalization("dojo.cldr", "number"));
 			this.inherited(arguments);
 		},
 
@@ -132,7 +126,7 @@ dojo.require("dojo.i18n");
 			//		underlay.  we don't do image handles (done in css), just the 'core'
 			//		of this widget: the underlay.
 			this.inherited(arguments);
-			if(d.isIE < 7){
+			if(dojo.isIE < 7){
 				this.colorUnderlay.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+this._underlay+"', sizingMethod='scale')";
 				this.colorUnderlay.src = this._blankGif.toString();
 			}
@@ -149,7 +143,7 @@ dojo.require("dojo.i18n");
 			}
 			this._started = true;
 			this.set("value", this.value);
-			this._mover = new d.dnd.move.boxConstrainedMoveable(this.cursorNode, {
+			this._mover = new dojo.dnd.move.boxConstrainedMoveable(this.cursorNode, {
 				box: {
 					t: -(this.PICKER_SAT_SELECTOR_H/2),
 					l: -(this.PICKER_SAT_SELECTOR_W/2),
@@ -158,7 +152,7 @@ dojo.require("dojo.i18n");
 				}
 			});
 			
-			this._hueMover = new d.dnd.move.boxConstrainedMoveable(this.hueCursorNode, {
+			this._hueMover = new dojo.dnd.move.boxConstrainedMoveable(this.hueCursorNode, {
 				box: {
 					t: -(this.PICKER_HUE_SELECTOR_H/2),
 					l:0,
@@ -169,8 +163,8 @@ dojo.require("dojo.i18n");
 			
 			this._subs = [];
 			// no dnd/move/move published ... use a timer:
-			this._subs.push(d.subscribe("/dnd/move/stop", d.hitch(this, "_clearTimer")));
-			this._subs.push(d.subscribe("/dnd/move/start", d.hitch(this, "_setTimer")));
+			this._subs.push(dojo.subscribe("/dnd/move/stop", dojo.hitch(this, "_clearTimer")));
+			this._subs.push(dojo.subscribe("/dnd/move/start", dojo.hitch(this, "_setTimer")));
 
 			// Bind to up, down, left and right  arrows on the hue and saturation nodes.
 			this._keyListeners = [];
@@ -236,15 +230,15 @@ dojo.require("dojo.i18n");
 		_setTimer: function(/* d.dnd.Mover */mover){
 			// FIXME: should I assume this? focus on mouse down so on mouse up
 			dijit.focus(mover.node);
-			d.setSelectable(this.domNode,false);
-			this._timer = setInterval(d.hitch(this, "_updateColor"), 45);
+			dojo.setSelectable(this.domNode,false);
+			this._timer = setInterval(dojo.hitch(this, "_updateColor"), 45);
 		},
 		
 		_clearTimer: function(/* d.dnd.Mover */mover){
 			clearInterval(this._timer);
 			this._timer = null;
 			this.onChange(this.value);
-			d.setSelectable(this.domNode,true);
+			dojo.setSelectable(this.domNode,true);
 		},
 		
 		_setHue: function(/* Decimal */h){
@@ -252,7 +246,7 @@ dojo.require("dojo.i18n");
 			//		Sets a natural color background for the
 			//		underlay image against closest hue value (full saturation)
 			//		h: 0..360
-			d.style(this.colorUnderlay, "backgroundColor", dojox.color.fromHsv(h,100,100).toHex());
+			dojo.style(this.colorUnderlay, "backgroundColor", dojox.color.fromHsv(h,100,100).toHex());
 			
 		},
 
@@ -355,9 +349,9 @@ dojo.require("dojo.i18n");
 				satSelCenterH = this.PICKER_SAT_SELECTOR_H/2,
 				satSelCenterW = this.PICKER_SAT_SELECTOR_W/2;
 
-			var _huetop = d.style(this.hueCursorNode,"top") + hueSelCenter,
-				_pickertop = d.style(this.cursorNode,"top") + satSelCenterH,
-				_pickerleft = d.style(this.cursorNode,"left") + satSelCenterW,
+			var _huetop = dojo.style(this.hueCursorNode,"top") + hueSelCenter,
+				_pickertop = dojo.style(this.cursorNode,"top") + satSelCenterH,
+				_pickerleft = dojo.style(this.cursorNode,"left") + satSelCenterW,
 				h = Math.round(360 - (_huetop / this.PICKER_HUE_H * 360)),
 				col = dojox.color.fromHsv(h, _pickerleft / this.PICKER_SAT_VAL_W * 100, 100 - (_pickertop / this.PICKER_SAT_VAL_H * 100))
 			;
@@ -432,14 +426,14 @@ dojo.require("dojo.i18n");
 			;
 			
 			if (this.animatePoint) {
-				d.fx.slideTo({
+				dojo.fx.slideTo({
 					node: this.hueCursorNode,
 					duration: this.slideDuration,
 					top: ypos,
 					left: 0
 				}).play();
 				
-				d.fx.slideTo({
+				dojo.fx.slideTo({
 					node: this.cursorNode,
 					duration: this.slideDuration,
 					top: newTop,
@@ -448,8 +442,8 @@ dojo.require("dojo.i18n");
 				
 			}
 			else {
-				d.style(this.hueCursorNode, "top", ypos + "px");
-				d.style(this.cursorNode, {
+				dojo.style(this.hueCursorNode, "top", ypos + "px");
+				dojo.style(this.cursorNode, {
 					left: newLeft + "px",
 					top: newTop + "px"
 				});
@@ -497,15 +491,15 @@ dojo.require("dojo.i18n");
 			var selCenter = (this.PICKER_HUE_SELECTOR_H/2);
 			var ypos = evt.layerY - selCenter;
 			if(this.animatePoint){
-				d.fx.slideTo({
+				dojo.fx.slideTo({
 					node: this.hueCursorNode,
 					duration:this.slideDuration,
 					top: ypos,
 					left: 0,
-					onEnd: d.hitch(this, function() {this._updateColor(true); dijit.focus(this.hueCursorNode);})
+					onEnd: dojo.hitch(this, function() {this._updateColor(true); dijit.focus(this.hueCursorNode);})
 				}).play();
 			}else{
-				d.style(this.hueCursorNode, "top", ypos + "px");
+				dojo.style(this.hueCursorNode, "top", ypos + "px");
 				this._updateColor(false);
 			}
 		},
@@ -521,15 +515,15 @@ dojo.require("dojo.i18n");
 			if(evt){ dijit.focus(evt.target); }
 
 			if(this.animatePoint){
-				d.fx.slideTo({
+				dojo.fx.slideTo({
 					node: this.cursorNode,
 					duration: this.slideDuration,
 					top: newTop,
 					left: newLeft,
-					onEnd: d.hitch(this, function() {this._updateColor(true); dijit.focus(this.cursorNode);})
+					onEnd: dojo.hitch(this, function() {this._updateColor(true); dijit.focus(this.cursorNode);})
 				}).play();
 			}else{
-				d.style(this.cursorNode, {
+				dojo.style(this.cursorNode, {
 					left: newLeft + "px",
 					top: newTop + "px"
 				});
@@ -545,7 +539,7 @@ dojo.require("dojo.i18n");
 		focus: function(){
 			// summary:
 			//		Put focus on this widget, only if focus isn't set on it already.
-			if(!this._focused){
+			if(!this.focused){
 				dijit.focus(this.focusNode);
 			}
 		},
@@ -568,4 +562,5 @@ dojo.require("dojo.i18n");
 			delete this._subs;
 		}
 	});
-})(dojo);
+
+});

@@ -1,15 +1,29 @@
-define("dijit/ToolbarSeparator", ["dojo", "dijit", "dijit/_Widget", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"./_Widget",
+	"./_TemplatedMixin",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html" // dojo.setSelectable
+], function(dojo, dijit){
 
-dojo.declare("dijit.ToolbarSeparator",
-		[ dijit._Widget, dijit._Templated ],
-		{
+	// module:
+	//		dijit/ToolbarSeparator
+	// summary:
+	//		A spacer between two `dijit.Toolbar` items
+
+
+	dojo.declare("dijit.ToolbarSeparator", [dijit._Widget, dijit._TemplatedMixin], {
 		// summary:
 		//		A spacer between two `dijit.Toolbar` items
+
 		templateString: '<div class="dijitToolbarSeparator dijitInline" role="presentation"></div>',
+
 		buildRendering: function(){
 			this.inherited(arguments);
 			dojo.setSelectable(this.domNode, false);
 		},
+
 		isFocusable: function(){
 			// summary:
 			//		This widget isn't focusable, so pass along that fact.
@@ -17,9 +31,8 @@ dojo.declare("dijit.ToolbarSeparator",
 			//		protected
 			return false;
 		}
-
 	});
 
 
-return dijit.ToolbarSeparator;
+	return dijit.ToolbarSeparator;
 });

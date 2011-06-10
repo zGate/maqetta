@@ -1,4 +1,25 @@
-define("dijit/_editor/plugins/EnterKeyHandling", ["dojo", "dijit", "dojo/window", "dijit/_editor/_Plugin", "dijit/_editor/range"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"../..",
+	"dojo/window", // dojo.window.scrollIntoView
+	"../_Plugin",
+	"../range",
+	"dojo/_base/connect", // dojo.keys.ENTER
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.destroy dojo.place
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/sniff", // dojo.isIE dojo.isMoz dojo.isWebKit
+	"dojo/_base/window" // dojo.global dojo.withGlobal
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/plugins/EnterKeyHandling
+// summary:
+//		This plugin tries to make all browsers behave consistently with regard to
+//		how ENTER behaves in the editor window.  It traps the ENTER key and alters
+//		the way DOM is constructed in certain cases to try to commonize the generated
+//		DOM and behaviors across browsers.
+
 
 dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 	// summary:
@@ -10,11 +31,11 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 	// description:
 	//		This plugin has three modes:
 	//
-	//			* blockModeForEnter=BR
-	//			* blockModeForEnter=DIV
-	//			* blockModeForEnter=P
+	//			* blockNodeForEnter=BR
+	//			* blockNodeForEnter=DIV
+	//			* blockNodeForEnter=P
 	//
-	//		In blockModeForEnter=P, the ENTER key starts a new
+	//		In blockNodeForEnter=P, the ENTER key starts a new
 	//		paragraph, and shift-ENTER starts a new line in the current paragraph.
 	//		For example, the input:
 	//
@@ -84,7 +105,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 
 	setEditor: function(editor){
 		// Overrides _Plugin.setEditor().
-		if(this.editor === editor) { return; }
+		if(this.editor === editor){ return; }
 		this.editor = editor;
 		if(this.blockNodeForEnter == 'BR'){
 			// While Moz has a mode tht mostly works, it's still a little different,
@@ -176,7 +197,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 
 	handleEnterKey: function(e){
 		// summary:
-		//		Handler for enter key events when blockModeForEnter is DIV or P.
+		//		Handler for enter key events when blockNodeForEnter is DIV or P.
 		// description:
 		//		Manually handle enter key event to make the behavior consistent across
 		//		all supported browsers. See class description for details.
@@ -222,7 +243,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 							startNode = doc.createTextNode(txt.substring(0, range.startOffset));
 							endNode = doc.createTextNode(txt.substring(range.startOffset));
 							brNode = doc.createElement("br");
-							
+
 							if(endNode.nodeValue == "" && dojo.isWebKit){
 								endNode = doc.createTextNode('\xA0')
 							}
@@ -254,7 +275,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 							// Text node, we have to split it.
 							dojo.withGlobal(this.editor.window, dojo.hitch(this, function(){
 								var endEmpty = false;
-							
+
 								var offset = range.startOffset;
 								if(rs.length < offset){
 									//We are not splitting the right node, try to locate the correct one
@@ -263,16 +284,16 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 									offset = ret.offset;
 								}
 								txt = rs.nodeValue;
-				
+
 								startNode = doc.createTextNode(txt.substring(0, offset));
 								endNode = doc.createTextNode(txt.substring(offset));
 								brNode = doc.createElement("br");
-								
+
 								if(!endNode.length){
 									endNode = doc.createTextNode('\xA0');
 									endEmpty = true;
 								}
-								
+
 								if(startNode.length){
 									dojo.place(startNode, rs, "after");
 								}else{
@@ -293,11 +314,20 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 								}
 							}));
 						}else{
+							var targetNode;
+							if(range.startOffset >= 0){
+								targetNode = rs.childNodes[range.startOffset];
+							}
 							dojo.withGlobal(this.editor.window, dojo.hitch(this, function(){
 								var brNode = doc.createElement("br");
-								rs.appendChild(brNode);
 								var endNode = doc.createTextNode('\xA0');
-								rs.appendChild(endNode);
+								if(!targetNode){
+									rs.appendChild(brNode);		
+									rs.appendChild(endNode);
+								}else{
+									dojo.place(brNode, targetNode, "before");
+									dojo.place(endNode, brNode, "after");
+								}									
 								newrange = dijit.range.create(dojo.global);
 								newrange.setStart(endNode,0);
 								newrange.setEnd(endNode, endNode.length);
@@ -426,11 +456,11 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 					}
 				}
 			}
-			
+
 			// Okay, we probably have to split.
 			rs = range.startContainer;
 			var firstNodeMoved;
-			if(rs && rs.nodeType == 3){ 
+			if(rs && rs.nodeType == 3){
 				// Text node, we have to split it.
 				var nodeToMove, tNode;
 				endOffset = range.endOffset;
@@ -440,7 +470,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 					rs = ret.node;
 					endOffset = ret.offset;
 				}
-				
+
 				txt = rs.nodeValue;
 				startNode = doc.createTextNode(txt.substring(0, endOffset));
 				endNode = doc.createTextNode(txt.substring(endOffset, txt.length));
@@ -465,7 +495,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 							}
 						}
 					}
-					// If font also need to clone over any font data. 
+					// If font also need to clone over any font data.
 					if(parentC.tagName === "FONT"){
 						if(parentC.color){
 							newTg.color = parentC.color;
@@ -477,7 +507,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 							newTg.size = parentC.size;
 						}
 					}
-					
+
 					nodeToMove = endNode;
 					while(nodeToMove){
 						tNode = nodeToMove.nextSibling;
@@ -505,7 +535,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 					nodeToMove = tNode;
 				}
 			}
-			
+
 			//lets move caret to the newly created block
 			newrange = dijit.range.create(this.editor.window);
 			var nodeForCursor;
@@ -522,12 +552,12 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 					selection.removeAllRanges();
 					selection.addRange(newrange);
 					if(this.editor.height){
-						dijit.scrollIntoView(newblock);
+						dojo.window.scrollIntoView(newblock);
 					}
 					if(dojo.isMoz){
 						// press enter in middle of P may leave a trailing <br/>, let's remove it later
 						this._pressedEnterInBlock = block.blockNode;
-					}					
+					}
 				}else{
 					_letBrowserHandle = true;
 				}
@@ -536,7 +566,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 				selection.removeAllRanges();
 				selection.addRange(newrange);
 				if(this.editor.height){
-					dijit.scrollIntoView(newblock);
+					dojo.window.scrollIntoView(newblock);
 				}
 				if(dojo.isMoz){
 					// press enter in middle of P may leave a trailing <br/>, let's remove it later
@@ -562,8 +592,7 @@ dojo.declare("dijit._editor.plugins.EnterKeyHandling", dijit._editor._Plugin, {
 			offset = offset - node.length;
 			node = node.nextSibling;
 		}
-		var ret = {"node": node, "offset": offset};
-		return ret;
+		return {"node": node, "offset": offset};
 	},
 
 	removeTrailingBr: function(container){

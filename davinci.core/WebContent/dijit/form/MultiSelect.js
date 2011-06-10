@@ -1,4 +1,18 @@
-define("dijit/form/MultiSelect", ["dojo", "dijit", "dijit/form/_FormWidget"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"./_FormWidget",
+	"dojo/_base/NodeList", // .filter .forEach .map
+	"dojo/_base/array", // dojo.indexOf
+	"dojo/_base/html", // dojo.marginBox
+	"dojo/query" // dojo.query
+], function(dojo, dijit){
+
+// module:
+//		dijit/form/MultiSelect
+// summary:
+//		Widget version of a <select multiple=true> element,
+//		for selecting multiple options.
 
 dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 	// summary:
@@ -12,19 +26,6 @@ dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 	size: 7,
 
 	templateString: "<select multiple='true' ${!nameAttrSetting} dojoAttachPoint='containerNode,focusNode' dojoAttachEvent='onchange: _onChange'></select>",
-
-	attributeMap: dojo.delegate(dijit.form._FormWidget.prototype.attributeMap, {
-		size: "focusNode"
-	}),
-
-	reset: function(){
-		// summary:
-		//		Reset the widget's value to what it was at initialization time
-
-		// TODO: once we inherit from FormValueWidget this won't be needed
-		this._hasBeenBlurred = false;
-		this._setValueAttr(this._resetValue, true);
-	},
 
 	addSelected: function(/*dijit.form.MultiSelect*/ select){
 		// summary:
@@ -46,6 +47,7 @@ dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 			select.domNode.scrollTop = 0;
 			select.domNode.scrollTop = oldscroll;
 		},this);
+		this._set('value', this.get('value'));
 	},
 
 	getSelected: function(){
@@ -68,7 +70,7 @@ dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 
 	multiple: true, // for Form
 
-	_setValueAttr: function(/*Array*/ values){
+	_setValueAttr: function(/*Array*/ values, /*Boolean?*/ priorityChange){
 		// summary:
 		//		Hook so set('value', values) works.
 		// description:
@@ -76,17 +78,19 @@ dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 		dojo.query("option",this.containerNode).forEach(function(n){
 			n.selected = (dojo.indexOf(values,n.value) != -1);
 		});
+		this.inherited(arguments);
 	},
 
-	invertSelection: function(onChange){
+	invertSelection: function(/*Boolean?*/ onChange){
 		// summary:
 		//		Invert the selection
 		// onChange: Boolean
-		//		If null, onChange is not fired.
+		//		If false, onChange is not fired.
+		var val = [];
 		dojo.query("option",this.containerNode).forEach(function(n){
-			n.selected = !n.selected;
+			if(!n.selected){ val.push(n.value); }
 		});
-		this._handleOnChange(this.get('value'), onChange == true);
+		this._setValueAttr(val, !(onChange === false || onChange == null));
 	},
 
 	_onChange: function(/*Event*/ e){
@@ -101,7 +105,8 @@ dojo.declare("dijit.form.MultiSelect", dijit.form._FormValueWidget, {
 	},
 
 	postCreate: function(){
-		this._onChange();
+		this._set('value', this.get('value'));
+		this.inherited(arguments);
 	}
 });
 

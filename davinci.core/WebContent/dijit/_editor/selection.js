@@ -1,4 +1,17 @@
-define("dijit/_editor/selection", ["dojo", "dijit"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/NodeList-manipulate", // .text
+	"dojo/_base/html", // dojo.byId
+	"dojo/_base/sniff", // dojo.isIE dojo.isOpera
+	"dojo/_base/window" // dojo.body dojo.doc dojo.doc.createElement dojo.doc.selection dojo.doc.selection.createRange dojo.doc.selection.type.toLowerCase dojo.global dojo.global.getSelection
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/selection
+// summary:
+//		Text selection API
+
 
 dojo.getObject("_editor.selection", true, dijit);
 

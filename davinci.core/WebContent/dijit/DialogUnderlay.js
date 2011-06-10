@@ -1,9 +1,21 @@
-define("dijit/DialogUnderlay", ["dojo", "dijit", "dojo/window", "dijit/_Widget", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"dojo/window", // dojo.window.getBox
+	"./_Widget",
+	"./_TemplatedMixin",
+	"./BackgroundIframe",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html", // dojo.attr
+	"dojo/_base/window" // dojo.body
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.DialogUnderlay",
-	[dijit._Widget, dijit._Templated],
-	{
+	// module:
+	//		dijit/DialogUnderlay
+	// summary:
+	//		The component that blocks the screen behind a `dijit.Dialog`
+
+	dojo.declare("dijit.DialogUnderlay", [dijit._Widget, dijit._TemplatedMixin], {
 		// summary:
 		//		The component that blocks the screen behind a `dijit.Dialog`
 		//
@@ -31,8 +43,6 @@ dojo.declare(
 		// class: String
 		//		This class name is used on the DialogUnderlay node, in addition to dijitDialogUnderlay
 		"class": "",
-
-		attributeMap: { id: "domNode" },
 
 		_setDialogIdAttr: function(id){
 			dojo.attr(this.node, "id", id + "_underlay");
@@ -93,9 +103,8 @@ dojo.declare(
 			delete this.bgIframe;
 			this.domNode.style.display = "none";
 		}
-	}
-);
+	});
 
 
-return dijit.DialogUnderlay;
+	return dijit.DialogUnderlay;
 });

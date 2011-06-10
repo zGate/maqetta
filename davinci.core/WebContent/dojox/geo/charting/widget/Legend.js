@@ -1,22 +1,28 @@
-dojo.provide("dojox.geo.charting.widget.Legend");
 
-dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
-dojo.require("dojox.lang.functional.array");
-dojo.require("dojox.lang.functional.fold");
+define(["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/declare","dojo/_base/html", "dojo/_base/window", "dijit/_Widget"],
+							function(dojo, lang, declare, dhtml, window, Widget) {
 
-dojo.declare("dojox.geo.charting.widget.Legend",[dijit._Widget, dijit._Templated], {
-	templateString: "<table dojoAttachPoint='legendNode' class='dojoxLegendNode'><tbody dojoAttachPoint='legendBody'></tbody></table>",
+return dojo.declare("dojox.geo.charting.widget.Legend",dijit._Widget, {
 	horizontal:true,
-	legendNode:null,
 	legendBody:null,
 	swatchSize:18,
+	map:null,
 	postCreate: function(){
 		if(!this.map){return;}
 		this.series = this.map.series;
-		dojo.byId(this.map.container).appendChild(this.domNode);
+		if (!this.domNode.parentNode) {
+			// compatibility with older version : add to map domNode if not already attached to a parentNode.
+			dojo.byId(this.map.container).appendChild(this.domNode);
+		}
 		this.refresh();
 	},
+	buildRendering: function(){  
+		this.domNode = dojo.create("table",   
+					{role: "group", "class": "dojoxLegendNode"});  
+		this.legendBody = dojo.create("tbody", null, this.domNode);  
+		this.inherited(arguments);  
+ 	},  
+
 	refresh:function(){
 		// cleanup
 		while(this.legendBody.lastChild){
@@ -24,7 +30,7 @@ dojo.declare("dojox.geo.charting.widget.Legend",[dijit._Widget, dijit._Templated
 		}
 		
 		if(this.horizontal){
-			dojo.addClass(this.legendNode,"dojoxLegendHorizontal");
+			dojo.addClass(this.domNode,"dojoxLegendHorizontal");
 			this._tr = dojo.doc.createElement("tr");
 			this.legendBody.appendChild(this._tr);
 		}
@@ -59,4 +65,5 @@ dojo.declare("dojox.geo.charting.widget.Legend",[dijit._Widget, dijit._Templated
 		div.style.background = color;
 		text.innerHTML = String(label);
 	}
+});
 });

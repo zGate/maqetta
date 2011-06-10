@@ -1,118 +1,103 @@
-dojo.provide("dojox.mobile.ScrollableView");
+define(["dojo/_base/kernel", "dojo/_base/declare", "dojo/_base/array","dojo/_base/html","./View","./_ScrollableMixin"],
+	function(dojo, declare, darray, dhtml, View,ScrollableMixin){
+	// module:
+	//		dojox/mobile/ScrollableView
+	// summary:
+	//		A container that has a touch scrolling capability.
+	// description:
+	//		ScrollableView is a subclass of View (=dojox.mobile.View).
+	//		Unlike the base View class, ScrollableView's domNode always stays
+	//		at the top of the screen and its height is "100%" of the screen.
+	//		In this fixed domNode, containerNode scrolls. Browser's default
+	//		scrolling behavior is disabled, and the scrolling machinery is
+	//		re-implemented with JavaScript. Thus the user does not need to use the
+	//		two-finger operation to scroll an inner DIV (containerNode).
+	//		The main purpose of this widget is to realize fixed-positioned header
+	//		and/or footer bars.
 
-dojo.require("dijit._WidgetBase");
-dojo.require("dojox.mobile");
-dojo.require("dojox.mobile._ScrollableMixin");
+	return dojo.declare("dojox.mobile.ScrollableView", [dojox.mobile.View,dojox.mobile._ScrollableMixin], {
+		scrollableParams: {noResize: true},
 
-// summary:
-//		A container that has a touch scrolling capability.
-// description:
-//		ScrollableView is a subclass of View (=dojox.mobile.View).
-//		Unlike the base View class, ScrollableView's domNode always stays
-//		at the top of the screen and its height is "100%" of the screen.
-//		In this fixed domNode, containerNode scrolls. Browser's default
-//		scrolling behavior is disabled, and the scrolling machinery is
-//		re-implemented with JavaScript. Thus the user does not need to use the
-//		two-finger operation to scroll an inner DIV (containerNode).
-//		The main purpose of this widget is to realize fixed-positioned header
-//		and/or footer bars.
-
-dojo.declare(
-	"dojox.mobile.ScrollableView",
-	[dojox.mobile.View, dojox.mobile._ScrollableMixin],
-{
-	flippable: false,
-
-	buildRendering: function(){
-		this.inherited(arguments);
-		dojo.addClass(this.domNode, "mblScrollableView");
-		this.domNode.style.overflow = "hidden";
-		this.domNode.style.top = "0px";
-		this.domNode.style.height = "100%";
-		this.containerNode = dojo.create("DIV",
-			{className:"mblScrollableViewContainer"}, this.domNode);
-		this.containerNode.style.position = "absolute";
-		if(this.scrollDir === "v" || this.flippable){
-			this.containerNode.style.width = "100%";
-		}
-		this.reparent();
-		this.findAppBars();
-	},
-
-	addChild: function(widget){
-		var c = widget.domNode;
-		var fixed = this._checkFixedBar(c, true);
-		if(fixed){
-			this.domNode.appendChild(c);
-			if(fixed === "top"){
-				this.fixedHeaderHeight = c.offsetHeight;
-				this.containerNode.style.paddingTop = this.fixedHeaderHeight + "px";
-			}else if(fixed === "bottom"){
-				this.fixedFooterHeight = c.offsetHeight;
-				this.isLocalFooter = true;
-				c.style.bottom = "0px";
+		buildRendering: function(){
+			this.inherited(arguments);
+			dojo.addClass(this.domNode, "mblScrollableView");
+			this.domNode.style.overflow = "hidden";
+			this.domNode.style.top = "0px";
+			this.containerNode = dojo.create("DIV",
+				{className:"mblScrollableViewContainer"}, this.domNode);
+			this.containerNode.style.position = "absolute";
+			this.containerNode.style.top = "0px"; // view bar is relative
+			if(this.scrollDir === "v"){
+				this.containerNode.style.width = "100%";
 			}
-			this.resizeView();
-		}else{
-			this.containerNode.appendChild(c);
-		}
-	},
+			this.reparent();
+			this.findAppBars();
+		},
 
-	reparent: function(){
-		// move all the children, except header and footer, to containerNode.
-		var i, idx, len, c;
-		for(i = 0, idx = 0, len = this.domNode.childNodes.length; i < len; i++){
-			c = this.domNode.childNodes[idx];
-			// search for view-specific header or footer
-			if(c === this.containerNode || this._checkFixedBar(c, true)){
-				idx++;
-				continue;
-			}
-			this.containerNode.appendChild(this.domNode.removeChild(c));
-		}
-	},
+		resize: function(){
+			this.inherited(arguments); // scrollable#resize() will be called
+			dojo.forEach(this.getChildren(), function(child){
+				if(child.resize){ child.resize(); }
+			});
+		},
 
-	findAppBars: function(){
-		// search for application-specific header or footer
-		var i, len, c;
-		for(i = 0, len = dojo.body().childNodes.length; i < len; i++){
-			c = dojo.body().childNodes[i];
-			this._checkFixedBar(c, false);
-		}
-		if(this.domNode.parentNode){
-			for(i = 0, len = this.domNode.parentNode.childNodes.length; i < len; i++){
-				c = this.domNode.parentNode.childNodes[i];
-				this._checkFixedBar(c, false);
-			}
-		}
-		this.fixedHeaderHeight = this.fixedHeader ? this.fixedHeader.offsetHeight : 0;
-		this.fixedFooterHeight = this.fixedFooter ? this.fixedFooter.offsetHeight : 0;
-	},
+		// override dojox.mobile.scrollable
+		isTopLevel: function(e){
+			var parent = this.getParent && this.getParent();
+			return (!parent || !parent.resize); // top level widget
+		},
 
-	_checkFixedBar: function(/*DomNode*/node){
-		if(node.nodeType === 1){
-			var fixed = node.getAttribute("fixed")
-				|| (dijit.byNode(node) && dijit.byNode(node).fixed);
+		addChild: function(widget){
+			var c = widget.domNode;
+			var fixed = this.checkFixedBar(c, true);
 			if(fixed){
-				dojo.style(node, {
-					position: "absolute",
-					width: "100%",
-					zIndex: 1
-				});
+				this.domNode.appendChild(c);
+				if(fixed === "top"){
+					this.fixedHeaderHeight = c.offsetHeight;
+					this.isLocalHeader = true;
+				}else if(fixed === "bottom"){
+					this.fixedFooterHeight = c.offsetHeight;
+					this.isLocalFooter = true;
+					c.style.bottom = "0px";
+				}
+				this.resize();
+			}else{
+				this.containerNode.appendChild(c);
 			}
-			if(fixed === "top"){
-				node.style.top = "0px";
-				this.fixedHeader = node;
-				return fixed;
-			}else if(fixed === "bottom"){
-				this.fixedFooter = node;
-				return fixed;
+			if(this._started && !widget._started){
+				widget.startup();
 			}
-		}
-		return null;
-	},
+		},
 
-	onAfterTransitionIn: function(moveTo, dir, transition, context, method){
-		this.flashScrollBar();
-	}
+		reparent: function(){
+			// move all the children, except header and footer, to containerNode.
+			var i, idx, len, c;
+			for(i = 0, idx = 0, len = this.domNode.childNodes.length; i < len; i++){
+				c = this.domNode.childNodes[idx];
+				// search for view-specific header or footer
+				if(c === this.containerNode || this.checkFixedBar(c, true)){
+					idx++;
+					continue;
+				}
+				this.containerNode.appendChild(this.domNode.removeChild(c));
+			}
+		},
+
+		onAfterTransitionIn: function(moveTo, dir, transition, context, method){
+			this.flashScrollBar();
+		},
+	
+		// override _WidgetBase#getChildren to add local fixed bars, which are not
+		// under containerNode, to the children array.
+		getChildren: function(){
+			var children = this.inherited(arguments);
+			if(this.fixedHeader && this.fixedHeader.parentNode === this.domNode){
+				children.push(dijit.byNode(this.fixedHeader));
+			}
+			if(this.fixedFooter && this.fixedFooter.parentNode === this.domNode){
+				children.push(dijit.byNode(this.fixedFooter));
+			}
+			return children;
+		}
+	});
 });

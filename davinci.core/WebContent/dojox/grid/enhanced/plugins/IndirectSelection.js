@@ -1,8 +1,10 @@
-dojo.provide("dojox.grid.enhanced.plugins.IndirectSelection");
-
-dojo.require('dojo.string');
-dojo.require("dojox.grid.cells.dijit");
-dojo.require("dojox.grid.enhanced._Plugin");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/string",
+	"../_Plugin",
+	"../../cells/dijit"], function(dojo, dijit, dojox){
 
 dojo.declare("dojox.grid.enhanced.plugins.IndirectSelection", dojox.grid.enhanced._Plugin, {
 	// summary:
@@ -251,7 +253,7 @@ dojo.declare("dojox.grid.cells.RowSelector", dojox.grid.cells._Widget, {
 			if(this.disabledMap[index]){
 				dojo.toggleClass(selector, this.checkedDisabledClass, value);
 			}
-			dijit.setWaiState(selector, 'pressed', value);
+			selector.setAttribute("aria-pressed", value);
 			if(this.inA11YMode){
 				dojo.attr(selector.firstChild, 'innerHTML', value ? this.checkedText : this.unCheckedText);
 			}
@@ -266,7 +268,7 @@ dojo.declare("dojox.grid.cells.RowSelector", dojox.grid.cells._Widget, {
 			if(this.getValue(index)){
 				dojo.toggleClass(selector, this.checkedDisabledClass, disabled);
 			}
-			dijit.setWaiState(selector, 'disabled', disabled);
+			selector.setAttribute("aria-disabled", disabled);
 		}
 		this.disabledMap[index] = disabled;
 		if(index >= 0){
@@ -603,3 +605,7 @@ dojo.declare("dojox.grid.cells.MultipleRowSelector", dojox.grid.cells.RowSelecto
 });
 
 dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.IndirectSelection/*name:'indirectSelection'*/, {"preInit": true});
+
+return dojox.grid.enhanced.plugins.IndirectSelection;
+
+});

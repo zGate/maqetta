@@ -1,8 +1,5 @@
-dojo.provide("dojox.charting.plot3d.Bars");
-
-dojo.require("dojox.charting.plot3d.Base");
-
-(function(){
+define(["dojo/_base/kernel", "dojox/gfx3d", "dojo/_base/window", "dojo/_base/declare", "dojo/_base/Color", "./Base"], 
+	function(dojo, gfx3d, window, declare, color, Base) {
 
 	// reduce function borrowed from dojox.fun
 	var reduce = function(/*Array*/ a, /*Function|String|Array*/ f, /*Object?*/ o){
@@ -14,7 +11,7 @@ dojo.require("dojox.charting.plot3d.Base");
 		return z;	// Object
 	};
 
-	dojo.declare("dojox.charting.plot3d.Bars", dojox.charting.plot3d.Base, {
+	return dojo.declare("dojox.charting.plot3d.Bars", dojox.charting.plot3d.Base, {
 		constructor: function(width, height, kwArgs){
 			this.depth = "auto";
 			this.gap   = 0;
@@ -59,4 +56,4 @@ dojo.require("dojox.charting.plot3d.Base");
 			}
 		}
 	});
-})();
+});

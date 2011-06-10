@@ -1,8 +1,12 @@
-define("dojo/date/locale", ["dojo", "dojo/date", "dojo/cldr/supplemental", "dojo/regexp", "dojo/string", "dojo/i18n", "i18n!dojo/cldr/nls/gregorian"], function(dojo) {
+define(["../main", "../date", "../cldr/supplemental", "../regexp", "../string", "../i18n!../cldr/nls/gregorian"], function(dojo) {
+	// module:
+	//		dojo/date/local
+	// summary:
+	//		This modules defines dojo.date.locale, localization methods for Date.
+
 dojo.getObject("date.locale", true, dojo);
 
 // Localization methods for Date.   Honor local customs using locale-dependent dojo.cldr data.
-
 
 // Load the bundles containing localization information for
 // names and formats
@@ -10,7 +14,6 @@ dojo.getObject("date.locale", true, dojo);
 //NOTE: Everything in this module assumes Gregorian calendars.
 // Other calendars will be implemented in separate modules.
 
-(function(){
 	// Format a pattern without literals
 	function formatPattern(dateObject, bundle, options, pattern){
 		return pattern.replace(/([a-z])\1*/ig, function(match){
@@ -317,9 +320,8 @@ dojo.date.locale.parse = function(/*String*/value, /*dojo.date.locale.__FormatOp
 						//of 80 years before and 20 years after present year
 						var year = '' + new Date().getFullYear(),
 							century = year.substring(0, 2) * 100,
-							cutoff = Math.min(Number(year.substring(2, 4)) + 20, 99),
-							num = (v < cutoff) ? century + v : century - 100 + v;
-						result[0] = num;
+							cutoff = Math.min(Number(year.substring(2, 4)) + 20, 99);
+						result[0] = (v < cutoff) ? century + v : century - 100 + v;
 					}else{
 						//we expected 2 digits and got more...
 						if(options.strict){
@@ -512,7 +514,7 @@ function _buildDateTimeRE(tokens, bundle, options, pattern){
 				s = (l>2) ? '\\S+?' : '1[0-2]|'+p2+'[1-9]';
 				break;
 			case 'D':
-				s = '[12][0-9][0-9]|3[0-5][0-9]|36[0-6]|'+p3+'[1-9][0-9]|'+p2+'[1-9]';
+				s = '[12][0-9][0-9]|3[0-5][0-9]|36[0-6]|'+p2+'[1-9][0-9]|'+p3+'[1-9]';
 				break;
 			case 'd':
 				s = '3[01]|[12]\\d|'+p2+'[1-9]';
@@ -545,7 +547,7 @@ function _buildDateTimeRE(tokens, bundle, options, pattern){
 			case 'a':
 				var am = options.am || bundle['dayPeriods-format-wide-am'],
 					pm = options.pm || bundle['dayPeriods-format-wide-pm'];
-				s = am + '|' + pm;
+					s = am + '|' + pm;
 				if(!options.strict){
 					if(am != am.toLowerCase()){ s += '|' + am.toLowerCase(); }
 					if(pm != pm.toLowerCase()){ s += '|' + pm.toLowerCase(); }
@@ -566,9 +568,7 @@ function _buildDateTimeRE(tokens, bundle, options, pattern){
 		return "(" + s + ")"; // add capture
 	}).replace(/[\xa0 ]/g, "[\\s\\xa0]"); // normalize whitespace.  Need explicit handling of \xa0 for IE.
 }
-})();
 
-(function(){
 var _customFormats = [];
 dojo.date.locale.addCustomFormats = function(/*String*/packageName, /*String*/bundleName){
 	// summary:
@@ -593,7 +593,6 @@ dojo.date.locale._getGregorianBundle = function(/*String*/locale){
 	}, this);
 	return gregorian; /*Object*/
 };
-})();
 
 dojo.date.locale.addCustomFormats("dojo.cldr","gregorian");
 
@@ -604,7 +603,7 @@ dojo.date.locale.getNames = function(/*String*/item, /*String*/type, /*String?*/
 	// item:
 	//	'months' || 'days'
 	// type:
-	//	'wide' || 'narrow' || 'abbr' (e.g. "Monday", "Mon", or "M" respectively, in English)
+	//	'wide' || 'abbr' || 'narrow' (e.g. "Monday", "Mon", or "M" respectively, in English)
 	// context:
 	//	'standAlone' || 'format' (default)
 	// locale:

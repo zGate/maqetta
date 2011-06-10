@@ -1,8 +1,8 @@
 // AMD-ID "dojox/encoding/ascii85"
-define(["dojo", "dojox"], function(dojo, dojox) {
-dojo.getObject("encoding.ascii85", true, dojox);
+define(["dojo/_base/kernel"], function(dojo) {
 
-(function(){
+	dojo.getObject("encoding.ascii85", true, dojox);
+
 	var c = function(input, length, result){
 		var i, j, n, b = [0, 0, 0, 0, 0];
 		for(i = 0; i < length; i += 4){
@@ -58,8 +58,6 @@ dojo.getObject("encoding.ascii85", true, dojox);
 		}
 		return r;
 	};
-})();
 
-
-return dojox.encoding.ascii85;
+	return dojox.encoding.ascii85;
 });

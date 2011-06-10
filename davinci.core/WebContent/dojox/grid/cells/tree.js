@@ -1,6 +1,4 @@
-dojo.provide("dojox.grid.cells.tree");
-
-dojo.require("dojox.grid.cells");
+define(["dojo", "dojox", "../cells"], function(dojo, dojox){
 
 dojox.grid.cells.TreeCell = {
 	formatAggregate: function(inItem, level, inRowIndexes){
@@ -51,7 +49,7 @@ dojox.grid.cells.TreeCell = {
 					id = store.getIdentity(inItem);
 				}
 				cellClasses.push("dojoxGridExpandoCell");
-				ret = '<span dojoType="dojox.grid._Expando" level="' + level + '" class="dojoxGridExpando"' +
+				ret = '<span ' + dojo._scopeName + 'Type="dojox.grid._Expando" level="' + level + '" class="dojoxGridExpando"' +
 						'" toggleClass="' + toggleClass + '" itemId="' + id + '" cellIdx="' + this.index + '"></span>';
 			}
 			result = ret + this.formatIndexes(inRowIndexes, inItem);
@@ -65,3 +63,7 @@ dojox.grid.cells.TreeCell = {
 		return result;
 	}
 };
+
+return dojox.grid.cells.tree;
+
+});

@@ -1,8 +1,26 @@
-define("dijit/layout/_LayoutWidget", ["dojo", "dijit", "dijit/_Widget", "dijit/_Container", "dijit/_Contained"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"../_Widget",
+	"../_Container",
+	"../_Contained",
+	"dojo/_base/array", // dojo.filter dojo.forEach
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html", // dojo.addClass dojo.getComputedStyle dojo.marginBox dojo.removeClass
+	"dojo/_base/sniff", // dojo.isIE
+	"dojo/_base/window" // dojo.global
+], function(dojo, dijit){
 
-dojo.declare("dijit.layout._LayoutWidget",
-	[dijit._Widget, dijit._Container, dijit._Contained],
-	{
+	// module:
+	//		dijit/layout/_LayoutWidget
+	// summary:
+	//		_LayoutWidget Base class for a _Container widget which is responsible for laying out its children.
+	//		Widgets which mixin this code must define layout() to manage placement and sizing of the children.
+	//
+	//		Also, dijit.layout.marginBox2contentBox() and dijit.layout.layoutChildren()
+
+
+	dojo.declare("dijit.layout._LayoutWidget", [dijit._Widget, dijit._Container, dijit._Contained], {
 		// summary:
 		//		Base class for a _Container widget which is responsible for laying out its children.
 		//		Widgets which mixin this code must define layout() to manage placement and sizing of the children.
@@ -42,7 +60,7 @@ dojo.declare("dijit.layout._LayoutWidget",
 			this.inherited(arguments);
 
 			// If I am a not being controlled by a parent layout widget...
-			var parent = this.getParent && this.getParent()
+			var parent = this.getParent && this.getParent();
 			if(!(parent && parent.isLayoutContainer)){
 				// Do recursive sizing and layout of all my descendants
 				// (passing in no argument to resize means that it has to glean the size itself)
@@ -173,34 +191,32 @@ dojo.declare("dijit.layout._LayoutWidget",
 					+ (child.baseClass ?
 						" " + this.baseClass + "-" + child.baseClass : "");
 			dojo.removeClass(child.domNode, cls);
-			
+
 			this.inherited(arguments);
 		}
-	}
-);
+	});
 
-dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
-	// summary:
-	//		Given the margin-box size of a node, return its content box size.
-	//		Functions like dojo.contentBox() but is more reliable since it doesn't have
-	//		to wait for the browser to compute sizes.
-	var cs = dojo.getComputedStyle(node);
-	var me = dojo._getMarginExtents(node, cs);
-	var pb = dojo._getPadBorderExtents(node, cs);
-	return {
-		l: dojo._toPixelValue(node, cs.paddingLeft),
-		t: dojo._toPixelValue(node, cs.paddingTop),
-		w: mb.w - (me.w + pb.w),
-		h: mb.h - (me.h + pb.h)
+	dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
+		// summary:
+		//		Given the margin-box size of a node, return its content box size.
+		//		Functions like dojo.contentBox() but is more reliable since it doesn't have
+		//		to wait for the browser to compute sizes.
+		var cs = dojo.getComputedStyle(node);
+		var me = dojo._getMarginExtents(node, cs);
+		var pb = dojo._getPadBorderExtents(node, cs);
+		return {
+			l: dojo._toPixelValue(node, cs.paddingLeft),
+			t: dojo._toPixelValue(node, cs.paddingTop),
+			w: mb.w - (me.w + pb.w),
+			h: mb.h - (me.h + pb.h)
+		};
 	};
-};
 
-(function(){
-	var capitalize = function(word){
+	function capitalize(word){
 		return word.substring(0,1).toUpperCase() + word.substring(1);
-	};
+	}
 
-	var size = function(widget, dim){
+	function size(widget, dim){
 		// size the child
 		var newSize = widget.resize ? widget.resize(dim) : dojo.marginBox(widget.domNode, dim);
 
@@ -214,11 +230,11 @@ dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
 			dojo.mixin(widget, dojo.marginBox(widget.domNode));
 			dojo.mixin(widget, dim);
 		}
-	};
+	}
 
 	dijit.layout.layoutChildren = function(/*DomNode*/ container, /*Object*/ dim, /*Widget[]*/ children,
 			/*String?*/ changedRegionId, /*Number?*/ changedRegionSize){
-		// summary
+		// summary:
 		//		Layout a bunch of child dom nodes within a parent dom node
 		// container:
 		//		parent node
@@ -295,8 +311,6 @@ dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
 		});
 	};
 
-})();
 
-
-return dijit.layout._LayoutWidget;
+	return dijit.layout._LayoutWidget;
 });

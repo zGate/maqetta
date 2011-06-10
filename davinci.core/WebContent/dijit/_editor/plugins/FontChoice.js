@@ -1,7 +1,30 @@
-define("dijit/_editor/plugins/FontChoice", ["dojo", "dijit", "dijit/_editor/_Plugin", "dijit/_editor/range", "dijit/_editor/selection", "dijit/form/FilteringSelect", "dojo/data/ItemFileReadStore", "dojo/i18n", "i18n!dijit/_editor/nls/FontChoice"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"../..",
+	"../../_Widget",
+	"../../_TemplatedMixin",
+	"../../_WidgetsInTemplateMixin",
+	"../_Plugin",
+	"../range",
+	"../selection",
+	"../../form/FilteringSelect",
+	"dojo/store/Memory", // dojo.store.Memory
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"dojo/i18n!../nls/FontChoice",
+	"dojo/_base/array", // dojo.indexOf dojo.map
+	"dojo/_base/html", // dojo.place
+	"dojo/_base/lang", // dojo.delegate dojo.hitch dojo.isString
+	"dojo/_base/window" // dojo.withGlobal
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/plugins/FontChoice
+// summary:
+//		fontchoice, fontsize, and formatblock editor plugins
+
 
 dojo.declare("dijit._editor.plugins._FontDropDown",
-	[dijit._Widget, dijit._Templated],{
+	[dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin], {
 	// summary:
 	//		Base class for widgets that contains a label (like "Font:")
 	//		and a FilteringSelect drop down to pick a value.
@@ -10,10 +33,6 @@ dojo.declare("dijit._editor.plugins._FontDropDown",
 	// label: [public] String
 	//		The label to apply to this particular FontDropDown.
 	label: "",
-
-	// widgetsInTemplate: [public] boolean
-	//		Over-ride denoting the template has widgets to parse.
-	widgetsInTemplate: true,
 
 	// plainText: [public] boolean
 	//		Flag to indicate that the returned label should be plain text
@@ -51,21 +70,17 @@ dojo.declare("dijit._editor.plugins._FontDropDown",
 
 		// Initialize the list of items in the drop down by creating data store with items like:
 		// {value: 1, name: "xx-small", label: "<font size=1>xx-small</font-size>" }
-		var	items = dojo.map(this.values, function(value){
+		this.select.set("store", new dojo.store.Memory({
+			idProperty: "value",
+			data: dojo.map(this.values, function(value){
 				var name = this.strings[value] || value;
 				return {
 					label: this.getLabel(value, name),
 					name: name,
 					value: value
 				};
-			}, this);
-
-		this.select.store = new dojo.data.ItemFileReadStore({
-			data: {
-				identifier: "value",
-				items: items
-			}
-		});
+			}, this)
+		}));
 
 		this.select.set("value", "", false);
 		this.disabled = this.select.get("disabled");
@@ -81,8 +96,8 @@ dojo.declare("dijit._editor.plugins._FontDropDown",
 		//		Optional parameter used to tell the select whether or not to fire
 		//		onChange event.
 
-		//if the value is not a permitted value, just set empty string to prevent showing the warning icon
-		priorityChange = priorityChange !== false?true:false;
+		// if the value is not a permitted value, just set empty string to prevent showing the warning icon
+		priorityChange = priorityChange !== false;
 		this.select.set('value', dojo.indexOf(this.values,value) < 0 ? "" : value, priorityChange);
 		if(!priorityChange){
 			// Clear the last state in case of updateState calls.  Ref: #10466
@@ -161,7 +176,7 @@ dojo.declare("dijit._editor.plugins._FontNameDropDown", dijit._editor.plugins._F
 		//		Over-ride for the default action of setting the
 		//		widget value, maps the input to known values
 
-		priorityChange = priorityChange !== false?true:false;
+		priorityChange = priorityChange !== false;
 		if(this.generic){
 			var map = {
 				"Arial": "sans-serif",
@@ -216,7 +231,7 @@ dojo.declare("dijit._editor.plugins._FontSizeDropDown", dijit._editor.plugins._F
 		// summary:
 		//		Over-ride for the default action of setting the
 		//		widget value, maps the input to known values
-		priorityChange = priorityChange !== false?true:false;
+		priorityChange = priorityChange !== false;
 		if(value.indexOf && value.indexOf("px") != -1){
 			var pixels = parseInt(value, 10);
 			value = {10:1, 13:2, 16:3, 18:4, 24:5, 32:6, 48:7}[pixels] || value;
@@ -342,7 +357,7 @@ dojo.declare("dijit._editor.plugins._FormatBlockDropDown", dijit._editor.plugins
 						//Also look for all child nodes in the selection that may need to be
 						//cleared of formatting
 						processChildren(start, clearNodes);
-						if(block) { clearNodes = [block].concat(clearNodes); }
+						if(block){ clearNodes = [block].concat(clearNodes); }
 						unformatNodes(clearNodes);
 					}else{
 						// Probably a multi select, so we have to process it.  Whee.
@@ -463,7 +478,7 @@ dojo.declare("dijit._editor.plugins.FontChoice", dijit._editor._Plugin,{
 			// User invoked change, since all internal updates set priorityChange to false and will
 			// not trigger an onChange event.
 			this.editor.focus();
-			
+
 			if(this.command == "fontName" && choice.indexOf(" ") != -1){ choice = "'" + choice + "'"; }
 
 			// Invoke, the editor already normalizes commands called through its
@@ -488,7 +503,7 @@ dojo.declare("dijit._editor.plugins.FontChoice", dijit._editor._Plugin,{
 		var _e = this.editor;
 		var _c = this.command;
 		if(!_e || !_e.isLoaded || !_c.length){ return; }
-		
+
 		if(this.button){
 			var disabled = this.get("disabled");
 			this.button.set("disabled", disabled);

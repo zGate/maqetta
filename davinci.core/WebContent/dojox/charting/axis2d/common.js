@@ -1,10 +1,8 @@
-dojo.provide("dojox.charting.axis2d.common");
-
-dojo.require("dojox.gfx");
-
-(function(){
-	var g = dojox.gfx;
-
+define(["dojo/_base/kernel", "../../main", "dojo/_base/lang", "dojo/_base/html", "dojo/_base/window", "dojox/gfx"], 
+	function(dojo, dojox, lang, html, window, g){
+	
+	var common = dojo.getObject("charting.axis2d.common", true, dojox);
+	
 	var clearNode = function(s){
 		s.marginLeft   = "0px";
 		s.marginTop    = "0px";
@@ -30,14 +28,14 @@ dojo.require("dojox.gfx");
 		}
 	};
 
-	dojo.mixin(dojox.charting.axis2d.common, {
+	return dojo.mixin(common, {
 		//	summary:
 		//		Common methods to be used by any axis.  This is considered "static".
 		createText: {
 			gfx: function(chart, creator, x, y, align, text, font, fontColor){
 				//	summary:
 				//		Use dojox.gfx to create any text.
-				//	chart: dojox.charting.Chart2D
+				//	chart: dojox.charting.Chart
 				//		The chart to create the text into.
 				//	creator: dojox.gfx.Surface
 				//		The graphics surface to use for creating the text.
@@ -62,7 +60,7 @@ dojo.require("dojox.gfx");
 			html: function(chart, creator, x, y, align, text, font, fontColor, labelWidth){
 				//	summary:
 				//		Use the HTML DOM to create any text.
-				//	chart: dojox.charting.Chart2D
+				//	chart: dojox.charting.Chart
 				//		The chart to create the text into.
 				//	creator: dojox.gfx.Surface
 				//		The graphics surface to use for creating the text.
@@ -85,6 +83,10 @@ dojo.require("dojox.gfx");
 
 				// setup the text node
 				var p = dojo.doc.createElement("div"), s = p.style, boxWidth;
+				// bidi support, if this function exists the module was loaded 
+				if(chart.getTextDir){
+					p.dir = chart.getTextDir(text);
+				}
 				clearNode(s);
 				s.font = font;
 				p.innerHTML = String(text).replace(/\s/g, "&nbsp;");
@@ -98,6 +100,11 @@ dojo.require("dojox.gfx");
 				// do we need to calculate the label width?
 				if(!labelWidth){
 					boxWidth = getBoxWidth(p);
+				}
+				// when the textDir is rtl, but the UI ltr needs
+				// to recalculate the starting point
+				if(p.dir == "rtl"){
+					x += labelWidth ? labelWidth : boxWidth;
 				}
 
 				// new settings for the text node
@@ -151,4 +158,4 @@ dojo.require("dojox.gfx");
 			}
 		}
 	});
-})();
+});

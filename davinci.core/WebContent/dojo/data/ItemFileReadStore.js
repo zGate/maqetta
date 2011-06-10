@@ -1,4 +1,9 @@
-define("dojo/data/ItemFileReadStore", ["dojo", "dojo/data/util/filter", "dojo/data/util/simpleFetch", "dojo/date/stamp"], function(dojo) {
+define(["../main", "./util/filter", "./util/simpleFetch", "../date/stamp"], function(dojo) {
+	// module:
+	//		dojo/data/ItemFileReadStore
+	// summary:
+	//		TODOC
+
 
 dojo.declare("dojo.data.ItemFileReadStore", null,{
 	//	summary:
@@ -31,7 +36,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 		//			type: function, //constructor.
 		//			deserialize:	function(value) //The function that parses the value and constructs the object defined by type appropriately.
 		//		}
-	
+
 		this._arrayOfAllItems = [];
 		this._arrayOfTopLevelItems = [];
 		this._loadFinished = false;
@@ -73,7 +78,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 			this.failOk = keywordParameters.failOk?true:false;
 		}
 	},
-	
+
 	url: "",	// use "" rather than undefined for the benefit of the parser (#3539)
 
 	//Internal var, crossCheckUrl.  Used so that setting either url or _jsonFileUrl, can still trigger a reload
@@ -83,7 +88,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 	data: null,	// define this so that the parser can populate it
 
 	typeMap: null, //Define so parser can populate.
-	
+
 	//Parameter to allow users to specify if a close call should force a reload or not.
 	//By default, it retains the old behavior of not clearing if close is called.  But
 	//if set true, the store will be reset to default state.  Note that by doing this,
@@ -94,7 +99,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 	//Note this does not mean the store calls the server on each fetch, only that the data load has preventCache set as an option.
 	//Added for tracker: #6072
 	urlPreventCache: false,
-	
+
 	//Parameter for specifying that it is OK for the xhrGet call to fail silently.
 	failOk: false,
 
@@ -362,7 +367,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 							self._getItemsFromLoadedData(data);
 							self._loadFinished = true;
 							self._loadInProgress = false;
-							
+
 							filter(keywordArgs, self._getItemsArray(keywordArgs.queryOptions));
 							self._handleQueuedFetches();
 						}catch(e){
@@ -478,11 +483,11 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 		//
 		// 	returns: array
 		//		Array of items in store item format.
-		
+
 		// First, we define a couple little utility functions...
 		var addingArrays = false,
 		    self = this;
-		
+
 		function valueIsAnItem(/* anything */ aValue){
 			// summary:
 			//		Given any sort of value that could be in the raw json data,
@@ -497,8 +502,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 			// 	|	true == valueIsAnItem({name:'Kermit', color:'green'});
 			// 	|	true == valueIsAnItem({iggy:'pop'});
 			// 	|	true == valueIsAnItem({foo:42});
-			var isItem = (
-				(aValue !== null) &&
+			return (aValue !== null) &&
 				(typeof aValue === "object") &&
 				(!dojo.isArray(aValue) || addingArrays) &&
 				(!dojo.isFunction(aValue)) &&
@@ -506,11 +510,9 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 				(typeof aValue._reference === "undefined") &&
 				(typeof aValue._type === "undefined") &&
 				(typeof aValue._value === "undefined") &&
-				self.hierarchical
-			);
-			return isItem;
+				self.hierarchical;
 		}
-		
+
 		function addItemAndSubItemsToArrayOfAllItems(/* Item */ anItem){
 			self._arrayOfAllItems.push(anItem);
 			for(var attribute in anItem){
@@ -718,7 +720,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 		 //		The item that holds the new reference to refItem.
 		 //	attribute:
 		 //		The attribute on parentItem that contains the new reference.
-		 
+
 		 //Stub function, does nothing.  Real processing is in ItemFileWriteStore.
 	},
 
@@ -762,7 +764,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 				this._jsonFileUrl = this.url;
 				this._ccUrl = this.url;
 			}
-			
+
 			//See if there was any forced reset of data.
 			if(this.data != null && this._jsonData == null){
 				this._jsonData = this.data;
@@ -849,7 +851,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 	getIdentityAttributes: function(/* item */ item){
 		//	summary:
 		//		See dojo.data.api.Identity.getIdentityAttributes()
-		 
+
 		var identifier = this._features['dojo.data.api.Identity'];
 		if(identifier === Number){
 			// If (identifier === Number) it means getIdentity() just returns
@@ -861,7 +863,7 @@ dojo.declare("dojo.data.ItemFileReadStore", null,{
 			return [identifier]; // Array
 		}
 	},
-	
+
 	_forceLoad: function(){
 		//	summary:
 		//		Internal function to force a load of the store if it hasn't occurred yet.  This is required

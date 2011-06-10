@@ -25,7 +25,7 @@ var allFiles = [].concat(
 
 lessFiles.forEach(function(fname){
 	console.log("=== " + fname);
-	fs.readFile(fname, 'utf-8', function (e, data){
+	fs.readFile(fname, 'utf-8', function(e, data){
 		if(e){
 			console.error("lessc: " + e.message);
 			process.exit(1);
@@ -43,7 +43,7 @@ lessFiles.forEach(function(fname){
 				try{
 					var css = tree.toCSS({ compress: options.compress }),
 						outputFname = fname.replace('.less', '.css');
-					fd = fs.openSync(outputFname, "w");
+					var fd = fs.openSync(outputFname, "w");
 					fs.writeSync(fd, css, 0, "utf8");
 				}catch(e){
 					less.writeError(e, options);

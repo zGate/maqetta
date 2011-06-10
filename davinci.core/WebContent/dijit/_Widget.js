@@ -1,54 +1,35 @@
-define("dijit/_Widget", ["dojo", "dijit", "dijit/_WidgetBase", "dijit/_base"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.config.isDebug dojo.deprecated
+	".",
+	"./_WidgetBase",
+	"./_OnDijitClickMixin",
+	"./_FocusMixin",
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/connect",	// dojo.connect
+	"dojo/uacss",		// brower sniffing
+	"dijit/hccss",		// high contrast mode sniffing
+	"./_base/manager"	// dijit.byId, etc.
+], function(dojo, dijit){
+
+// module:
+//		dijit/_Widget
+// summary:
+//		Old base for widgets.   New widgets should extend _WidgetBase instead
 
 
-////////////////// DEFERRED CONNECTS ///////////////////
+dijit._connectToDomNode = function(/*Event*/ event){
+	// summary:
+	//		If user connects to a widget method === this function, then they will
+	//		instead actually be connecting the equivalent event on this.domNode
+};
 
-// This code is to assist deferring dojo.connect() calls in widgets (connecting to events on the widgets'
-// DOM nodes) until someone actually needs to monitor that event.
-dojo.connect(dojo, "_connect",
-	function(/*dijit._Widget*/ widget, /*String*/ event){
-		if(widget && dojo.isFunction(widget._onConnect)){
-			widget._onConnect(event);
-		}
-	});
-
-dijit._connectOnUseEventHandler = function(/*Event*/ event){};
-
-////////////////// ONDIJITCLICK SUPPORT ///////////////////
-
-// Keep track of where the last keydown event was, to help avoid generating
-// spurious ondijitclick events when:
-// 1. focus is on a <button> or <a>
-// 2. user presses then releases the ENTER key
-// 3. onclick handler fires and shifts focus to another node, with an ondijitclick handler
-// 4. onkeyup event fires, causing the ondijitclick handler to fire
-dijit._lastKeyDownNode = null;
-if(dojo.isIE){
-	(function(){
-		var keydownCallback = function(evt){
-			dijit._lastKeyDownNode = evt.srcElement;
-		};
-		dojo.doc.attachEvent('onkeydown', keydownCallback);
-		dojo.addOnWindowUnload(function(){
-			dojo.doc.detachEvent('onkeydown', keydownCallback);
-		});
-	})();
-}else{
-	dojo.doc.addEventListener('keydown', function(evt){
-		dijit._lastKeyDownNode = evt.target;
-	}, true);
-}
-
-(function(){
-
-dojo.declare("dijit._Widget", dijit._WidgetBase, {
+dojo.declare("dijit._Widget", [dijit._WidgetBase, dijit._OnDijitClickMixin, dijit._FocusMixin], {
 	// summary:
 	//		Base class for all Dijit widgets.
 	//
 	//		Extends _WidgetBase, adding support for:
-	//			- deferred connections
-	//				A call like dojo.connect(myWidget, "onMouseMove", func)
-	//				will essentially do a dojo.connect(myWidget.domNode, "onMouseMove", func)
+	//			- declaratively/programatically specifying widget initialization parameters like
+	//				onMouseMove="foo" that call foo when this.domNode gets a mousemove event
 	//			- ondijitclick
 	//				Support new dojoAttachEvent="ondijitclick: ..." that is triggered by a mouse click or a SPACE/ENTER keypress
 	//			- focus related functions
@@ -60,28 +41,11 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 	//		Also, by loading code in dijit/_base, turns on:
 	//			- browser sniffing (putting browser id like .dj_ie on <html> node)
 	//			- high contrast mode sniffing (add .dijit_a11y class to <body> if machine is in high contrast mode)
-	
+
 
 	////////////////// DEFERRED CONNECTS ///////////////////
 
-	// _deferredConnects: [protected] Object
-	//		attributeMap addendum for event handlers that should be connected only on first use
-	_deferredConnects: {
-		onClick: "",
-		onDblClick: "",
-		onKeyDown: "",
-		onKeyPress: "",
-		onKeyUp: "",
-		onMouseMove: "",
-		onMouseDown: "",
-		onMouseOut: "",
-		onMouseOver: "",
-		onMouseLeave: "",
-		onMouseEnter: "",
-		onMouseUp: ""
-	},
-
-	onClick: dijit._connectOnUseEventHandler,
+	onClick: dijit._connectToDomNode,
 	/*=====
 	onClick: function(event){
 		// summary:
@@ -92,7 +56,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onDblClick: dijit._connectOnUseEventHandler,
+	onDblClick: dijit._connectToDomNode,
 	/*=====
 	onDblClick: function(event){
 		// summary:
@@ -103,7 +67,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onKeyDown: dijit._connectOnUseEventHandler,
+	onKeyDown: dijit._connectToDomNode,
 	/*=====
 	onKeyDown: function(event){
 		// summary:
@@ -114,7 +78,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onKeyPress: dijit._connectOnUseEventHandler,
+	onKeyPress: dijit._connectToDomNode,
 	/*=====
 	onKeyPress: function(event){
 		// summary:
@@ -125,7 +89,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onKeyUp: dijit._connectOnUseEventHandler,
+	onKeyUp: dijit._connectToDomNode,
 	/*=====
 	onKeyUp: function(event){
 		// summary:
@@ -136,7 +100,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseDown: dijit._connectOnUseEventHandler,
+	onMouseDown: dijit._connectToDomNode,
 	/*=====
 	onMouseDown: function(event){
 		// summary:
@@ -147,7 +111,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseMove: dijit._connectOnUseEventHandler,
+	onMouseMove: dijit._connectToDomNode,
 	/*=====
 	onMouseMove: function(event){
 		// summary:
@@ -158,7 +122,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseOut: dijit._connectOnUseEventHandler,
+	onMouseOut: dijit._connectToDomNode,
 	/*=====
 	onMouseOut: function(event){
 		// summary:
@@ -169,7 +133,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseOver: dijit._connectOnUseEventHandler,
+	onMouseOver: dijit._connectToDomNode,
 	/*=====
 	onMouseOver: function(event){
 		// summary:
@@ -180,7 +144,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseLeave: dijit._connectOnUseEventHandler,
+	onMouseLeave: dijit._connectToDomNode,
 	/*=====
 	onMouseLeave: function(event){
 		// summary:
@@ -191,7 +155,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseEnter: dijit._connectOnUseEventHandler,
+	onMouseEnter: dijit._connectToDomNode,
 	/*=====
 	onMouseEnter: function(event){
 		// summary:
@@ -202,7 +166,7 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		//		callback
 	},
 	=====*/
-	onMouseUp: dijit._connectOnUseEventHandler,
+	onMouseUp: dijit._connectToDomNode,
 	/*=====
 	onMouseUp: function(event){
 		// summary:
@@ -214,99 +178,43 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 	},
 	=====*/
 
-	create: function(/*Object?*/params, /*DomNode|String?*/srcNodeRef){
-		// To avoid double-connects, remove entries from _deferredConnects
-		// that have been setup manually by a subclass (ex, by dojoAttachEvent).
-		// If a subclass has redefined a callback (ex: onClick) then assume it's being
-		// connected to manually.
-		this._deferredConnects = dojo.clone(this._deferredConnects);
-		for(var attr in this.attributeMap){
-			delete this._deferredConnects[attr]; // can't be in both attributeMap and _deferredConnects
-		}
-		for(attr in this._deferredConnects){
-			if(this[attr] !== dijit._connectOnUseEventHandler){
-				delete this._deferredConnects[attr];	// redefined, probably dojoAttachEvent exists
+	constructor: function(params){
+		// extract parameters like onMouseMove that should connect directly to this.domNode
+		this._toConnect = {};
+		for(var name in params){
+			if(this[name] === dijit._connectToDomNode){
+				this._toConnect[name] = params[name];
+				delete params[name];
 			}
 		}
+	},
 
+	postCreate: function(){
 		this.inherited(arguments);
 
-		if(this.domNode){
-			// If the developer has specified a handler as a widget parameter
-			// (ex: new Button({onClick: ...})
-			// then naturally need to connect from DOM node to that handler immediately,
-			for(attr in this.params){
-				this._onConnect(attr);
-			}
+		// perform connection from this.domNode to user specified handlers (ex: onMouseMove)
+		for(var name in this._toConnect){
+			this.on(name, this._toConnect[name]);
+		}
+		delete this._toConnect;
+	},
+
+	on: function(/*String*/ type, /*Function*/ func){
+		type = type.replace(/^on/, "");
+		if(this["on" + type.charAt(0).toUpperCase() + type.substr(1)] === dijit._connectToDomNode){
+			// Use dojo.connect() rather than on() to get handling for "onmouseenter" on non-IE, etc.
+			// Also, need to specify context as "this" rather than the default context of the DOMNode
+			return dojo.connect(this.domNode, type.toLowerCase(), this, func);
+		}else{
+			return this.inherited(arguments);
 		}
 	},
 
-	_onConnect: function(/*String*/ event){
-		// summary:
-		//		Called when someone connects to one of my handlers.
-		//		"Turn on" that handler if it isn't active yet.
-		//
-		//		This is also called for every single initialization parameter
-		//		so need to do nothing for parameters like "id".
-		// tags:
-		//		private
-		if(event in this._deferredConnects){
-			var mapNode = this[this._deferredConnects[event] || 'domNode'];
-			this.connect(mapNode, event.toLowerCase(), event);
-			delete this._deferredConnects[event];
-		}
-	},
-
-	////////////////// FOCUS RELATED ///////////////////
-	// _onFocus() and _onBlur() are called by the focus manager
-
-	// focused: [readonly] Boolean
-	//		This widget or a widget it contains has focus, or is "active" because
-	//		it was recently clicked.
-	focused: false,
-
-	isFocusable: function(){
-		// summary:
-		//		Return true if this widget can currently be focused
-		//		and false if not
-		return this.focus && (dojo.style(this.domNode, "display") != "none");
-	},
-
-	onFocus: function(){
-		// summary:
-		//		Called when the widget becomes "active" because
-		//		it or a widget inside of it either has focus, or has recently
-		//		been clicked.
-		// tags:
-		//		callback
-	},
-
-	onBlur: function(){
-		// summary:
-		//		Called when the widget stops being "active" because
-		//		focus moved to something outside of it, or the user
-		//		clicked somewhere outside of it, or the widget was
-		//		hidden.
-		// tags:
-		//		callback
-	},
-
-	_onFocus: function(e){
-		// summary:
-		//		This is where widgets do processing for when they are active,
-		//		such as changing CSS classes.  See onFocus() for more details.
-		// tags:
-		//		protected
-		this.onFocus();
-	},
-
-	_onBlur: function(){
-		// summary:
-		//		This is where widgets do processing for when they stop being active,
-		//		such as changing CSS classes.  See onBlur() for more details.
-		// tags:
-		//		protected
-		this.onBlur();
+	_setFocusedAttr: function(val){
+		// Remove this method in 2.0 (or sooner), just here to set _focused == focused, for back compat
+		// (but since it's a private variable we aren't required to keep supporting it).
+		this._focused = val;
+		this._set("focused", val);
 	},
 
 	////////////////// DEPRECATED METHODS ///////////////////
@@ -350,83 +258,6 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 		}else{ // getter
 			return this.get(name);
 		}
-	},
-	
-	////////////////// ONDIJITCLICK SUPPORT ///////////////////
-
-	// nodesWithKeyClick: [private] String[]
-	//		List of nodes that correctly handle click events via native browser support,
-	//		and don't need dijit's help
-	nodesWithKeyClick: ["input", "button"],
-
-	connect: function(
-			/*Object|null*/ obj,
-			/*String|Function*/ event,
-			/*String|Function*/ method){
-		// summary:
-		//		Connects specified obj/event to specified method of this object
-		//		and registers for disconnect() on widget destroy.
-		// description:
-		//		Provide widget-specific analog to dojo.connect, except with the
-		//		implicit use of this widget as the target object.
-		//		This version of connect also provides a special "ondijitclick"
-		//		event which triggers on a click or space or enter keyup.
-		//		Events connected with `this.connect` are disconnected upon
-		//		destruction.
-		// returns:
-		//		A handle that can be passed to `disconnect` in order to disconnect before
-		//		the widget is destroyed.
-		// example:
-		//	|	var btn = new dijit.form.Button();
-		//	|	// when foo.bar() is called, call the listener we're going to
-		//	|	// provide in the scope of btn
-		//	|	btn.connect(foo, "bar", function(){
-		//	|		console.debug(this.toString());
-		//	|	});
-		// tags:
-		//		protected
-
-		var d = dojo,
-			dc = d._connect,
-			handles = this.inherited(arguments, [obj, event == "ondijitclick" ? "onclick" : event, method]);
-
-		if(event == "ondijitclick"){
-			// add key based click activation for unsupported nodes.
-			// do all processing onkey up to prevent spurious clicks
-			// for details see comments at top of this file where _lastKeyDownNode is defined
-			if(d.indexOf(this.nodesWithKeyClick, obj.nodeName.toLowerCase()) == -1){ // is NOT input or button
-				var m = d.hitch(this, method);
-				handles.push(
-					dc(obj, "onkeydown", this, function(e){
-						//console.log(this.id + ": onkeydown, e.target = ", e.target, ", lastKeyDownNode was ", dijit._lastKeyDownNode, ", equality is ", (e.target === dijit._lastKeyDownNode));
-						if((e.keyCode == d.keys.ENTER || e.keyCode == d.keys.SPACE) &&
-							!e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey){
-							// needed on IE for when focus changes between keydown and keyup - otherwise dropdown menus do not work
-							dijit._lastKeyDownNode = e.target;
-							
-							// Stop event to prevent scrolling on space key in IE.
-							// But don't do this for _HasDropDown because it surpresses the onkeypress
-							// event needed to open the drop down when the user presses the SPACE key.
-							if(!("openDropDown" in this && obj == this._buttonNode)){
-								e.preventDefault();
-							}
-						}
-			 		}),
-					dc(obj, "onkeyup", this, function(e){
-						//console.log(this.id + ": onkeyup, e.target = ", e.target, ", lastKeyDownNode was ", dijit._lastKeyDownNode, ", equality is ", (e.target === dijit._lastKeyDownNode));
-						if( (e.keyCode == d.keys.ENTER || e.keyCode == d.keys.SPACE) &&
-							e.target == dijit._lastKeyDownNode &&	// === breaks greasemonkey
-							!e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey){
-								//need reset here or have problems in FF when focus returns to trigger element after closing popup/alert
-								dijit._lastKeyDownNode = null;
-								return m(e);
-						}
-					})
-				);
-			}
-		}
-
-		return handles;		// _Widget.Handle
 	},
 
 	////////////////// MISCELLANEOUS METHODS ///////////////////
@@ -475,8 +306,12 @@ dojo.declare("dijit._Widget", dijit._WidgetBase, {
 	}
 });
 
-})();
-
-
+// For back-compat, remove in 2.0.
+if(!dojo.isAsync){
+	dojo.ready(0, function(){
+		require(["dijit/_base/focus", "dijit/_base/place", "dijit/_base/popup", "dijit/_base/scroll",
+			"dijit/_base/typematic", "dijit/_base/wai", "dijit/_base/window"]);
+	})
+}
 return dijit._Widget;
 });

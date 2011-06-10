@@ -1,9 +1,25 @@
-define("dijit/layout/BorderContainer", ["dojo", "dijit", "dijit/layout/_LayoutWidget", "dojo/cookie", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.getObject
+	"..",
+	"dojo/touch",
+	"dojo/cookie", // dojo.cookie
+	"../_WidgetBase",
+	"../_TemplatedMixin",
+	"./_LayoutWidget",
+	"dojo/_base/array", // dojo.filter dojo.forEach dojo.map
+	"dojo/_base/connect", // dojo.connect dojo.disconnect dojo.keys
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.destroy dojo.getComputedStyle dojo.marginBox dojo.place dojo.removeClass dojo.style dojo.toggleClass
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/window" // dojo.body dojo.doc dojo.doc.createElement
+], function(dojo, dijit, touch){
 
-dojo.declare(
-	"dijit.layout.BorderContainer",
-	dijit.layout._LayoutWidget,
-{
+// module:
+//		dijit/layout/BorderContainer
+// summary:
+//		Provides layout in up to 5 regions, a mandatory center with optional borders along its 4 sides.
+
+dojo.declare("dijit.layout.BorderContainer", dijit.layout._LayoutWidget, {
 	// summary:
 	//		Provides layout in up to 5 regions, a mandatory center with optional borders along its 4 sides.
 	//
@@ -128,7 +144,7 @@ dojo.declare(
 		// Override _LayoutWidget.removeChild().
 
 		var region = child.region;
-		var splitter = child._splitterWidget
+		var splitter = child._splitterWidget;
 		if(splitter){
 			splitter.destroy();
 			delete child._splitterWidget;
@@ -272,7 +288,7 @@ dojo.declare(
 // This argument can be specified for the children of a BorderContainer.
 // Since any widget can be specified as a LayoutContainer child, mix it
 // into the base widget class.  (This is a hack, but it's effective.)
-dojo.extend(dijit._Widget, {
+dojo.extend(dijit._WidgetBase, {
 	// region: [const] String
 	//		Parameter for children of `dijit.layout.BorderContainer`.
 	//		Values: "top", "bottom", "leading", "trailing", "left", "right", "center".
@@ -302,7 +318,7 @@ dojo.extend(dijit._Widget, {
 	maxSize: Infinity
 });
 
-dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
+dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._TemplatedMixin ],
 {
 	// summary:
 	//		A draggable spacer between two items in a `dijit.layout.BorderContainer`.
@@ -332,7 +348,7 @@ dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
 	//		otherwise, the size doesn't change until you drop the splitter (by mouse-up)
 	live: true,
 
-	templateString: '<div class="dijitSplitter" dojoAttachEvent="onkeypress:_onKeyPress,onmousedown:_startDrag,onmouseenter:_onMouse,onmouseleave:_onMouse" tabIndex="0" role="separator"><div class="dijitSplitterThumb"></div></div>',
+	templateString: '<div class="dijitSplitter" dojoAttachEvent="onkeypress:_onKeyPress,press:_startDrag,onmouseenter:_onMouse,onmouseleave:_onMouse" tabIndex="0" role="separator"><div class="dijitSplitterThumb"></div></div>',
 
 	postMixInProperties: function(){
 		this.inherited(arguments);
@@ -407,7 +423,7 @@ dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
 			de = dojo.doc;
 
 		this._handlers = (this._handlers || []).concat([
-			dojo.connect(de, "onmousemove", this._drag = function(e, forceResize){
+			dojo.connect(de, touch.move, this._drag = function(e, forceResize){
 				var delta = e[axis] - pageStart,
 					childSize = factor * delta + childStart,
 					boundChildSize = Math.max(Math.min(childSize, max), min);
@@ -420,12 +436,14 @@ dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
 			}),
 			dojo.connect(de, "ondragstart", dojo.stopEvent),
 			dojo.connect(dojo.body(), "onselectstart", dojo.stopEvent),
-			dojo.connect(de, "onmouseup", this, "_stopDrag")
+			dojo.connect(de, touch.release, this, "_stopDrag")
 		]);
 		dojo.stopEvent(e);
 	},
 
 	_onMouse: function(e){
+		// summary:
+		//		Handler for onmouseenter / onmouseleave events
 		var o = (e.type == "mouseover" || e.type == "mouseenter");
 		dojo.toggleClass(this.domNode, "dijitSplitterHover", o);
 		dojo.toggleClass(this.domNode, "dijitSplitter" + (this.horizontal ? "H" : "V") + "Hover", o);
@@ -487,7 +505,7 @@ dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
 	}
 });
 
-dojo.declare("dijit.layout._Gutter", [dijit._Widget, dijit._Templated],
+dojo.declare("dijit.layout._Gutter", [dijit._Widget, dijit._TemplatedMixin],
 {
 	// summary:
 	// 		Just a spacer div to separate side pane from center pane.

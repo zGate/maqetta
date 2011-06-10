@@ -1,8 +1,27 @@
-define("dijit/ColorPalette", ["dojo", "dijit", "text!dijit/templates/ColorPalette.html", "dijit/_Widget", "dijit/_Templated", "dojo/colors", "dojo/i18n", "dojo/string", "dijit/_PaletteMixin", "i18n!dojo/nls/colors"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"dojo/text!./templates/ColorPalette.html",
+	"./_Widget",
+	"./_TemplatedMixin",
+	"dojo/colors",
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"./_PaletteMixin",
+	"dojo/i18n!dojo/nls/colors",
+	"dojo/_base/Color", // dojo.Color dojo.Color.named
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html", // dojo.hasClass dojo.place
+	"dojo/_base/url", // dojo.moduleUrl
+	"dojo/_base/window", // dojo.body
+	"dojo/string" // dojo.string.substitute
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.ColorPalette",
-	[dijit._Widget, dijit._Templated, dijit._PaletteMixin],
-	{
+// module:
+//		dijit/ColorPalette
+// summary:
+//		A keyboard accessible color-picking widget
+
+dojo.declare("dijit.ColorPalette", [dijit._Widget, dijit._TemplatedMixin, dijit._PaletteMixin], {
 	// summary:
 	//		A keyboard accessible color-picking widget
 	// description:
@@ -41,7 +60,7 @@ dojo.declare("dijit.ColorPalette",
 
 	// templateString: String
 	//		The template of this widget.
-	templateString: dojo.cache("dijit", "templates/ColorPalette.html"),
+	templateString: template,
 
 	baseClass: "dijitColorPalette",
 
@@ -110,7 +129,7 @@ dojo.declare("dijit._Color", dojo.Color, {
 			color: this.toHex(),
 			blankGif: blankGif,
 			alt: this._alias,
-			
+
 			// variables used for high contrast mode
 			image: this._imagePaths[this.palette].toString(),
 			left: this._col * -20 - 5,

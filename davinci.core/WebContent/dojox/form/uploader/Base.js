@@ -1,9 +1,7 @@
-dojo.provide("dojox.form.uploader.Base");
+define(['dojo', 'dijit', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'dijit/_WidgetsInTemplateMixin'],function(dojo, dijit){
 
-dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
 
-dojo.declare("dojox.form.uploader.Base", [dijit._Widget, dijit._Templated], {
+dojo.declare("dojox.form.uploader.Base", [dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin], {
 	//
 	// Version: 1.6
 	//
@@ -44,19 +42,17 @@ dojo.declare("dojox.form.uploader.Base", [dijit._Widget, dijit._Templated], {
 
 
 	connectForm: function(){
-		//console.log("connectForm...", this.url, !!this.uploadUrl, !!this.getForm())
-
+		// summary:
+		//		Internal. Connects to form if there is one.
+		//
 		this.url = this.getUrl();
-
 		if(!this._fcon && !!this.getForm()){
 			this._fcon = true;
 			this.connect(this.form, "onsubmit", function(evt){
 				dojo.stopEvent(evt);
 				this.submit(dojo.formToObject(this.form));
 			});
-			//console.log("----------------form connected:", this.url)
 		}
-		//console.log("form:", this.form, this.url);
 	},
 
 	supports: function(what){
@@ -73,6 +69,9 @@ dojo.declare("dojox.form.uploader.Base", [dijit._Widget, dijit._Templated], {
 		}
 		switch(what){
 			case "FormData":
+				// works around ticket:
+				//		http://trac.dojotoolkit.org/ticket/12674
+				if(dojo.isFF && this.uploadOnSelect) { return false; }
 				return !!window.FormData;
 			case "sendAsBinary":
 				return !!this._hascache.xhr.sendAsBinary;
@@ -117,4 +116,6 @@ dojo.declare("dojox.form.uploader.Base", [dijit._Widget, dijit._Templated], {
 			value: value
 		}; // Object
 	}
+});
+return dojox.form.uploader.Base;
 });

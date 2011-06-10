@@ -1,11 +1,24 @@
-define("dijit/_editor/plugins/TabIndent", ["dojo", "dijit", "dijit/_editor/_Plugin", "dijit/form/ToggleButton"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.experimental
+	"../..",
+	"../_Plugin",
+	"../../form/ToggleButton",
+	"dojo/_base/connect", // dojo.subscribe
+	"dojo/_base/declare" // dojo.declare
+], function(dojo, dijit){
 
-dojo.experimental("dijit._editor.plugins.TabIndent");
+	// module:
+	//		dijit/_editor/plugins/TabIndent
+	// summary:
+	//		This plugin is used to allow the use of the tab and shift-tab keys
+	//		to indent/outdent list items.  This overrides the default behavior
+	//		of moving focus from/to the toolbar
 
 
-dojo.declare("dijit._editor.plugins.TabIndent",
-	dijit._editor._Plugin,
-	{
+	dojo.experimental("dijit._editor.plugins.TabIndent");
+
+
+	dojo.declare("dijit._editor.plugins.TabIndent", dijit._editor._Plugin, {
 		// summary:
 		//		This plugin is used to allow the use of the tab and shift-tab keys
 		//		to indent/outdent list items.  This overrides the default behavior
@@ -42,18 +55,17 @@ dojo.declare("dijit._editor.plugins.TabIndent",
 			}
 			this.button.set('checked', this.editor.isTabIndent, false);
 		}
-	}
-);
+	});
 
-// Register this plugin.
-dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
-	if(o.plugin){ return; }
-	switch(o.args.name){
-	case "tabIndent":
-		o.plugin = new dijit._editor.plugins.TabIndent({command: o.args.name});
-	}
-});
+	// Register this plugin.
+	dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
+		if(o.plugin){ return; }
+		switch(o.args.name){
+		case "tabIndent":
+			o.plugin = new dijit._editor.plugins.TabIndent({command: o.args.name});
+		}
+	});
 
 
-return dijit._editor.plugins.TabIndent;
+	return dijit._editor.plugins.TabIndent;
 });

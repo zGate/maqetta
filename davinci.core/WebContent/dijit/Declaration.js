@@ -1,9 +1,24 @@
-define("dijit/Declaration", ["dojo", "dijit", "dijit/_Widget", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.getObject
+	".",
+	"./_Widget",
+	"./_TemplatedMixin",
+	"./_WidgetsInTemplateMixin",
+	"dojo/_base/NodeList", // .forEach .orphan
+	"dojo/_base/array", // dojo.forEach dojo.map
+	"dojo/_base/connect", // dojo.connect
+	"dojo/_base/declare", // dojo.declare
+	"dojo/parser", // dojo.parser._functionFromScript
+	"dojo/query" // dojo.query
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.Declaration",
-	dijit._Widget,
-	{
+	// module:
+	//		dijit/Declaration
+	// summary:
+	//		The Declaration widget allows a developer to declare new widget
+	//		classes directly from a snippet of markup.
+
+	dojo.declare("dijit.Declaration", dijit._Widget, {
 		// summary:
 		//		The Declaration widget allows a developer to declare new widget
 		//		classes directly from a snippet of markup.
@@ -57,9 +72,8 @@ dojo.declare(
 			// a bogus third argument to getObject(), confusing it)
 			this.mixins = this.mixins.length ?
 				dojo.map(this.mixins, function(name){ return dojo.getObject(name); } ) :
-				[ dijit._Widget, dijit._Templated ];
+				[ dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin ];
 
-			propList.widgetsInTemplate = true;
 			propList._skipNodeCache = true;
 			propList.templateString = "<"+srcType+" class='"+src.className+"' dojoAttachPoint='"+(src.getAttribute("dojoAttachPoint") || '')+"' dojoAttachEvent='"+(src.getAttribute("dojoAttachEvent") || '')+"' >"+src.innerHTML.replace(/\%7B/g,"{").replace(/\%7D/g,"}")+"</"+srcType+">";
 
@@ -88,9 +102,8 @@ dojo.declare(
 				dojo.connect(wc.prototype, evt, func);
 			});
 		}
-	}
-);
+	});
 
 
-return dijit.Declaration;
+	return dijit.Declaration;
 });

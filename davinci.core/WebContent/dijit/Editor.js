@@ -1,9 +1,36 @@
-define("dijit/Editor", ["dojo", "dijit", "dijit/_editor/RichText", "dijit/Toolbar", "dijit/ToolbarSeparator", "dijit/_editor/_Plugin", "dijit/_editor/plugins/EnterKeyHandling", "dijit/_editor/range", "dijit/_Container", "dojo/i18n", "dijit/layout/_LayoutWidget", "i18n!dijit/_editor/nls/commands"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.getObject
+	".",
+	"./_base/focus",	// dijit.getBookmark()
+	"./_editor/RichText",
+	"./Toolbar",
+	"./ToolbarSeparator",
+	"./_editor/_Plugin",
+	"./_editor/plugins/EnterKeyHandling",
+	"./_editor/range",
+	"./_Container",
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"./layout/_LayoutWidget",
+	"dojo/i18n!./_editor/nls/commands",
+	"./form/ToggleButton",
+	"dojo/_base/Deferred", // dojo.Deferred
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.keys dojo.keys.F1 dojo.keys.F15 dojo.keys.TAB dojo.publish dojo.subscribe
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.attr dojo.style
+	"dojo/_base/lang", // dojo.hitch dojo.isArray dojo.isFunction dojo.isString
+	"dojo/_base/sniff", // dojo.isIE dojo.isMac dojo.isWebKit
+	"dojo/_base/window", // dojo.withGlobal
+	"dojo/string" // dojo.string.substitute
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.Editor",
-	dijit._editor.RichText,
-	{
+	// module:
+	//		dijit/Editor
+	// summary:
+	//		A rich text Editing widget
+
+	dojo.declare("dijit.Editor", dijit._editor.RichText, {
 		// summary:
 		//		A rich text Editing widget
 		//
@@ -59,7 +86,7 @@ dojo.declare(
 			}
 		},
 
-		postMixInProperties: function() {
+		postMixInProperties: function(){
 			// summary:
 			//	Extension to make sure a deferred is in place before certain functions
 			//	execute, like making sure all the plugins are properly inserted.
@@ -70,7 +97,7 @@ dojo.declare(
 			this.setValueDeferred = new dojo.Deferred();
 			this.inherited(arguments);
 		},
-	
+
 		postCreate: function(){
 			//for custom undo/redo, if enabled.
 			this._steps=this._steps.slice(0);
@@ -228,8 +255,7 @@ dojo.declare(
 			var offsetLeft = b.offsetLeft;
 
 			//Check for vertical scroller click.
-			bodyDir = b.dir ? b.dir.toLowerCase() : "";
-			if(bodyDir != "rtl"){
+			if(/^rtl$/i.test(b.dir || "")){
 				if(clientWidth < offsetWidth && e.x > clientWidth && e.x < offsetWidth){
 					// Check the click was between width and offset width, if so, scroller
 					outsideClientArea = true;
@@ -330,30 +356,64 @@ dojo.declare(
 					this.endEditing();
 					this._beginEditing();
 				}
-				var r;
-				var isClipboard = /copy|cut|paste/.test(cmd);
-				try{
-					r = this.inherited(arguments);
-					if(dojo.isWebKit && isClipboard && !r){ //see #4598: webkit does not guarantee clipboard support from js
-						throw { code: 1011 }; // throw an object like Mozilla's error
-					}
-				}catch(e){
-					//TODO: when else might we get an exception?  Do we need the Mozilla test below?
-					if(e.code == 1011 /* Mozilla: service denied */ && isClipboard){
-						// Warn user of platform limitation.  Cannot programmatically access clipboard. See ticket #4136
-						var sub = dojo.string.substitute,
-							accel = {cut:'X', copy:'C', paste:'V'};
-						alert(sub(this.commands.systemShortcut,
-							[this.commands[cmd], sub(this.commands[dojo.isMac ? 'appleKey' : 'ctrlKey'], [accel[cmd]])]));
-					}
-					r = false;
-				}
+				var r = this.inherited(arguments);
 				if(this.customUndo){
 					this._endEditing();
 				}
 				return r;
 			}
 		},
+
+		_pasteImpl: function(){
+			// summary:
+			//		Over-ride of paste command control to make execCommand cleaner
+			// tags:
+			//		Protected
+			return this._clipboardCommand("paste");
+		},
+
+		_cutImpl: function(){
+			// summary:
+			//		Over-ride of cut command control to make execCommand cleaner
+			// tags:
+			//		Protected
+			return this._clipboardCommand("cut");
+		},
+
+		_copyImpl: function(){
+			// summary:
+			//		Over-ride of copy command control to make execCommand cleaner
+			// tags:
+			//		Protected
+			return this._clipboardCommand("copy");
+		},
+
+		_clipboardCommand: function(cmd){
+			// summary:
+			//		Function to handle processing clipboard commands (or at least try to).
+			// tags:
+			//		Private
+			var r;
+			try{
+				// Try to exec the superclass exec-command and see if it works.
+				r = this.document.execCommand(cmd, false, null);
+				if(dojo.isWebKit && !r){ //see #4598: webkit does not guarantee clipboard support from js
+					throw { code: 1011 }; // throw an object like Mozilla's error
+				}
+			}catch(e){
+				//TODO: when else might we get an exception?  Do we need the Mozilla test below?
+				if(e.code == 1011 /* Mozilla: service denied */){
+					// Warn user of platform limitation.  Cannot programmatically access clipboard. See ticket #4136
+					var sub = dojo.string.substitute,
+						accel = {cut:'X', copy:'C', paste:'V'};
+					alert(sub(this.commands.systemShortcut,
+						[this.commands[cmd], sub(this.commands[dojo.isMac ? 'appleKey' : 'ctrlKey'], [accel[cmd]])]));
+				}
+				r = false;
+			}
+			return r;
+		},
+
 		queryCommandEnabled: function(cmd){
 			// summary:
 			//		Returns true if specified editor command is enabled.
@@ -711,7 +771,7 @@ dojo.declare(
 				}
 			}
 		},
-		
+
 		_setDisabledAttr: function(/*Boolean*/ value){
 			var disableFunc = dojo.hitch(this, function(){
 				if((!this.disabled && value) || (!this._buttonEnabledPlugins && value)){
@@ -729,11 +789,11 @@ dojo.declare(
 			this.setValueDeferred.addCallback(disableFunc);
 			this.inherited(arguments);
 		},
-		
+
 		_setStateClass: function(){
 			try{
 				this.inherited(arguments);
-			
+
 				// Let theme set the editor's text color based on editor enabled/disabled state.
 				// We need to jump through hoops because the main document (where the theme CSS is)
 				// is separate from the iframe's document.
@@ -742,35 +802,33 @@ dojo.declare(
 				}
 			}catch(e){ /* Squelch any errors caused by focus change if hidden during a state change */}
 		}
-	}
-);
+	});
 
-// Register the "default plugins", ie, the built-in editor commands
-dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
-	if(o.plugin){ return; }
-	var args = o.args, p;
-	var _p = dijit._editor._Plugin;
-	var name = args.name;
-	switch(name){
-		case "undo": case "redo": case "cut": case "copy": case "paste": case "insertOrderedList":
-		case "insertUnorderedList": case "indent": case "outdent": case "justifyCenter":
-		case "justifyFull": case "justifyLeft": case "justifyRight": case "delete":
-		case "selectAll": case "removeFormat": case "unlink":
-		case "insertHorizontalRule":
-			p = new _p({ command: name });
-			break;
+	// Register the "default plugins", ie, the built-in editor commands
+	dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
+		if(o.plugin){ return; }
+		var args = o.args, p;
+		var _p = dijit._editor._Plugin;
+		var name = args.name;
+		switch(name){
+			case "undo": case "redo": case "cut": case "copy": case "paste": case "insertOrderedList":
+			case "insertUnorderedList": case "indent": case "outdent": case "justifyCenter":
+			case "justifyFull": case "justifyLeft": case "justifyRight": case "delete":
+			case "selectAll": case "removeFormat": case "unlink":
+			case "insertHorizontalRule":
+				p = new _p({ command: name });
+				break;
 
-		case "bold": case "italic": case "underline": case "strikethrough":
-		case "subscript": case "superscript":
-			p = new _p({ buttonClass: dijit.form.ToggleButton, command: name });
-			break;
-		case "|":
-			p = new _p({ button: new dijit.ToolbarSeparator(), setEditor: function(editor) {this.editor = editor;} });
-	}
-//	console.log('name',name,p);
-	o.plugin=p;
-});
+			case "bold": case "italic": case "underline": case "strikethrough":
+			case "subscript": case "superscript":
+				p = new _p({ buttonClass: dijit.form.ToggleButton, command: name });
+				break;
+			case "|":
+				p = new _p({ button: new dijit.ToolbarSeparator(), setEditor: function(editor){this.editor = editor;} });
+		}
+	//	console.log('name',name,p);
+		o.plugin=p;
+	});
 
-
-return dijit.Editor;
+	return dijit.Editor;
 });

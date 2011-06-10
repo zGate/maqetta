@@ -1,9 +1,23 @@
-define("dijit/form/_Spinner", ["dojo", "dijit", "text!dijit/form/templates/Spinner.html", "dijit/form/ValidationTextBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/text!./templates/Spinner.html",
+	"./RangeBoundTextBox",
+	"dojo/_base/connect", // dojo.keys dojo.keys.DOWN_ARROW dojo.keys.PAGE_DOWN dojo.keys.PAGE_UP dojo.keys.UP_ARROW
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/sniff", // dojo.isMozilla
+	"dijit/typematic"
+], function(dojo, dijit, template){
 
-dojo.declare(
-	"dijit.form._Spinner",
-	dijit.form.RangeBoundTextBox,
-	{
+	// module:
+	//		dijit/form/_Spinner
+	// summary:
+	//		Mixin for validation widgets with a spinner.
+
+
+	dojo.declare("dijit.form._Spinner", dijit.form.RangeBoundTextBox, {
 		// summary:
 		//		Mixin for validation widgets with a spinner.
 		// description:
@@ -32,7 +46,7 @@ dojo.declare(
 		//		Adjust the value by this much when spinning using the PgUp/Dn keys
 		largeDelta: 10,
 
-		templateString: dojo.cache("dijit.form", "templates/Spinner.html"),
+		templateString: template,
 
 		baseClass: "dijitTextBox dijitSpinner",
 
@@ -64,7 +78,6 @@ dojo.declare(
 			// summary:
 			//		Handler for arrow button or arrow key being released
 			this._wheelTimer = null;
-			if(this.disabled || this.readOnly){ return; }
 		},
 
 		_typematicCallback: function(/*Number*/ count, /*DOMNode*/ node, /*Event*/ evt){
@@ -112,8 +125,8 @@ dojo.declare(
 			this._connects.push(dijit.typematic.addListener(this.upArrowNode, this.textbox, {charOrCode:dojo.keys.PAGE_UP,ctrlKey:false,altKey:false,shiftKey:false,metaKey:false}, this, "_typematicCallback", this.timeoutChangeRate, this.defaultTimeout, this.minimumTimeout));
 			this._connects.push(dijit.typematic.addListener(this.downArrowNode, this.textbox, {charOrCode:dojo.keys.PAGE_DOWN,ctrlKey:false,altKey:false,shiftKey:false,metaKey:false}, this, "_typematicCallback", this.timeoutChangeRate, this.defaultTimeout, this.minimumTimeout));
 		}
-});
+	});
 
 
-return dijit.form._Spinner;
+	return dijit.form._Spinner;
 });

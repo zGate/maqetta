@@ -1,10 +1,5 @@
-dojo.provide("dojox.grid.enhanced.plugins.Selector");
+define(["dojo", "dijit", "dojox", "dijit/focus", "../../cells/_base", "../_Plugin", "./AutoScroll"], function(dojo, dijit, dojox){
 
-dojo.require("dojox.grid.enhanced._Plugin");
-dojo.require("dojox.grid.enhanced.plugins.AutoScroll");
-dojo.require("dojox.grid.cells._base");
-
-(function(){
 /*=====
 dojo.declare("__SelectItem", null,{
 	// summary:
@@ -1441,7 +1436,11 @@ dojo.declare("dojox.grid.enhanced.plugins.Selector", dojox.grid.enhanced._Plugin
 		return false;
 	}
 });
+
 dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.Selector/*name:'selector'*/, {
 	"dependency": ["autoScroll"]
 });
-})();
+
+	return dojox.grid.enhanced.plugins.Selector;
+
+});

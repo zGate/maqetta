@@ -1,28 +1,30 @@
-dojo.provide("dojox.grid.enhanced.plugins.filter.FilterDefDialog");
-
-dojo.require("dijit.dijit");
-dojo.require("dijit.Tooltip");
-dojo.require("dojox.grid.enhanced.plugins.Dialog");
-dojo.require("dijit.form.ComboBox");
-dojo.require("dijit.form.Select");
-dojo.require("dijit.form.TextBox");
-dojo.require("dijit.form.CheckBox");
-dojo.require("dijit.form.NumberTextBox");
-dojo.require("dijit.form.DateTextBox");
-dojo.require("dijit.form.TimeTextBox");
-dojo.require("dijit.form.Button");
-dojo.require("dijit.layout.AccordionContainer");
-dojo.require("dijit.layout.ContentPane");
-dojo.require("dojo.date.locale");
-dojo.require("dojo.string");
-dojo.require("dojox.grid.enhanced.plugins.filter.FilterBuilder");
-dojo.require("dojox.grid.cells.dijit");
-dojo.require("dojox.html.ellipsis");
-dojo.require("dojox.html.metrics");
-dojo.require("dojo.window");
-
-(function(){
-var fns = dojox.grid.enhanced.plugins.filter,
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/string",
+	"dojo/window",
+	"dojo/date/locale",		
+	"dijit/Tooltip",
+	"dijit/form/ComboBox",
+	"dijit/form/Select",
+	"dijit/form/TextBox",
+	"dijit/form/RadioButton",
+	"dijit/form/NumberTextBox",
+	"dijit/form/DateTextBox",
+	"dijit/form/TimeTextBox",
+	"dijit/form/Button",
+	"dijit/layout/AccordionContainer",
+	"dijit/layout/ContentPane",
+	"dijit/_WidgetsInTemplateMixin",
+	"dijit/focus",		// dijit.focus()
+	"dojox/html/ellipsis",
+	"dojox/html/metrics",
+	"./FilterBuilder",
+	"../Dialog",
+	"../../../cells/dijit"], function(dojo, dijit, dojox){
+		
+var fns = dojo.getObject("grid.enhanced.plugins.filter", true, dojox);
 	_tabIdxes = {
 		// summary:
 		//		Define tabindexes for elements in the filter definition dialog
@@ -579,7 +581,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefDialog", null, {
 		setTimeout(dojo.hitch(g, g._refresh), this._defPane.duration + 10);
 	}
 });
-dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefPane",[dijit._Widget,dijit._Templated],{
+dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefPane",[dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin],{
 	templateString: dojo.cache("dojox.grid","enhanced/templates/FilterDefPane.html"),
 	widgetsInTemplate: true,
 	dlg: null,
@@ -609,11 +611,11 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefPane",[dijit._Widget,d
 		this._filterBtn.set("tabIndex", _tabIdxes.filterBtn);
 		
 		var nls = this.plugin.nls;
-		dijit.setWaiState(this._relSelect.domNode, "label", nls.waiRelAll);
-		dijit.setWaiState(this._addCBoxBtn.domNode, "label", nls.waiAddRuleButton);
-		dijit.setWaiState(this._cancelBtn.domNode, "label", nls.waiCancelButton);
-		dijit.setWaiState(this._clearFilterBtn.domNode, "label", nls.waiClearButton);
-		dijit.setWaiState(this._filterBtn.domNode, "label", nls.waiFilterButton);
+		this._relSelect.domNode.setAttribute("aria-label", nls.waiRelAll);
+		this._addCBoxBtn.domNode.setAttribute("aria-label", nls.waiAddRuleButton);
+		this._cancelBtn.domNode.setAttribute("aria-label", nls.waiCancelButton);
+		this._clearFilterBtn.domNode.setAttribute("aria-label", nls.waiClearButton);
+		this._filterBtn.domNode.setAttribute("aria-label", nls.waiFilterButton);
 		
 		this._relSelect.set("value", this.dlg._relOpCls === "logicall" ? "0" : "1");
 	},
@@ -624,7 +626,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefPane",[dijit._Widget,d
 	},
 	_onRelSelectChange: function(val){
 		this.dlg._relOpCls = val == "0" ? "logicall" : "logicany";
-		dijit.setWaiState(this._relSelect.domNode,"label", this.plugin.nls[val == "0" ? "waiRelAll" : "waiRelAny"]);
+		this._relSelect.domNode.setAttribute("aria-label", this.plugin.nls[val == "0" ? "waiRelAll" : "waiRelAny"]);
 	},
 	_onAddCBox: function(){
 		this.dlg.addCriteriaBoxes(1);
@@ -644,7 +646,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterDefPane",[dijit._Widget,d
 		}
 	}
 });
-dojo.declare("dojox.grid.enhanced.plugins.filter.CriteriaBox",[dijit._Widget,dijit._Templated],{
+dojo.declare("dojox.grid.enhanced.plugins.filter.CriteriaBox",[dijit._Widget,dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin],{
 	templateString: dojo.cache("dojox.grid","enhanced/templates/CriteriaBox.html"),
 	widgetsInTemplate: true,
 	dlg: null,
@@ -923,9 +925,9 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.CriteriaBox",[dijit._Widget,dij
 	},
 	setAriaInfo: function(idx){
 		var dss = dojo.string.substitute, nls = this.plugin.nls;
-		dijit.setWaiState(this._colSelect.domNode,"label", dss(nls.waiColumnSelectTemplate, [idx]));
-		dijit.setWaiState(this._condSelect.domNode,"label", dss(nls.waiConditionSelectTemplate, [idx]));
-		dijit.setWaiState(this._pane._removeCBoxBtn.domNode,"label", dss(nls.waiRemoveRuleButtonTemplate, [idx]));
+		this._colSelect.domNode.setAttribute("aria-label", dss(nls.waiColumnSelectTemplate, [idx]));
+		this._condSelect.domNode.setAttribute("aria-label", dss(nls.waiConditionSelectTemplate, [idx]));
+		this._pane._removeCBoxBtn.domNode.setAttribute("aria-label", dss(nls.waiRemoveRuleButtonTemplate, [idx]));
 		this._index = idx;
 	},
 	_getUsableConditions: function(type){
@@ -976,7 +978,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.CriteriaBox",[dijit._Widget,dij
 		this.valueNode.appendChild(this._curValueBox.domNode);
 		
 		//Can not move to setAriaInfo, 'cause the value box is created after the defpane is loaded.
-		dijit.setWaiState(this._curValueBox.domNode, "label", dojo.string.substitute(this.plugin.nls.waiValueBoxTemplate,[this._index]));
+		this._curValueBox.domNode.setAttribute("aria-label", dojo.string.substitute(this.plugin.nls.waiValueBoxTemplate,[this._index]));
 		//Now our cbox is completely ready
 		this.dlg.onRendered(this);
 	},
@@ -1200,7 +1202,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.UniqueComboBox", dijit.form.Com
 		this.inherited(arguments);
 	}
 });
-dojo.declare("dojox.grid.enhanced.plugins.filter.BooleanValueBox", [dijit._Widget, dijit._Templated], {
+dojo.declare("dojox.grid.enhanced.plugins.filter.BooleanValueBox", [dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin], {
 	templateString: dojo.cache("dojox.grid","enhanced/templates/FilterBoolValueBox.html"),
 	widgetsInTemplate: true,
 	constructor: function(args){
@@ -1226,4 +1228,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.BooleanValueBox", [dijit._Widge
 		}
 	}
 });
-})();
+
+	return dojox.grid.enhanced.plugins.filter.FilterDefDialog;
+
+});

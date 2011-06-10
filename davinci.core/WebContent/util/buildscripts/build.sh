@@ -1,6 +1,8 @@
 #!/bin/sh
 
-java -classpath ../shrinksafe/js.jar:../shrinksafe/shrinksafe.jar org.mozilla.javascript.tools.shell.Main build.js "$@"
-
-# if you experience an "Out of Memory" error, you can increase it as follows:
-#java -Xms256m -Xmx256m -classpath ../shrinksafe/js.jar:../shrinksafe/shrinksafe.jar org.mozilla.javascript.tools.shell.Main  build.js "$@"
+if which -s node
+then
+   node ../../dojo/dojo.js load=build "$@"
+else
+   java -Xms256m -Xmx256m  -cp ../shrinksafe/js.jar:../closureCompiler/compiler.jar:../shrinksafe/shrinksafe.jar org.mozilla.javascript.tools.shell.Main  ../../dojo/dojo.js baseUrl=../../dojo load=build "$@"
+fi

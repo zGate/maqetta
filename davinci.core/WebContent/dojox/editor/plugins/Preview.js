@@ -1,4 +1,4 @@
-define("dojox/editor/plugins/Preview", ["dojo", "dijit", "dojox", "dijit/form/Button", "dijit/_editor/_Plugin", "dojo/i18n", "i18n!dojox/editor/plugins/nls/Preview"], function(dojo, dijit, dojox) {
+define("dojox/editor/plugins/Preview", ["dojo", "dijit", "dojox", "dijit/form/Button", "dijit/_editor/_Plugin", "dojo/i18n", "dojo/i18n!dojox/editor/plugins/nls/Preview"], function(dojo, dijit, dojox) {
 
 dojo.declare("dojox.editor.plugins.Preview",dijit._editor._Plugin,{
 	//	summary:
@@ -57,7 +57,7 @@ dojo.declare("dojox.editor.plugins.Preview",dijit._editor._Plugin,{
 		//		private
 		try{
 			var content = this.editor.get("value");
-			var head = "\t\t<meta http-equiv='Content-Type' content='text/html; charset='UTF-8'>\n";
+			var head = "\t\t<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>\n";
 			var i;
 			// Apply the stylesheets, then apply the styles.
 			if(this.stylesheets){

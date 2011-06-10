@@ -1,4 +1,9 @@
-define("dojo/number", ["dojo", "dojo/i18n", "i18n!dojo/cldr/nls/number", "dojo/string", "dojo/regexp"], function(dojo) {
+define(["./_base/kernel", "./i18n", "./i18n!./cldr/nls/number", "./string", "./regexp"], function(dojo) {
+	// module:
+	//		dojo/number
+	// summary:
+	//		TODOC
+
 dojo.getObject("number", true, dojo);
 
 /*=====
@@ -94,7 +99,7 @@ dojo.number._applyPattern = function(/*Number*/value, /*String*/pattern, /*dojo.
 	}else if(pattern.indexOf('E') != -1){
 		throw new Error("exponential notation not supported");
 	}
-	
+
 	//TODO: support @ sig figs?
 	var numberPatternRE = dojo.number._numberPatternRE;
 	var numberPattern = positivePattern.match(numberPatternRE);
@@ -135,16 +140,14 @@ dojo.number.round = function(/*Number*/value, /*Number?*/places, /*Number?*/incr
 if((0.9).toFixed() == 0){
 	// (isIE) toFixed() bug workaround: Rounding fails on IE when most significant digit
 	// is just after the rounding place and is >=5
-	(function(){
-		var round = dojo.number.round;
-		dojo.number.round = function(v, p, m){
-			var d = Math.pow(10, -p || 0), a = Math.abs(v);
-			if(!v || a >= d || a * Math.pow(10, p + 1) < 5){
-				d = 0;
-			}
-			return round(v, p, m) + (v > 0 ? d : -d);
-		};
-	})();
+	var round = dojo.number.round;
+	dojo.number.round = function(v, p, m){
+		var d = Math.pow(10, -p || 0), a = Math.abs(v);
+		if(!v || a >= d || a * Math.pow(10, p + 1) < 5){
+			d = 0;
+		}
+		return round(v, p, m) + (v > 0 ? d : -d);
+	};
 }
 
 /*=====

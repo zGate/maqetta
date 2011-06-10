@@ -1,6 +1,8 @@
 dojo.provide("dojox.form.BusyButton");
 
 dojo.require("dijit.form.Button");
+dojo.require("dijit.form.DropDownButton");
+dojo.require("dijit.form.ComboButton");
 
 dojo.requireLocalization("dijit", "loading");
 
@@ -107,7 +109,7 @@ dojo.declare("dojox.form._BusyButtonMixin",
 		}
 	},
 	
-	_clicked: function(e){
+	_onClick: function(e){
 		// summary:
 		//	on button click the button state gets changed
 		

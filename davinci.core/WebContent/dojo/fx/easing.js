@@ -1,4 +1,9 @@
-define("dojo/fx/easing", ["dojo"], function(dojo) {
+define(["../main"], function(dojo) {
+	// module:
+	//		dojo/fx/easing
+	// summary:
+	//		TODOC:This module defines
+
 dojo.getObject("fx.easing", true, dojo);
 
 dojo.fx.easing = {
@@ -32,7 +37,7 @@ dojo.fx.easing = {
 	//	|		easing: dojo.fx.easing.quadIn
 	//	|	}).play();
 	//
-	
+
 	linear: function(/* Decimal? */n){
 		// summary: A linear easing function
 		return n;
@@ -92,7 +97,7 @@ dojo.fx.easing = {
 
 	quintInOut: function(/* Decimal? */n){
 		n = n * 2;
-		if(n < 1){ return Math.pow(n, 5) / 2; };
+		if(n < 1){ return Math.pow(n, 5) / 2; }
 		n -= 2;
 		return (Math.pow(n, 5) + 2) / 2;
 	},
@@ -162,7 +167,7 @@ dojo.fx.easing = {
 		//
 		//		Use caution when the easing will cause values to become negative as some
 		//		properties cannot be set to negative values.
-		
+
 		n = n - 1;
 		var s = 1.70158;
 		return Math.pow(n, 2) * ((s + 1) * n + s) + 1;

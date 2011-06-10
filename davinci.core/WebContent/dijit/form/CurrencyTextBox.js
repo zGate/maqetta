@@ -1,27 +1,37 @@
-define("dijit/form/CurrencyTextBox", ["dojo", "dijit", "dojo/currency", "dijit/form/NumberTextBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"dojo/currency", // dojo.currency._mixInDefaults dojo.currency.format dojo.currency.parse dojo.currency.regexp
+	"./NumberTextBox",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/lang" // dojo.hitch
+], function(dojo, dijit){
 
-/*=====
-dojo.declare(
-	"dijit.form.CurrencyTextBox.__Constraints",
-	[dijit.form.NumberTextBox.__Constraints, dojo.currency.__FormatOptions, dojo.currency.__ParseOptions], {
+	// module:
+	//		dijit/form/CurrencyTextBox
 	// summary:
-	//		Specifies both the rules on valid/invalid values (minimum, maximum,
-	//		number of required decimal places), and also formatting options for
-	//		displaying the value when the field is not focused (currency symbol,
-	//		etc.)
-	// description:
-	//		Follows the pattern of `dijit.form.NumberTextBox.constraints`.
-	//		In general developers won't need to set this parameter
-	// example:
-	//		To ensure that the user types in the cents (for example, 1.00 instead of just 1):
-	//	|		{fractional:true}
-});
-=====*/
+	//		A validating currency textbox
 
-dojo.declare(
-	"dijit.form.CurrencyTextBox",
-	dijit.form.NumberTextBox,
-	{
+
+	/*=====
+	dojo.declare(
+		"dijit.form.CurrencyTextBox.__Constraints",
+		[dijit.form.NumberTextBox.__Constraints, dojo.currency.__FormatOptions, dojo.currency.__ParseOptions], {
+		// summary:
+		//		Specifies both the rules on valid/invalid values (minimum, maximum,
+		//		number of required decimal places), and also formatting options for
+		//		displaying the value when the field is not focused (currency symbol,
+		//		etc.)
+		// description:
+		//		Follows the pattern of `dijit.form.NumberTextBox.constraints`.
+		//		In general developers won't need to set this parameter
+		// example:
+		//		To ensure that the user types in the cents (for example, 1.00 instead of just 1):
+		//	|		{fractional:true}
+	});
+	=====*/
+
+	dojo.declare("dijit.form.CurrencyTextBox", dijit.form.NumberTextBox, {
 		// summary:
 		//		A validating currency textbox
 		// description:
@@ -44,14 +54,14 @@ dojo.declare(
 		//		formatting options.  See `dijit.form.CurrencyTextBox.__Constraints` for details.
 		constraints: {},
 		======*/
-		
+
 		baseClass: "dijitTextBox dijitCurrencyTextBox",
 
 		// Override regExpGen ValidationTextBox.regExpGen().... we use a reg-ex generating function rather
 		// than a straight regexp to deal with locale  (plus formatting options too?)
 		regExpGen: function(constraints){
 			// if focused, accept either currency data or NumberTextBox format
-			return '(' + (this._focused? this.inherited(arguments, [ dojo.mixin({}, constraints, this.editOptions) ]) + '|' : '')
+			return '(' + (this.focused ? this.inherited(arguments, [ dojo.mixin({}, constraints, this.editOptions) ]) + '|' : '')
 				+ dojo.currency.regexp(constraints) + ')';
 		},
 
@@ -78,9 +88,8 @@ dojo.declare(
 			}
 			this.inherited(arguments, [ dojo.currency._mixInDefaults(dojo.mixin(constraints, { exponent: false })) ]); // get places
 		}
-	}
-);
+	});
 
 
-return dijit.form.CurrencyTextBox;
+	return dijit.form.CurrencyTextBox;
 });

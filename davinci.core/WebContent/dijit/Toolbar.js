@@ -1,40 +1,45 @@
-define("dijit/Toolbar", ["dojo", "dijit", "dijit/_Widget", "dijit/_KeyNavContainer", "dijit/_Templated", "dijit/ToolbarSeparator"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"require",
+	"./_Widget",
+	"./_KeyNavContainer",
+	"./_TemplatedMixin",
+	"dojo/_base/connect", // dojo.keys.LEFT_ARROW dojo.keys.RIGHT_ARROW
+	"dojo/_base/declare" // dojo.declare
+], function(dojo, dijit, require){
 
-// Note: require of ToolbarSeparator is for back-compat, remove for 2.0
-
-dojo.declare("dijit.Toolbar",
-	[dijit._Widget, dijit._Templated, dijit._KeyNavContainer],
-	{
+	// module:
+	//		dijit/Toolbar
 	// summary:
 	//		A Toolbar widget, used to hold things like `dijit.Editor` buttons
 
-	templateString:
-		'<div class="dijit" role="toolbar" tabIndex="${tabIndex}" dojoAttachPoint="containerNode">' +
-		//	'<table style="table-layout: fixed" class="dijitReset dijitToolbarTable">' + // factor out style
-		//		'<tr class="dijitReset" dojoAttachPoint="containerNode"></tr>'+
-		//	'</table>' +
-		'</div>',
+	dojo.declare("dijit.Toolbar", [dijit._Widget, dijit._TemplatedMixin, dijit._KeyNavContainer], {
+		// summary:
+		//		A Toolbar widget, used to hold things like `dijit.Editor` buttons
 
-	baseClass: "dijitToolbar",
+		templateString:
+			'<div class="dijit" role="toolbar" tabIndex="${tabIndex}" dojoAttachPoint="containerNode">' +
+			'</div>',
 
-	postCreate: function(){
-		this.inherited(arguments);
+		baseClass: "dijitToolbar",
 
-		this.connectKeyNavHandlers(
-			this.isLeftToRight() ? [dojo.keys.LEFT_ARROW] : [dojo.keys.RIGHT_ARROW],
-			this.isLeftToRight() ? [dojo.keys.RIGHT_ARROW] : [dojo.keys.LEFT_ARROW]
-		);
-	},
+		postCreate: function(){
+			this.inherited(arguments);
 
-	startup: function(){
-		if(this._started){ return; }
+			this.connectKeyNavHandlers(
+				this.isLeftToRight() ? [dojo.keys.LEFT_ARROW] : [dojo.keys.RIGHT_ARROW],
+				this.isLeftToRight() ? [dojo.keys.RIGHT_ARROW] : [dojo.keys.LEFT_ARROW]
+			);
+		}
+	});
 
-		this.startupKeyNavChildren();
-
-		this.inherited(arguments);
+	// Back compat w/1.6, remove for 2.0
+	if(!dojo.isAsync){
+		dojo.ready(0, function(){
+			require(["dijit/ToolbarSeparator"]);
+		});
 	}
-}
-);
 
-return dijit.Toolbar;
+	return dijit.Toolbar;
 });

@@ -1,4 +1,23 @@
-define("dijit/layout/_ContentPaneResizeMixin", ["dojo", "dijit", "dijit/_Contained", "dijit/layout/_LayoutWidget"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"../_Contained",
+	"./_LayoutWidget",
+	"dojo/_base/NodeList", // .filter
+	"dojo/_base/array", // dojo.filter dojo.forEach
+	"dojo/_base/html", // dojo.contentBox dojo.hasAttr dojo.hasClass dojo.marginBox dojo.toggleClass
+	"dojo/_base/sniff", // dojo.isIE
+	"dojo/_base/window", // dojo.global
+	"dojo/query" // dojo.query
+], function(dojo, dijit){
+
+// module:
+//		dijit/layout/_ContentPaneResizeMixin
+// summary:
+//		Resize() functionality of ContentPane.   If there's a single layout widget
+//		child then it will call resize() with the same dimensions as the ContentPane.
+//		Otherwise just calls resize on each child.
+
 
 dojo.declare("dijit.layout._ContentPaneResizeMixin", null, {
 	// summary:
@@ -32,8 +51,10 @@ dojo.declare("dijit.layout._ContentPaneResizeMixin", null, {
 
 		// This starts all the widgets
 		dojo.forEach(this.getChildren(), function(child){
-			child.startup();
-			child._started = true;
+			if(!child._started){
+				child.startup();
+				child._started = true;
+			}
 		});
 	},
 
@@ -173,7 +194,7 @@ dojo.declare("dijit.layout._ContentPaneResizeMixin", null, {
 
 		delete this._needLayout;
 	},
-	
+
 	_layoutChildren: function(){
 		// Call _checkIfSingleChild() again in case app has manually mucked w/the content
 		// of the ContentPane (rather than changing it through the set("content", ...) API.

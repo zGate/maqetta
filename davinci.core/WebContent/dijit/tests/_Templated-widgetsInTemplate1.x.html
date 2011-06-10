@@ -12,6 +12,8 @@
 
 			dojo.require("dojo.parser");
 
+			dojo.require("dijit._Widget");
+			dojo.require("dijit._Templated");
 			dojo.require("dijit.form.Button");
 			dojo.require("dijit.form.CheckBox");
 			dojo.require("dijit.ProgressBar");
@@ -20,6 +22,7 @@
 			dojo.require("dijit._Container");
 			dojo.require("dijit._Contained");
 			dojo.require("dijit.layout._LayoutWidget");
+			dojo.require("dijit.focus");	// dijit.focus()
 
 			dojo.addOnLoad(function(){
 				var testW;
@@ -59,7 +62,7 @@
 					templateString: dojo.byId('Test4Template').textContent || dojo.byId('Test4Template').innerText
 				});
 		
-				function validateTest4Widget(t, testW) {
+				function validateTest4Widget(t, testW){
 					var selectedTab = dojo.query(".dijitTabChecked", testW.domNode)[0];
 					var selectedPane = dojo.query(".dijitTabPane.dijitVisible", testW.domNode)[0];
 					var tabBox = selectedTab ? dojo.contentBox(selectedTab) : null;
@@ -193,7 +196,7 @@
 					];
 				}
 		
-				function validateTest5Widget(t, testW) {
+				function validateTest5Widget(t, testW){
 					// Check that everything got started, but not double-started
 					dojo.forEach(getTestWidgets(testW), function(w){
 						t.t(w._started, "w._started: " + w);
@@ -201,7 +204,7 @@
 					});
 				}
 		
-				function validateTest5WidgetDestroy(t, testW) {
+				function validateTest5WidgetDestroy(t, testW){
 					var savedWidgets = getTestWidgets(testW);
 					testW.destroy();
 					dojo.forEach(savedWidgets, function(w, idx){
@@ -370,7 +373,7 @@
 								var testW = dijit.byId("missing");
 								doh.t(testW, "widget was created");
 								doh.t(testW.missingButton, "dojoAttachPoint created");
-								doh.is("dijit.form.Button", testW.missingButton.declaredClass, "and it's to a widget")
+								doh.is("dijit.form.Button", testW.missingButton.declaredClass, "and it's to a widget");
 								doh.t(dijit.byId("missingButtonId"), "nested widget also registered by id");
 							}
 						}

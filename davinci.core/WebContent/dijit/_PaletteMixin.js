@@ -1,8 +1,21 @@
-define("dijit/_PaletteMixin", ["dojo", "dijit", "dijit/_CssStateMixin"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.getObject
+	".",
+	"./_CssStateMixin",
+	"dojo/_base/connect", // dojo.keys
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.attr dojo.create dojo.place dojo.removeClass
+	"dojo/_base/lang", // dojo.hitch
+	"./typematic",
+	"./focus"
+], function(dojo, dijit){
 
-dojo.declare("dijit._PaletteMixin",
-	[dijit._CssStateMixin],
-	{
+// module:
+//		dijit/_PaletteMixin
+// summary:
+//		A keyboard accessible palette, for picking a color/emoticon/etc.
+
+dojo.declare("dijit._PaletteMixin", [dijit._CssStateMixin], {
 	// summary:
 	//		A keyboard accessible palette, for picking a color/emoticon/etc.
 	// description:
@@ -21,7 +34,7 @@ dojo.declare("dijit._PaletteMixin",
 	// value: String
 	//		Currently selected color/emoticon/etc.
 	value: null,
-	
+
 	// _selectedCell: [private] Integer
 	//		Index of the currently selected cell. Initially, none selected
 	_selectedCell: -1,
@@ -59,7 +72,7 @@ dojo.declare("dijit._PaletteMixin",
 	//	 dyeClass should implements dijit.Dye interface
 	dyeClass: '',
 
-	_preparePalette: function(choices, titles, dyeClassObj) {
+	_preparePalette: function(choices, titles, dyeClassObj){
 		// summary:
 		//		Subclass must call _preparePalette() from postCreate(), passing in the tooltip
 		//		for each cell
@@ -72,7 +85,7 @@ dojo.declare("dijit._PaletteMixin",
 
 		this._cells = [];
 		var url = this._blankGif;
-		
+
 		dyeClassObj = dyeClassObj || dojo.getObject(this.dyeClass);
 
 		for(var row=0; row < choices.length; row++){
@@ -81,7 +94,7 @@ dojo.declare("dijit._PaletteMixin",
 				var value = choices[row][col];
 				if(value){
 					var cellObject = new dyeClassObj(value, row, col);
-					
+
 					var cellNode = dojo.create("td", {
 						"class": this.cellClass,
 						tabIndex: "-1",
@@ -214,7 +227,7 @@ dojo.declare("dijit._PaletteMixin",
 		// priorityChange:
 		//		Optional parameter used to tell the select whether or not to fire
 		//		onChange event.
-		
+
 		// clear old selected cell
 		if(this._selectedCell >= 0){
 			dojo.removeClass(this._cells[this._selectedCell].node, "dijitPaletteCellSelected");
@@ -231,7 +244,7 @@ dojo.declare("dijit._PaletteMixin",
 				}
 			}
 		}
-		
+
 		// record new value, or null if no matching cell
 		this._set("value", this._selectedCell >= 0 ? value : null);
 

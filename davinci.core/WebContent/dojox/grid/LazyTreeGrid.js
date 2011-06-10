@@ -1,11 +1,14 @@
-dojo.provide("dojox.grid.LazyTreeGrid");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/text!./resources/Expando.html",
+	"./_View",
+	"./TreeGrid",
+	"./cells/tree",
+	"./LazyTreeGridStoreModel"], function(dojo, dijit, dojox, template){
 
-dojo.require("dojox.grid._View");
-dojo.require("dojox.grid.TreeGrid");
-dojo.require("dojox.grid.cells.tree");
-dojo.require("dojox.grid.LazyTreeGridStoreModel");
-
-dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._Templated], {
+dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._TemplatedMixin], {
 	itemId: "",
 	cellIdx: -1,
 	view: null,
@@ -13,7 +16,7 @@ dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._Templated], {
 	expandoCell: null,
 	level: 0,
 	open: false,
-	templatePath: dojo.moduleUrl("dojox.grid", "resources/Expando.html"),
+	templateString: template,
 	
 	onToggle: function(event){
 		// Summary
@@ -48,7 +51,7 @@ dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._Templated], {
 			var state = grid.cache.getExpandoStatusByRowIndex(this.rowIdx);
 			this.expandoInner.innerHTML = state ? "-" : "+";
 			dojo.toggleClass(this.domNode, "dojoxGridExpandoOpened", state);
-			dijit.setWaiState(this.domNode.parentNode, "expanded", state);
+			this.domNode.parentNode.setAttribute("aria-expanded", state);
 		}
 	},
 	
@@ -236,6 +239,7 @@ dojo.declare("dojox.grid._TreeGridView", [dojox.grid._View], {
 				if(!expando.setRowNode(inRowIndex, inRowNode, this)){
 					expando.domNode.parentNode.removeChild(expando.domNode);
 				}
+				dojo.destroy(n);
 			}
 		}, this);
 		this.inherited(arguments);
@@ -831,3 +835,7 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 dojox.grid.LazyTreeGrid.markupFactory = function(props, node, ctor, cellFunc){
 	return dojox.grid.TreeGrid.markupFactory(props, node, ctor, cellFunc);
 };
+
+return dojox.grid.LazyTreeGrid;
+
+});

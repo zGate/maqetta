@@ -1,8 +1,23 @@
-define("dijit/PopupMenuItem", ["dojo", "dijit", "dijit/MenuItem"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"./MenuItem",
+	"./hccss",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html", // dojo.style
+	"dojo/_base/window", // dojo.body
+	"dojo/query" // dojo.query
+], function(dojo, dijit){
 
-dojo.declare("dijit.PopupMenuItem",
-		dijit.MenuItem,
-		{
+	// module:
+	//		dijit/PopupMenuItem
+	// summary:
+	//		An item in a Menu that spawn a drop down (usually a drop down menu)
+
+	dojo.declare("dijit.PopupMenuItem", dijit.MenuItem, {
+		// summary:
+		//		An item in a Menu that spawn a drop down (usually a drop down menu)
+
 		_fillContent: function(){
 			// summary:
 			//		When Menu is declared in markup, this code gets the menu label and
@@ -44,7 +59,7 @@ dojo.declare("dijit.PopupMenuItem",
 			if(this.arrowWrapper){
 				dojo.style(this.arrowWrapper, "visibility", "");
 			}
-			dijit.setWaiState(this.focusNode, "haspopup", "true");
+			this.focusNode.setAttribute("aria-haspopup", "true");
 		},
 
 		destroyDescendants: function(){
@@ -61,5 +76,5 @@ dojo.declare("dijit.PopupMenuItem",
 	});
 
 
-return dijit.PopupMenuItem;
+	return dijit.PopupMenuItem;
 });

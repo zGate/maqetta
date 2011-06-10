@@ -1,11 +1,24 @@
-define("dijit/tree/TreeStoreModel", ["dojo", "dijit"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"dojo/_base/array", // dojo.filter dojo.forEach dojo.indexOf dojo.some
+	"dojo/_base/connect", // dojo.connect dojo.disconnect
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/json", // dojo.toJson
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/data/api/Identity", // dojo.data.api.Identity
+	"dojo/data/api/Notification" // dojo.data.api.Notification
+], function(dojo, dijit){
 
-dojo.declare(
-		"dijit.tree.TreeStoreModel",
-		null,
-	{
+	// module:
+	//		dijit/tree/TreeStoreModel
+	// summary:
+	//		Implements dijit.Tree.model connecting to a dojo.data store with a single
+	//		root item.
+
+	dojo.declare("dijit.tree.TreeStoreModel", null, {
 		// summary:
-		//		Implements dijit.Tree.model connecting to a store with a single
+		//		Implements dijit.Tree.model connecting to a dojo.data store with a single
 		//		root item.  Any methods passed into the constructor will override
 		//		the ones defined here.
 
@@ -222,7 +235,7 @@ dojo.declare(
 					}else{
 						// Create new item in the tree, based on the drag source.
 						LnewItem=this.store.newItem(args, pInfo);
-						if (LnewItem && (insertIndex!=undefined)){
+						if(LnewItem && (insertIndex!=undefined)){
 							// Move new item to desired position
 							this.pasteItem(LnewItem, parent, parent, false, insertIndex);
 						}
@@ -231,7 +244,7 @@ dojo.declare(
 			}else{
 				// [as far as we know] there is no id so we must assume this is a new item
 				LnewItem=this.store.newItem(args, pInfo);
-				if (LnewItem && (insertIndex!=undefined)){
+				if(LnewItem && (insertIndex!=undefined)){
 					// Move new item to desired position
 					this.pasteItem(LnewItem, parent, parent, false, insertIndex);
 				}
@@ -369,5 +382,5 @@ dojo.declare(
 	});
 
 
-return dijit.tree.TreeStoreModel;
+	return dijit.tree.TreeStoreModel;
 });

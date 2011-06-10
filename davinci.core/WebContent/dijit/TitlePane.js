@@ -1,9 +1,24 @@
-define("dijit/TitlePane", ["dojo", "dijit", "text!dijit/templates/TitlePane.html", "dojo/fx", "dijit/_Templated", "dijit/layout/ContentPane", "dijit/_CssStateMixin"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated
+	".",
+	"dojo/text!./templates/TitlePane.html",
+	"dojo/fx", // dojo.fx.wipeIn dojo.fx.wipeOut
+	"./_TemplatedMixin",
+	"./layout/ContentPane",
+	"./_CssStateMixin",
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.keys.DOWN_ARROW dojo.keys.ENTER
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html" // dojo.attr dojo.marginBox dojo.removeAttr dojo.replaceClass dojo.setSelectable
+], function(dojo, dijit, template){
 
-dojo.declare(
-	"dijit.TitlePane",
-	[dijit.layout.ContentPane, dijit._Templated, dijit._CssStateMixin],
-{
+// module:
+//		dijit/TitlePane
+// summary:
+//		A pane with a title on top, that can be expanded or collapsed.
+
+
+dojo.declare("dijit.TitlePane", [dijit.layout.ContentPane, dijit._TemplatedMixin, dijit._CssStateMixin], {
 	// summary:
 	//		A pane with a title on top, that can be expanded or collapsed.
 	//
@@ -30,6 +45,7 @@ dojo.declare(
 	// title: String
 	//		Title of the pane
 	title: "",
+	_setTitleAttr: { node: "titleNode", type: "innerHTML" },	// override default where title becomes a hover tooltip
 
 	// open: Boolean
 	//		Whether pane is opened or closed.
@@ -52,13 +68,10 @@ dojo.declare(
 	//		The root className to be placed on this widget's domNode.
 	baseClass: "dijitTitlePane",
 
-	templateString: dojo.cache("dijit", "templates/TitlePane.html"),
+	templateString: template,
 
-	attributeMap: dojo.delegate(dijit.layout.ContentPane.prototype.attributeMap, {
-		title: { node: "titleNode", type: "innerHTML" },
-		tooltip: {node: "focusNode", type: "attribute", attribute: "title"},	// focusNode spans the entire width, titleNode doesn't
-		id:""
-	}),
+	// Tooltip is defined in _WidgetBase but we need to handle the mapping to DOM here
+	_setTooltipAttr: {node: "focusNode", type: "attribute", attribute: "title"},	// focusNode spans the entire width, titleNode doesn't
 
 	buildRendering: function(){
 		this.inherited(arguments);
@@ -67,7 +80,7 @@ dojo.declare(
 
 	postCreate: function(){
 		this.inherited(arguments);
-		
+
 		// Hover and focus effect on title bar, except for non-toggleable TitlePanes
 		// This should really be controlled from _setToggleableAttr() but _CssStateMixin
 		// doesn't provide a way to disconnect a previous _trackMouseState() call
@@ -124,8 +137,8 @@ dojo.declare(
 
 		this.arrowNodeInner.innerHTML = open ? "-" : "+";
 
-		dijit.setWaiState(this.containerNode,"hidden", open ? "false" : "true");
-		dijit.setWaiState(this.focusNode, "pressed", open ? "true" : "false");
+		this.containerNode.setAttribute("aria-hidden", open ? "false" : "true");
+		this.focusNode.setAttribute("aria-pressed", open ? "true" : "false");
 
 		this._set("open", open);
 
@@ -138,10 +151,10 @@ dojo.declare(
 		// canToggle: Boolean
 		//		True to allow user to open/close pane by clicking title bar.
 
-		dijit.setWaiRole(this.focusNode, canToggle ? "button" : "heading");
+		this.focusNode.setAttribute("role", canToggle ? "button" : "heading");
 		if(canToggle){
 			// TODO: if canToggle is switched from true to false shouldn't we remove this setting?
-			dijit.setWaiState(this.focusNode, "controls", this.id+"_pane");
+			this.focusNode.setAttribute("aria-controls", this.id+"_pane");
 			dojo.attr(this.focusNode, "tabIndex", this.tabIndex);
 		}else{
 			dojo.removeAttr(this.focusNode, "tabIndex");

@@ -1,4 +1,9 @@
-define("dojo/dnd/Mover", ["dojo", "dojo/dnd/common", "dojo/dnd/autoscroll"], function(dojo) {
+define(["../main", "./common", "./autoscroll"], function(dojo) {
+	// module:
+	//		dojo/dnd/Mover
+	// summary:
+	//		TODOC
+
 
 dojo.declare("dojo.dnd.Mover", null, {
 	constructor: function(node, e, host){
@@ -97,7 +102,7 @@ dojo.declare("dojo.dnd.Mover", null, {
 		if(h && h.onFirstMove){
 			h.onFirstMove(this, e);
 		}
-		
+
 		// Disconnect onmousemove and ontouchmove events that call this function
 		dojo.disconnect(this.events.shift());
 		dojo.disconnect(this.events.shift());

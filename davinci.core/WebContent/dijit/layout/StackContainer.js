@@ -1,9 +1,22 @@
-define("dijit/layout/StackContainer", ["dojo", "dijit", "dijit/_Templated", "dijit/layout/_LayoutWidget", "i18n!dijit/nls/common", "dojo/cookie", "dijit/layout/StackController"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/cookie", // dojo.cookie
+	"dojo/i18n!../nls/common",
+	"../_WidgetBase",
+	"./_LayoutWidget",
+	"./StackController",
+	"dojo/_base/array", // dojo.forEach dojo.indexOf dojo.some
+	"dojo/_base/connect", // dojo.publish
+	"dojo/_base/html" // dojo.addClass dojo.replaceClass
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.layout.StackContainer",
-	dijit.layout._LayoutWidget,
-	{
+// module:
+//		dijit/layout/StackContainer
+// summary:
+//		A container that has multiple children, but shows only one child at a time.
+
+dojo.declare("dijit.layout.StackContainer", dijit.layout._LayoutWidget, {
 	// summary:
 	//		A container that has multiple children, but shows only
 	//		one child at a time
@@ -36,7 +49,7 @@ dojo.declare(
 	buildRendering: function(){
 		this.inherited(arguments);
 		dojo.addClass(this.domNode, "dijitLayoutContainer");
-		dijit.setWaiRole(this.containerNode, "tabpanel");
+		this.containerNode.setAttribute("role", "tabpanel");
 	},
 
 	postCreate: function(){
@@ -81,7 +94,7 @@ dojo.declare(
 
 	resize: function(){
 		// Resize is called when we are first made visible (it's called from startup()
-		// if we are initially visible).   If this is the first time we've been made
+		// if we are initially visible).  If this is the first time we've been made
 		// visible then show our first child.
 		var selected = this.selectedChildWidget;
 		if(selected && !this._hasBeenShown){
@@ -235,8 +248,13 @@ dojo.declare(
 
 	layout: function(){
 		// Implement _LayoutWidget.layout() virtual method.
-		if(this.doLayout && this.selectedChildWidget && this.selectedChildWidget.resize){
-			this.selectedChildWidget.resize(this._containerContentBox || this._contentBox);
+		var child = this.selectedChildWidget;
+		if(child && child.resize){
+			if(this.doLayout){
+				child.resize(this._containerContentBox || this._contentBox);
+			}else{
+				child.resize();
+			}
 		}
 	},
 
@@ -253,7 +271,7 @@ dojo.declare(
 
 		dojo.replaceClass(page.domNode, "dijitVisible", "dijitHidden");
 
-		return page._onShow() || true;
+		return (page._onShow && page._onShow()) || true;
 	},
 
 	_hideChild: function(/*dijit._Widget*/ page){
@@ -263,7 +281,7 @@ dojo.declare(
 		page._set("selected", false);
 		dojo.replaceClass(page.domNode, "dijitHidden", "dijitVisible");
 
-		page.onHide();
+		page.onHide && page.onHide();
 	},
 
 	closeChild: function(/*dijit._Widget*/ page){
@@ -294,7 +312,7 @@ dojo.declare(
 // These arguments can be specified for the children of a StackContainer.
 // Since any widget can be specified as a StackContainer child, mix them
 // into the base widget class.  (This is a hack, but it's effective.)
-dojo.extend(dijit._Widget, {
+dojo.extend(dijit._WidgetBase, {
 	// selected: Boolean
 	//		Parameter for children of `dijit.layout.StackContainer` or subclasses.
 	//		Specifies that this widget should be the initially displayed pane.
@@ -309,7 +327,7 @@ dojo.extend(dijit._Widget, {
 	// iconClass: String
 	//		Parameter for children of `dijit.layout.StackContainer` or subclasses.
 	//		CSS Class specifying icon to use in label associated with this pane.
-	iconClass: "",
+	iconClass: "dijitNoIcon",
 
 	// showTitle: Boolean
 	//		Parameter for children of `dijit.layout.StackContainer` or subclasses.

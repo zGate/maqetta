@@ -1,27 +1,38 @@
-define("dijit/form/NumberTextBox", ["dojo", "dijit", "dijit/form/ValidationTextBox", "dojo/number"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"./RangeBoundTextBox",
+	"dojo/number", // dojo.number._realNumberRegexp dojo.number.format dojo.number.parse dojo.number.regexp
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/lang" // dojo.hitch
+], function(dojo, dijit){
 
-/*=====
-dojo.declare(
-	"dijit.form.NumberTextBox.__Constraints",
-	[dijit.form.RangeBoundTextBox.__Constraints, dojo.number.__FormatOptions, dojo.number.__ParseOptions], {
+	// module:
+	//		dijit/form/NumberTextBox
 	// summary:
-	//		Specifies both the rules on valid/invalid values (minimum, maximum,
-	//		number of required decimal places), and also formatting options for
-	//		displaying the value when the field is not focused.
-	// example:
-	//		Minimum/maximum:
-	//		To specify a field between 0 and 120:
-	//	|		{min:0,max:120}
-	//		To specify a field that must be an integer:
-	//	|		{fractional:false}
-	//		To specify a field where 0 to 3 decimal places are allowed on input:
-	//	|		{places:'0,3'}
-});
-=====*/
+	//		A TextBox for entering numbers, with formatting and range checking
 
-dojo.declare("dijit.form.NumberTextBoxMixin",
-	null,
-	{
+
+	/*=====
+	dojo.declare(
+		"dijit.form.NumberTextBox.__Constraints",
+		[dijit.form.RangeBoundTextBox.__Constraints, dojo.number.__FormatOptions, dojo.number.__ParseOptions], {
+		// summary:
+		//		Specifies both the rules on valid/invalid values (minimum, maximum,
+		//		number of required decimal places), and also formatting options for
+		//		displaying the value when the field is not focused.
+		// example:
+		//		Minimum/maximum:
+		//		To specify a field between 0 and 120:
+		//	|		{min:0,max:120}
+		//		To specify a field that must be an integer:
+		//	|		{fractional:false}
+		//		To specify a field where 0 to 3 decimal places are allowed on input:
+		//	|		{places:'0,3'}
+	});
+	=====*/
+
+	dojo.declare("dijit.form.NumberTextBoxMixin", null, {
 		// summary:
 		//		A mixin for all number textboxes
 		// tags:
@@ -73,6 +84,11 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 		 =====*/
 		_formatter: dojo.number.format,
 
+		postMixInProperties: function(){
+			this.inherited(arguments);
+			this._set("type", "text"); // in case type="number" was specified which messes up parse/format
+		},
+
 		_setConstraintsAttr: function(/*Object*/ constraints){
 			var places = typeof constraints.places == "number"? constraints.places : 0;
 			if(places){ places++; } // decimal rounding errors take away another digit of precision
@@ -113,7 +129,7 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 			if(!("rangeCheck" in this && this.rangeCheck(value, constraints)) && constraints.exponent !== false && /\de[-+]?\d/i.test(formattedValue)){
 				return formattedValue;
 			}
-			if(this.editOptions && this._focused){
+			if(this.editOptions && this.focused){
 				constraints = dojo.mixin({}, constraints, this.editOptions);
 			}
 			return this._formatter(value, constraints);
@@ -141,8 +157,8 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 			// tags:
 			//		protected extension
 
-			var v = this._parser(value, dojo.mixin({}, constraints, (this.editOptions && this._focused) ? this.editOptions : {}));
-			if(this.editOptions && this._focused && isNaN(v)){
+			var v = this._parser(value, dojo.mixin({}, constraints, (this.editOptions && this.focused) ? this.editOptions : {}));
+			if(this.editOptions && this.focused && isNaN(v)){
 				v = this._parser(value, constraints); // parse w/o editOptions: not technically needed but is nice for the user
 			}
 			return v;
@@ -172,7 +188,7 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 		},
 
 		_setBlurValue: function(){
-			var val = dojo.hitch(dojo.mixin({}, this, { _focused: true }), "get")('value'); // parse with editOptions
+			var val = dojo.hitch(dojo.mixin({}, this, { focused: true }), "get")('value'); // parse with editOptions
 			this._setValueAttr(val, true);
 		},
 
@@ -222,7 +238,7 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 		isValid: function(/*Boolean*/ isFocused){
 			// Overrides dijit.form.RangeBoundTextBox.isValid to check that the editing-mode value is valid since
 			// it may not be formatted according to the regExp vaidation rules
-			if(!this._focused || this._isEmpty(this.textbox.value)){
+			if(!this.focused || this._isEmpty(this.textbox.value)){
 				return this.inherited(arguments);
 			}else{
 				var v = this.get('value');
@@ -237,12 +253,9 @@ dojo.declare("dijit.form.NumberTextBoxMixin",
 				}
 			}
 		}
-	}
-);
+	});
 
-dojo.declare("dijit.form.NumberTextBox",
-	[dijit.form.RangeBoundTextBox,dijit.form.NumberTextBoxMixin],
-	{
+	dojo.declare("dijit.form.NumberTextBox", [dijit.form.RangeBoundTextBox,dijit.form.NumberTextBoxMixin], {
 		// summary:
 		//		A TextBox for entering numbers, with formatting and range checking
 		// description:
@@ -260,9 +273,8 @@ dojo.declare("dijit.form.NumberTextBox",
 		//				allowed on input, and number of places displayed when blurred (see `constraints` parameter).
 
 		baseClass: "dijitTextBox dijitNumberTextBox"
-	}
-);
+	});
 
 
-return dijit.form.NumberTextBox;
+	return dijit.form.NumberTextBox;
 });

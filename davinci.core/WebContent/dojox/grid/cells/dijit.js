@@ -1,23 +1,23 @@
-dojo.provide("dojox.grid.cells.dijit");
-
-dojo.require("dojox.grid.cells");
-
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"../cells",
+	"dojo/data/ItemFileReadStore",
+	"dijit/form/DateTextBox",
+	"dijit/form/TimeTextBox",
+	"dijit/form/ComboBox",
+	"dijit/form/CheckBox",
+	"dijit/form/TextBox",
+	"dijit/form/NumberSpinner",
+	"dijit/form/NumberTextBox",
+	"dijit/form/CurrencyTextBox",
+	"dijit/form/HorizontalSlider",
+	"dijit/Editor"], function(dojo, dijit, dojox){
+		
 // TODO: shouldn't it be the test file's job to require these modules,
 // if it is using them?  Most of these modules aren't referenced by this file.
-
-dojo.require("dijit.form.DateTextBox");
-dojo.require("dijit.form.TimeTextBox");
-dojo.require("dijit.form.ComboBox");
-dojo.require("dojo.data.ItemFileReadStore");
-dojo.require("dijit.form.CheckBox");
-dojo.require("dijit.form.TextBox");
-dojo.require("dijit.form.NumberSpinner");
-dojo.require("dijit.form.NumberTextBox");
-dojo.require("dijit.form.CurrencyTextBox");
-dojo.require("dijit.form.HorizontalSlider");
-dojo.require("dijit.Editor");
-
-(function(){
+	
 	var dgc = dojox.grid.cells;
 	dojo.declare("dojox.grid.cells._Widget", dgc._Base, {
 		widgetClass: dijit.form.TextBox,
@@ -35,8 +35,13 @@ dojo.require("dijit.Editor");
 		getValue: function(inRowIndex){
 			return this.widget.get('value');
 		},
+		_unescapeHTML: function(value){
+			return (value && value.replace && this.grid.escapeHTMLInData) ? 
+					value.replace(/&lt;/g, '<').replace(/&amp;/g, '&') : value;
+		},
 		setValue: function(inRowIndex, inValue){
 			if(this.widget&&this.widget.set){
+				inValue = this._unescapeHTML(inValue);
 				//Look for lazy-loading editor and handle it via its deferred.
 				if(this.widget.onLoadDeferred){
 					var self = this;
@@ -59,7 +64,7 @@ dojo.require("dijit.Editor");
 				this.widgetProps||{},
 				{
 					constraints: dojo.mixin({}, this.constraint) || {}, //TODO: really just for ValidationTextBoxes
-					value: inDatum
+					value: this._unescapeHTML(inDatum)
 				}
 			);
 		},
@@ -235,4 +240,7 @@ dojo.require("dijit.Editor");
 			cell.widgetHeight = h;
 		}
 	};
-})();
+
+	return dojox.grid.cells.dijit;
+
+});

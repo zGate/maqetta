@@ -1,4 +1,17 @@
-define("dijit/tree/ForestStoreModel", ["dojo", "dijit", "dijit/tree/TreeStoreModel"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"./TreeStoreModel",
+	"dojo/_base/array", // dojo.indexOf dojo.some
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/window" // dojo.global
+], function(dojo, dijit){
+
+// module:
+//		dijit/tree/ForestStoreModel
+// summary:
+//		Interface between a dijit.Tree and a dojo.data store that doesn't have a root item,
+//		a.k.a. a store that has multiple "top level" items.
 
 dojo.declare("dijit.tree.ForestStoreModel", dijit.tree.TreeStoreModel, {
 	// summary:

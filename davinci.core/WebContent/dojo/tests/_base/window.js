@@ -1,7 +1,5 @@
-dojo.provide("tests._base.window");
-
-tests.register("tests._base.window",
-	[
+define(["../..", "doh"], function(dojo, doh){
+	doh.register("tests._base.window", [
 		function withGlobal(t){
 			var arg1, arg2, innerThis, innerGlobal, innerDoc, finished,
 				globalObj = {test: "myGlobal", document: {test: "myDoc"}},
@@ -13,7 +11,7 @@ tests.register("tests._base.window",
 					arg2 = a2;
 					innerThis = this.test;
 					innerGlobal = dojo.global.test;
-					innerDoc = dojo.doc.test
+					innerDoc = dojo.doc.test;
 					finished = true;
 				}, thisObj, [1, 2])
 			}catch(e){}
@@ -36,7 +34,7 @@ tests.register("tests._base.window",
 					arg1 = a1;
 					arg2 = a2;
 					innerThis = this.test;
-					innerDoc = dojo.doc.test
+					innerDoc = dojo.doc.test;
 					finished = true;
 				}, thisObj, [1, 2])
 			}catch(e){}
@@ -47,6 +45,6 @@ tests.register("tests._base.window",
 			t.assertEqual("myThis", innerThis);
 			t.assertEqual("myDoc", innerDoc);
 		}
-	]
-);
+	]);
+});
 

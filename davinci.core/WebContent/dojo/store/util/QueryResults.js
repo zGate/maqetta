@@ -1,4 +1,9 @@
-define("dojo/store/util/QueryResults", ["dojo"], function(dojo) {
+define(["../../_base/kernel", "../../_base/lang", "../../_base/Deferred"], function(dojo) {
+  //  module:
+  //    dojo/store/util/QueryResults
+  //  summary:
+  //    The module defines a query results wrapper 
+
 dojo.getObject("store.util", true, dojo);
 
 dojo.store.util.QueryResults = function(results){
@@ -24,7 +29,7 @@ dojo.store.util.QueryResults = function(results){
 	//	|	store.query({ prime: true }).forEach(function(item){
 	//	|		//	do something
 	//	|	});
-	
+
 	if(!results){
 		return results;
 	}

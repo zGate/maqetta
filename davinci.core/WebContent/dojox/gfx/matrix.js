@@ -1,7 +1,5 @@
-dojo.provide("dojox.gfx.matrix");
-
-(function(){
-	var m = dojox.gfx.matrix;
+define(["dojo/_base/kernel"], function(){
+	var m = dojo.getObject("gfx.matrix", true, dojox);
 
 	// candidates for dojox.math:
 	var _degToRadCache = {};
@@ -207,7 +205,7 @@ dojo.provide("dojox.gfx.matrix");
 			// summary: inverts a 2D matrix
 			// matrix: dojox.gfx.matrix.Matrix2D: a 2D matrix-like object to be inverted
 			var M = m.normalize(matrix),
-				D = M.xx * M.yy - M.xy * M.yx,
+				D = M.xx * M.yy - M.xy * M.yx;
 				M = new m.Matrix2D({
 					xx: M.yy/D, xy: -M.xy/D,
 					yx: -M.yx/D, yy: M.xx/D,
@@ -223,11 +221,11 @@ dojo.provide("dojox.gfx.matrix");
 			// y: Number: a y coordinate of a point
 			return {x: matrix.xx * x + matrix.xy * y + matrix.dx, y: matrix.yx * x + matrix.yy * y + matrix.dy}; // dojox.gfx.Point
 		},
-		multiplyPoint: function(matrix, /* Number||Point */ a, /* Number, optional */ b){
+		multiplyPoint: function(matrix, /* Number||Point */ a, /* Number? */ b){
 			// summary: applies a matrix to a point
 			// matrix: dojox.gfx.matrix.Matrix2D: a 2D matrix object to be applied
 			// a: Number: an x coordinate of a point
-			// b: Number: a y coordinate of a point
+			// b: Number?: a y coordinate of a point
 			var M = m.normalize(matrix);
 			if(typeof a == "number" && typeof b == "number"){
 				return m._multiplyPoint(M, a, b); // dojox.gfx.Point
@@ -412,12 +410,12 @@ dojo.provide("dojox.gfx.matrix");
 			// b: null
 			return m._sandwich(m.skewY(angle), a.x, a.y); // dojox.gfx.matrix.Matrix2D
 		},
-		skewYgAt: function(/* Number */ degree, /* Number||Point */ a, /* Number, optional */ b){
+		skewYgAt: function(/* Number */ degree, /* Number||Point */ a, /* Number? */ b){
 			// summary: skews a picture along the y axis using a specified point as a center of skewing
 			// description: Compare with dojox.gfx.matrix.skewYg().
 			// degree: Number: an skewing angle in degrees
 			// a: Number: an x component of a central point
-			// b: Number: a y component of a central point
+			// b: Number?: a y component of a central point
 
 			// accepts several signatures:
 			//	1) skew angle in degrees, Point
@@ -437,7 +435,10 @@ dojo.provide("dojox.gfx.matrix");
 		//TODO: rect-to-rect mapping, scale-to-fit (isotropic and anisotropic versions)
 
 	});
-})();
+	// propagate Matrix2D up
+	dojox.gfx.Matrix2D = m.Matrix2D;
 
-// propagate Matrix2D up
-dojox.gfx.Matrix2D = dojox.gfx.matrix.Matrix2D;
+	return m;
+});
+
+

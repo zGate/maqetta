@@ -1,22 +1,23 @@
-dojo.provide("dojox.grid._View");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/text!./resources/View.html",
+	"dojo/dnd/Source",
+	"dojo/dnd/Manager",	
+	"dijit/_TemplatedMixin",
+	"dijit/_Widget",
+	"dojox/html/metrics",
+	"./_Builder",
+	"./util"], function(dojo, dijit, dojox, template){
 
-dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
-dojo.require("dojox.grid._Builder");
-dojo.require("dojox.html.metrics");
-dojo.require("dojox.grid.util");
-
-dojo.require("dojo.dnd.Source");
-dojo.require("dojo.dnd.Manager");
-
-(function(){
 	// a private function
 	var getStyleText = function(inNode, inStyleText){
 		return inNode.style.cssText == undefined ? inNode.getAttribute("style") : inNode.style.cssText;
 	};
 
 	// some public functions
-	dojo.declare('dojox.grid._View', [dijit._Widget, dijit._Templated], {
+	dojo.declare('dojox.grid._View', [dijit._Widget, dijit._TemplatedMixin], {
 		// summary:
 		//		A collection of grid columns. A grid is comprised of a set of views that stack horizontally.
 		//		Grid creates views automatically based on grid's layout structure.
@@ -30,7 +31,7 @@ dojo.require("dojo.dnd.Manager");
 		// 		Width for the view, in valid css unit
 		viewWidth: "",
 
-		templatePath: dojo.moduleUrl("dojox.grid","resources/View.html"),
+		templateString: template,
 		
 		themeable: false,
 		classTag: 'dojoxGrid',
@@ -584,7 +585,7 @@ dojo.require("dojo.dnd.Manager");
 		renderRow: function(inRowIndex){
 			var rowNode = this.createRowNode(inRowIndex);
 			this.buildRow(inRowIndex, rowNode);
-			this.grid.edit.restore(this, inRowIndex);
+			//this.grid.edit.restore(this, inRowIndex);
 			return rowNode;
 		},
 
@@ -596,7 +597,7 @@ dojo.require("dojo.dnd.Manager");
 			}else{
 				dojo.attr(node,"role","row");
 				if (this.grid.selectionMode != "none") {
-					dojo.attr(node, "aria-selected", "false"); //rows can be selected so add aria-selected prop
+					node.setAttribute("aria-selected", "false"); //rows can be selected so add aria-selected prop
 				}
 			}
 			node[dojox.grid.util.gridViewTag] = this.id;
@@ -830,4 +831,7 @@ dojo.require("dojo.dnd.Manager");
 		}
 		return oldMakeAvatar.call(dojo.dnd.manager());
 	};
-})();
+
+	return dojox.grid._View;
+
+});

@@ -1,10 +1,32 @@
-define("dijit/InlineEditBox", ["dojo", "dijit", "text!dijit/templates/InlineEditBox.html", "dojo/i18n", "dijit/_Widget", "dijit/_Container", "dijit/form/Button", "dijit/form/TextBox", "i18n!dijit/nls/common"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated dojo.getObject
+	".",
+	"dojo/text!./templates/InlineEditBox.html",
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"./_Widget",
+	"./_TemplatedMixin",
+	"./_WidgetsInTemplateMixin",
+	"./_Container",
+	"./form/Button",
+	"./form/TextBox",
+	"./focus",
+	"dojo/i18n!./nls/common",
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.keys.ENTER dojo.keys.ESCAPE
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.attr dojo.create dojo.destroy dojo.getComputedStyle dojo.removeClass dojo.style dojo.toggleClass
+	"dojo/_base/lang", // dojo.delegate dojo.hitch dojo.trim
+	"dojo/_base/sniff" // dojo.isIE
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.InlineEditBox",
-	dijit._Widget,
-	{
+// module:
+//		dijit/InlineEditBox
+// summary:
+//		An element with in-line edit capabilities
+
+dojo.declare("dijit.InlineEditBox", dijit._Widget, {
 	// summary:
-	//		An element with in-line edit capabilites
+	//		An element with in-line edit capabilities
 	//
 	// description:
 	//		Behavior for an existing node (`<p>`, `<div>`, `<span>`, etc.) so that
@@ -113,7 +135,7 @@ dojo.declare("dijit.InlineEditBox",
 		for(var name in events){
 			this.connect(this.displayNode, name, events[name]);
 		}
-		dijit.setWaiRole(this.displayNode, "button");
+		this.displayNode.setAttribute("role", "button");
 		if(!this.displayNode.getAttribute("tabIndex")){
 			this.displayNode.setAttribute("tabIndex", 0);
 		}
@@ -142,7 +164,7 @@ dojo.declare("dijit.InlineEditBox",
 		// summary:
 		//		Hook to make set("disabled", ...) work.
 		//		Set disabled state of widget.
-		dijit.setWaiState(this.domNode, "disabled", disabled);
+		this.domNode.setAttribute("aria-disabled", disabled);
 		if(disabled){
 			this.displayNode.removeAttribute("tabIndex");
 		}else{
@@ -227,24 +249,21 @@ dojo.declare("dijit.InlineEditBox",
 		}
 		var ww = this.wrapperWidget;
 
-		if(dojo.isIE){
-			dijit.focus(dijit.getFocus()); // IE (at least 8) needs help with tab order changes
-		}
 		// to avoid screen jitter, we first create the editor with position:absolute, visibility:hidden,
 		// and then when it's finished rendering, we switch from display mode to editor
 		// position:absolute releases screen space allocated to the display node
 		// opacity:0 is the same as visibility:hidden but is still focusable
 		// visiblity:hidden removes focus outline
 
-		dojo.style(this.displayNode, { position: "absolute", opacity: "0", display: "none" }); // makes display node invisible, display style used for focus-ability
+		dojo.style(this.displayNode, { position: "absolute", opacity: "0" }); // makes display node invisible, display style used for focus-ability
 		dojo.style(ww.domNode, { position: this._savedPosition, visibility: "visible", opacity: "1" });
 		dojo.attr(this.displayNode, "tabIndex", "-1"); // needed by WebKit for TAB from editor to skip displayNode
 
 		// Replace the display widget with edit widget, leaving them both displayed for a brief time so that
 		// focus can be shifted without incident.  (browser may needs some time to render the editor.)
-		setTimeout(dojo.hitch(this, function(){
-			ww.focus(); // both nodes are showing, so we can switch focus safely
-			ww._resetValue = ww.getValue();
+		setTimeout(dojo.hitch(ww, function(){
+			this.focus(); // both nodes are showing, so we can switch focus safely
+			this._resetValue = this.getValue();
 		}), 0);
 	},
 
@@ -284,7 +303,7 @@ dojo.declare("dijit.InlineEditBox",
 
 		var ww = this.wrapperWidget;
 		dojo.style(ww.domNode, { position: "absolute", visibility: "hidden", opacity: "0" }); // hide the editor from mouse/keyboard events
-		dojo.style(this.displayNode, { position: this._savedPosition, opacity: this._savedOpacity, display: "" }); // make the original text visible
+		dojo.style(this.displayNode, { position: this._savedPosition, opacity: this._savedOpacity }); // make the original text visible
 		dojo.attr(this.displayNode, "tabIndex", this._savedTabIndex);
 		if(focus){
 			dijit.focus(this.displayNode);
@@ -361,7 +380,7 @@ dojo.declare("dijit.InlineEditBox",
 
 dojo.declare(
 	"dijit._InlineEditor",
-	 [dijit._Widget, dijit._Templated],
+	 [dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin],
 {
 	// summary:
 	// 		Internal widget used by InlineEditBox, displayed when in editing mode
@@ -376,8 +395,7 @@ dojo.declare(
 	// value: String
 	//		Value as an HTML string or plain text string, depending on renderAsHTML flag
 
-	templateString: dojo.cache("dijit", "templates/InlineEditBox.html"),
-	widgetsInTemplate: true,
+	templateString: template,
 
 	postMixInProperties: function(){
 		this.inherited(arguments);
@@ -537,7 +555,6 @@ dojo.declare(
 		//		private
 
 		if(this.inlineEditBox.autoSave && this.inlineEditBox.editing && this.enableSave()){
-			dojo.style(this.inlineEditBox.displayNode, { display: "" });
 			dijit.focus(this.inlineEditBox.displayNode); // fires _onBlur which will save the formatted value
 		}
 	},

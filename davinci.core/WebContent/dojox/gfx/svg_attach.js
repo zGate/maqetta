@@ -1,10 +1,6 @@
-dojo.provide("dojox.gfx.svg_attach");
-
-dojo.require("dojox.gfx.svg");
-
-dojo.experimental("dojox.gfx.svg_attach");
-
-(function(){
+define(["./svg"], function(){
+	dojo.getObject("dojox.gfx.svg_attach", true);
+	dojo.experimental("dojox.gfx.svg_attach");
 	var g = dojox.gfx, svg = g.svg;
 	
 	svg.attachNode = function(node){
@@ -227,4 +223,6 @@ dojo.experimental("dojox.gfx.svg_attach");
 		shape.kerning = r.getAttribute("kerning") == "auto";
 		shape.text = r.firstChild.nodeValue;
 	}
-})();
+
+	return svg; // return augmented svg api
+});

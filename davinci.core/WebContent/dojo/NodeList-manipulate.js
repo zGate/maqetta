@@ -1,4 +1,9 @@
-define("dojo/NodeList-manipulate", ["dojo"], function(dojo) {
+define(["./main"], function(dojo) {
+	// module:
+	//		dojo/NodeList-manipulate
+	// summary:
+	//		TODOC
+
 
 /*=====
 dojo["NodeList-manipulate"] = {
@@ -9,7 +14,6 @@ dojo["NodeList-manipulate"] = {
 
 //TODO: add a way to parse for widgets in the injected markup?
 
-(function(){
 	function getText(/*DOMNode*/node){
 		// summary:
 		// 		recursion method for text() to use. Gets text value for a node.
@@ -225,7 +229,7 @@ dojo["NodeList-manipulate"] = {
 					var name = node.nodeName.toUpperCase();
 					var type = node.type;
 					var newValue = isArray ? value[index] : value;
-	
+
 					if(name == "SELECT"){
 						var opts = node.options;
 						for(var i = 0; i < opts.length; i++){
@@ -587,7 +591,7 @@ dojo["NodeList-manipulate"] = {
 					//the "this" nodes, then on the clone of html it will contain
 					//that "this" node, and that would be bad.
 					var clone = this._cloneNode(html);
-					
+
 					//Need to convert the childNodes to an array since wrapAll modifies the
 					//DOM and can change the live childNodes NodeList.
 					this._wrap(dojo._toArray(this[i].childNodes), null, this._NodeListCtor).wrapAll(clone);
@@ -717,7 +721,6 @@ dojo["NodeList-manipulate"] = {
 	if(!dojo.NodeList.prototype.html){
 		dojo.NodeList.prototype.html = dojo.NodeList.prototype.innerHTML;
 	}
-})();
 
 return dojo.NodeList;
 });

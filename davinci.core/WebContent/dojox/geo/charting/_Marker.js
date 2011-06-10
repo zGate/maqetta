@@ -1,20 +1,33 @@
-dojo.provide("dojox.geo.charting._Marker");
 
-dojo.declare("dojox.geo.charting._Marker", null, {
+define(["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/declare", "./_base"], 
+				function(dojo, lang, declare) {
+
+return dojo.declare("dojox.geo.charting._Marker", null, {
+	
+	_needTooltipRefresh: null,
+	_map: null,
+	
 	constructor: function(markerData, map){
+		this._map = map;
 		var mapObj = map.mapObj;
 		this.features = mapObj.features;
 		this.markerData = markerData;
+		_needTooltipRefresh = false;
 	},
 
 	show: function(featureId){
-		this.markerText = this.features[featureId].markerText || this.markerData[featureId] || featureId;
 		this.currentFeature = this.features[featureId];
-		dojox.geo.charting.showTooltip(this.markerText, this.currentFeature.shape, "before");
+		if (this._map.showTooltips && this.currentFeature) {
+			this.markerText = this.currentFeature.markerText || this.markerData[featureId] || featureId;
+			dojox.geo.charting.showTooltip(this.markerText, this.currentFeature.shape, ["before"]);
+		}
+		this._needTooltipRefresh = false;
 	},
 
 	hide: function(){
-		dojox.geo.charting.hideTooltip(this.currentFeature.shape);
+		if (this._map.showTooltips && this.currentFeature)
+			dojox.geo.charting.hideTooltip(this.currentFeature.shape);
+		this._needTooltipRefresh = false;
 	},
 
 	_getGroupBoundingBox: function(group){
@@ -49,4 +62,5 @@ dojo.declare("dojox.geo.charting._Marker", null, {
 		arround.x += arround.width / 6;
 		arround.y += arround.height / 4;
 	}
+});
 });

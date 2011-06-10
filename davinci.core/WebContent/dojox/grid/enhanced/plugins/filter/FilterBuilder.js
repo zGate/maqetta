@@ -1,7 +1,5 @@
-dojo.provide("dojox.grid.enhanced.plugins.filter.FilterBuilder");
-dojo.require("dojox.grid.enhanced.plugins.filter._FilterExpr");
+define(["dojo", "dojox", "./_FilterExpr"], function(dojo, dojox){
 
-(function(){
 var fns = dojox.grid.enhanced.plugins.filter,
 	bdr = function(opCls){
 		return dojo.partial(function(cls,operands){
@@ -75,4 +73,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterBuilder", null, {
 		}
 	}
 });
-})();
+
+	return dojox.grid.enhanced.plugins.filter.FilterBuilder;
+
+});

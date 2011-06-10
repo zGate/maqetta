@@ -1,6 +1,5 @@
-dojo.provide("dojox.grid._RowManager");
+define(["dojo", "dojox"], function(dojo, dojox){
 
-(function(){
 	var setStyleText = function(inNode, inStyleText){
 		if(inNode.style.cssText == undefined){
 			inNode.setAttribute("style", inStyleText);
@@ -57,4 +56,7 @@ dojo.provide("dojox.grid._RowManager");
 			return (this.overRow == inRowIndex && !dojo.hasClass(this.grid.domNode, "dojoxGridColumnResizing"));
 		}
 	});
-})();
+
+	return dojox.grid._RowManager;
+
+});

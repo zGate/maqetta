@@ -1,4 +1,5 @@
-dojo.provide("dojox.xml.DomParser");
+define(['dojo/_base/array'], function(dojo){
+dojo.getObject("xml", true, dojox);
 
 dojox.xml.DomParser=new (function(){
 	/**********************************************************
@@ -387,3 +388,5 @@ dojox.xml.DomParser=new (function(){
 		return root;
 	};
 })();
+return dojox.xml.DomParser;
+});

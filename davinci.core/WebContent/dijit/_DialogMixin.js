@@ -1,11 +1,18 @@
-define("dijit/_DialogMixin", ["dojo", "dijit", "dijit/_Widget"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"./_Widget",
+	"dojo/_base/declare" // dojo.declare
+], function(dojo, dijit){
 
-dojo.declare("dijit._DialogMixin", null,
-	{
+	// module:
+	//		dijit/_DialogMixin
+	// summary:
+	//		_DialogMixin provides functions useful to Dialog and TooltipDialog
+
+	dojo.declare("dijit._DialogMixin", null, {
 		// summary:
 		//		This provides functions useful to Dialog and TooltipDialog
-
-		attributeMap: dijit._Widget.prototype.attributeMap,
 
 		execute: function(/*Object*/ formContents){
 			// summary:
@@ -63,9 +70,8 @@ dojo.declare("dijit._DialogMixin", null,
 			this._firstFocusItem = elems.lowest || elems.first || this.closeButtonNode || this.domNode;
 			this._lastFocusItem = elems.last || elems.highest || this._firstFocusItem;
 		}
-	}
-);
+	});
 
 
-return dijit._DialogMixin;
+	return dijit._DialogMixin;
 });

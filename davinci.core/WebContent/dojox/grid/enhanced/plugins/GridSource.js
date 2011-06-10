@@ -1,9 +1,5 @@
-dojo.provide("dojox.grid.enhanced.plugins.GridSource");
+define(["dojo", "dojox", "dojo/dnd/Source", "./DnD"], function(dojo, dojox){
 
-dojo.require("dojo.dnd.Source");
-dojo.require("dojox.grid.enhanced.plugins.DnD");
-
-(function(){
 var _joinToArray = function(arrays){
 	var a = arrays[0];
 	for(var i = 1; i < arrays.length; ++i){
@@ -145,4 +141,7 @@ dojo.declare("dojox.grid.enhanced.plugins.GridSource", dojo.dnd.Source, {
 		
 	}
 });
-})();
+	
+	return dojox.grid.enhanced.plugins.GridSource;
+
+});

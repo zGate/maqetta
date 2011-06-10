@@ -1,10 +1,14 @@
-dojo.provide("dojox.grid.enhanced.plugins.filter.FilterBar");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/fx",
+	"dojo/string",
+	"dijit/form/Button",
+	"dijit/_WidgetsInTemplateMixin",
+	"dijit/focus"	// dijit.focus()
+], function(dojo, dijit, dojox){
 
-dojo.require("dijit.form.Button");
-dojo.require("dojo.string");
-dojo.require("dojo.fx");
-
-(function(){
 var _focusClass = "dojoxGridFBarHover",
 	_filteredClass = "dojoxGridFBarFiltered",
 	_stopEvent = function(evt){
@@ -15,7 +19,7 @@ var _focusClass = "dojoxGridFBarHover",
 		}catch(e){}
 	};
 	
-dojo.declare("dojox.grid.enhanced.plugins.filter.FilterBar",[dijit._Widget, dijit._Templated],{
+dojo.declare("dojox.grid.enhanced.plugins.filter.FilterBar",[dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin],{
 	// summary:
 	//		The filter bar UI.
 	templateString: dojo.cache("dojox.grid","enhanced/templates/FilterBar.html"),
@@ -317,8 +321,8 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterBar",[dijit._Widget, diji
 		this._focusPos = 0;
 	},
 	_initAriaInfo: function(){
-		dijit.setWaiState(this.defineFilterButton.domNode, "label", this.plugin.nls["waiFilterBarDefButton"]);
-		dijit.setWaiState(this.clearFilterButton.domNode,"label", this.plugin.nls["waiFilterBarClearButton"]);
+		this.defineFilterButton.domNode.setAttribute("aria-label", this.plugin.nls["waiFilterBarDefButton"]);
+		this.clearFilterButton.domNode.setAttribute("aria-label", this.plugin.nls["waiFilterBarClearButton"]);
 	},
 	_isInColumn: function(/* int */mousePos_x, /* domNode */headerNode, /* int */colIndex){
 		var coord = dojo.coords(headerNode);
@@ -365,5 +369,7 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.FilterBar",[dijit._Widget, diji
 		}
 	}
 });
-})();
 
+	return dojox.grid.enhanced.plugins.filter.FilterBar;
+
+});

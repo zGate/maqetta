@@ -1,14 +1,29 @@
-define("dijit/layout/SplitContainer", ["dojo", "dijit", "dojo/cookie", "dijit/layout/_LayoutWidget"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated
+	"..",
+	"dojo/cookie", // dojo.cookie
+	"../_WidgetBase",
+	"./_LayoutWidget",
+	"dojo/_base/array", // dojo.forEach dojo.indexOf dojo.some
+	"dojo/_base/connect", // dojo.connect dojo.disconnect
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.create dojo.destroy dojo.marginBox dojo.position dojo.setSelectable dojo.style
+	"dojo/_base/sniff", // dojo.isMozilla
+	"dojo/_base/window" // dojo.doc.createElement dojo.doc.documentElement
+], function(dojo, dijit){
+
+// module:
+//		dijit/layout/SplitContainer
+// summary:
+//		Deprecated.  Use `dijit.layout.BorderContainer` instead.
 
 //
 // FIXME: make it prettier
 // FIXME: active dragging upwards doesn't always shift other bars (direction calculation is wrong in this case)
+// FIXME: sizeWidth should be a CSS attribute (at 7 because css wants it to be 7 until we fix to css)
 //
 
-
-dojo.declare("dijit.layout.SplitContainer",
-	dijit.layout._LayoutWidget,
-	{
+dojo.declare("dijit.layout.SplitContainer", dijit.layout._LayoutWidget, {
 	// summary:
 	//		Deprecated.  Use `dijit.layout.BorderContainer` instead.
 	// description:
@@ -32,7 +47,7 @@ dojo.declare("dijit.layout.SplitContainer",
 
 	// sizerWidth: Integer
 	//		Size in pixels of the bar between each child
-	sizerWidth: 7, // FIXME: this should be a CSS attribute (at 7 because css wants it to be 7 until we fix to css)
+	sizerWidth: 7,
 
 	// orientation: String
 	//		either 'horizontal' or vertical; indicates whether the children are
@@ -153,7 +168,7 @@ dojo.declare("dijit.layout.SplitContainer",
 		//		Remove sizer, but only if widget is really our child and
 		// we have at least one sizer to throw away
 		if(this.sizers.length){
-			var i=dojo.indexOf(this.getChildren(), widget)
+			var i = dojo.indexOf(this.getChildren(), widget);
 			if(i != -1){
 				if(i == this.sizers.length){
 					i--;
@@ -558,7 +573,7 @@ dojo.declare("dijit.layout.SplitContainer",
 // These arguments can be specified for the children of a SplitContainer.
 // Since any widget can be specified as a SplitContainer child, mix them
 // into the base widget class.  (This is a hack, but it's effective.)
-dojo.extend(dijit._Widget, {
+dojo.extend(dijit._WidgetBase, {
 	// sizeMin: [deprecated] Integer
 	//		Deprecated.  Parameter for children of `dijit.layout.SplitContainer`.
 	//		Minimum size (width or height) of a child of a SplitContainer.

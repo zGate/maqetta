@@ -33,10 +33,10 @@
 		dojo.require("dijit.tree.TreeStoreModel");
 		dojo.require("dijit.tree.dndSource");
 		
-		function getRowClass(item, isExpanded) {
-			if (!item
+		function getRowClass(item, isExpanded){
+			if(!item
 					|| !treeStore.isItem(item)
-					|| treeStore.getValue(item, "type") != "header") {
+					|| treeStore.getValue(item, "type") != "header"){
 				return null;
 			}
 			return "headerRow";
@@ -277,7 +277,7 @@
 							// but this is enough for testing
 							myStore.setValue(item, 'type', 'country');
 						}
-					})
+					});
 
 					var children = myTree.rootNode.getChildren();
 					doh.is(5, children.length, "five children again");
@@ -294,7 +294,7 @@
 							// but this is enough for testing
 							myStore.setValue(item, 'type', 'continent');
 						}
-					})
+					});
 
 					var children = myTree.rootNode.getChildren();
 					doh.is(6, children.length, "six children again");

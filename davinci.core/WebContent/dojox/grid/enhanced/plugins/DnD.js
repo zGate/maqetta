@@ -1,12 +1,12 @@
-dojo.provide("dojox.grid.enhanced.plugins.DnD");
+define([
+	"dojo",
+	"dojox",
+	"dojo/dnd/move",
+	"dojo/dnd/Source",
+	"../_Plugin",
+	"./Selector",
+	"./Rearrange"], function(dojo, dojox){
 
-dojo.require("dojox.grid.enhanced._Plugin");
-dojo.require("dojox.grid.enhanced.plugins.Selector");
-dojo.require("dojox.grid.enhanced.plugins.Rearrange");
-dojo.require("dojo.dnd.move");
-dojo.require("dojo.dnd.Source");
-
-(function(){
 var _devideToArrays = function(a){
 		a.sort(function(v1, v2){
 			return v1 - v2;
@@ -451,7 +451,6 @@ dojo.declare("dojox.grid.enhanced.plugins.DnD", dojox.grid.enhanced._Plugin, {
 	},
 	_destroySource: function(){
 		dojo.publish("/dnd/cancel");
-		this._elem.destroyDnDNodes();
 	},
 	_createMoveable: function(evt){
 		if(!this._markTagetAnchorHandler){
@@ -1071,4 +1070,7 @@ dojo.declare("dojox.grid.enhanced.plugins.GridDnDAvatar", dojo.dnd.Avatar, {
 dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.DnD/*name:'dnd'*/, {
 	"dependency": ["selector", "rearrange"]
 });
-})();
+
+	return dojox.grid.enhanced.plugins.DnD;
+
+});

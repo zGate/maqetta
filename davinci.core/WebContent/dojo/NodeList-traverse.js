@@ -1,4 +1,9 @@
-define("dojo/NodeList-traverse", ["dojo"], function(dojo) {
+define(["./main"], function(dojo) {
+	// module:
+	//		dojo/NodeList-traverse
+	// summary:
+	//		TODOC
+
 
 /*=====
 dojo["NodeList-traverse"] = {
@@ -96,21 +101,21 @@ dojo.extend(dojo.NodeList, {
 		// description:
 		// 		.end() can be used on the returned dojo.NodeList to get back to the
 		// 		original dojo.NodeList.
-		//	query:
+		// query:
 		//		a CSS selector.
 		// root:
 		//		If specified, query is relative to "root" rather than document body.
 		// returns:
 		//		dojo.NodeList, the closest parent that matches the query, including the current
 		//		node in this dojo.NodeList if it matches the query.
-		//	example:
+		// example:
 		//		assume a DOM created by this markup:
 		//	|	<div class="container">
-		// 	|		<div class="red">Red One</div>
-		// 	|		Some Text
-		// 	|		<div class="blue">Blue One</div>
-		// 	|		<div class="red">Red Two</div>
-		// 	|		<div class="blue">Blue Two</div>
+		//	|		<div class="red">Red One</div>
+		//	|		Some Text
+		//	|		<div class="blue">Blue One</div>
+		//	|		<div class="red">Red Two</div>
+		//	|		<div class="blue">Blue Two</div>
 		//	|	</div>
 		//		Running this code:
 		//	|	dojo.query(".red").closest(".container");
@@ -182,7 +187,7 @@ dojo.extend(dojo.NodeList, {
 		//	|	dojo.query(".text").parents(".container");
 		//		returns the one div with class "container".
 		return this._getRelatedUniqueNodes(query, function(node, ary){
-			var pary = []
+			var pary = [];
 			while(node.parentNode){
 				node = node.parentNode;
 				pary.push(node);
@@ -219,7 +224,7 @@ dojo.extend(dojo.NodeList, {
 		//	|	dojo.query(".first").siblings(".red");
 		//		returns the two div with class "red".
 		return this._getRelatedUniqueNodes(query, function(node, ary){
-			var pary = []
+			var pary = [];
 			var nodes = (node.parentNode && node.parentNode.childNodes);
 			for(var i = 0; i < nodes.length; i++){
 				if(nodes[i] != node){
@@ -292,7 +297,7 @@ dojo.extend(dojo.NodeList, {
 		//	|	dojo.query(".first").nextAll(".red");
 		//		returns the one div with class "red" and innerHTML "Red Two".
 		return this._getRelatedUniqueNodes(query, function(node, ary){
-			var pary = []
+			var pary = [];
 			var next = node;
 			while((next = next.nextSibling)){
 				if(next.nodeType == 1){
@@ -367,7 +372,7 @@ dojo.extend(dojo.NodeList, {
 		//	|	dojo.query(".first").prevAll(".red");
 		//		returns the one div with class "red prev" and innerHTML "Red One".
 		return this._getRelatedUniqueNodes(query, function(node, ary){
-			var pary = []
+			var pary = [];
 			var prev = node;
 			while((prev = prev.previousSibling)){
 				if(prev.nodeType == 1){

@@ -1,4 +1,27 @@
-define("dijit/form/Select", ["dojo", "dijit", "text!dijit/form/templates/Select.html", "dijit/form/_FormSelectWidget", "dijit/_HasDropDown", "dijit/Menu", "dijit/Tooltip", "i18n!dijit/form/nls/validate"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/text!./templates/Select.html",
+	"./_FormSelectWidget",
+	"../_HasDropDown",
+	"../Menu",
+	"../MenuItem",
+	"../MenuSeparator",
+	"../Tooltip",
+	"dojo/i18n!./nls/validate",
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.attr dojo.create dojo.marginBox dojo.removeClass dojo.toggleClass
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/i18n" // dojo.i18n.getLocalization
+], function(dojo, dijit, template){
+
+// module:
+//		dijit/form/Select
+// summary:
+//		This is a "styleable" select box - it is basically a DropDownButton which
+//		can take a <select> as its input.
+
 
 dojo.declare("dijit.form._SelectMenu", dijit.Menu, {
 	// summary:
@@ -16,14 +39,14 @@ dojo.declare("dijit.form._SelectMenu", dijit.Menu, {
 		dojo.removeClass(o, "dijitMenuTable");
 		n.className = o.className + " dijitSelectMenu";
 		o.className = "dijitReset dijitMenuTable";
-		dijit.setWaiRole(o,"listbox");
-		dijit.setWaiRole(n,"presentation");
+		o.setAttribute("role", "listbox");
+		n.setAttribute("role", "presentation");
 		n.appendChild(o);
 	},
 
 	postCreate: function(){
 		// summary:
-		//              stop mousemove from selecting text on IE to be consistent with other browsers
+		//		stop mousemove from selecting text on IE to be consistent with other browsers
 
 		this.inherited(arguments);
 
@@ -58,11 +81,7 @@ dojo.declare("dijit.form.Select", [dijit.form._FormSelectWidget, dijit._HasDropD
 
 	baseClass: "dijitSelect",
 
-	templateString: dojo.cache("dijit.form", "templates/Select.html"),
-
-	// attributeMap: Object
-	//		Add in our style to be applied to the focus node
-	attributeMap: dojo.mixin(dojo.clone(dijit.form._FormSelectWidget.prototype.attributeMap),{style:"tableNode"}),
+	templateString: template,
 
 	// required: Boolean
 	//		Can be true or false, default is false.
@@ -122,7 +141,7 @@ dojo.declare("dijit.form.Select", [dijit.form._FormSelectWidget, dijit._HasDropD
 				onClick: click,
 				disabled: option.disabled || false
 			});
-			dijit.setWaiRole(item.focusNode, "listitem");
+			item.focusNode.setAttribute("role", "listitem");
 			return item;
 		}
 	},
@@ -191,7 +210,7 @@ dojo.declare("dijit.form.Select", [dijit.form._FormSelectWidget, dijit._HasDropD
 		//		sets the display for the given value (or values)
 		var lbl = newDisplay || this.emptyLabel;
 		this.containerNode.innerHTML = '<span class="dijitReset dijitInline ' + this.baseClass + 'Label">' + lbl + '</span>';
-		dijit.setWaiState(this.focusNode, "valuetext", lbl);
+		this.focusNode.setAttribute("aria-valuetext", lbl);
 	},
 
 	validate: function(/*Boolean*/ isFocused){
@@ -201,10 +220,10 @@ dojo.declare("dijit.form.Select", [dijit.form._FormSelectWidget, dijit._HasDropD
 		//		Show missing or invalid messages if appropriate, and highlight textbox field.
 		//		Used when a select is initially set to no value and the user is required to
 		//		set the value.
-		
+
 		var isValid = this.isValid(isFocused);
 		this._set("state", isValid ? "" : "Error");
-		dijit.setWaiState(this.focusNode, "invalid", isValid ? "false" : "true");
+		this.focusNode.setAttribute("aria-invalid", isValid ? "false" : "true");
 		var message = isValid ? "" : this._missingMsg;
 		if(this.message !== message){
 			this._set("message", message);
@@ -251,7 +270,7 @@ dojo.declare("dijit.form.Select", [dijit.form._FormSelectWidget, dijit._HasDropD
 
 	_setStyleAttr: function(/*String||Object*/ value){
 		this.inherited(arguments);
-		dojo.toggleClass(this.domNode, this.baseClass + "FixedWidth", !!this.tableNode.style.width);
+		dojo.toggleClass(this.domNode, this.baseClass + "FixedWidth", !!this.domNode.style.width);
 	},
 
 	isLoaded: function(){

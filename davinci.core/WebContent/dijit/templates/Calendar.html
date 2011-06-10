@@ -1,4 +1,4 @@
-<table cellspacing="0" cellpadding="0" class="dijitCalendarContainer" role="grid" dojoAttachEvent="onkeypress: _onKeyPress" aria-labelledby="${id}_year">
+<table cellspacing="0" cellpadding="0" class="dijitCalendarContainer" role="grid" aria-labelledby="${id}_year">
 	<thead>
 		<tr class="dijitReset dijitCalendarMonthContainer" valign="top">
 			<th class='dijitReset dijitCalendarArrow' dojoAttachPoint="decrementMonth">
@@ -6,8 +6,7 @@
 				<span dojoAttachPoint="decreaseArrowNode" class="dijitA11ySideArrow">-</span>
 			</th>
 			<th class='dijitReset' colspan="5">
-				<div dojoType="dijit.form.DropDownButton" dojoAttachPoint="monthDropDownButton"
-					id="${id}_mddb" tabIndex="-1">
+				<div dojoAttachPoint="monthNode">
 				</div>
 			</th>
 			<th class='dijitReset dijitCalendarArrow' dojoAttachPoint="incrementMonth">
@@ -16,13 +15,11 @@
 			</th>
 		</tr>
 		<tr>
-			<th class="dijitReset dijitCalendarDayLabelTemplate" role="columnheader"><span class="dijitCalendarDayLabel"></span></th>
+			${!dayCellsHtml}
 		</tr>
 	</thead>
-	<tbody dojoAttachEvent="onclick: _onDayClick, onmouseover: _onDayMouseOver, onmouseout: _onDayMouseOut, onmousedown: _onDayMouseDown, onmouseup: _onDayMouseUp" class="dijitReset dijitCalendarBodyContainer">
-		<tr class="dijitReset dijitCalendarWeekTemplate" role="row">
-			<td class="dijitReset dijitCalendarDateTemplate" role="gridcell"><span class="dijitCalendarDateLabel"></span></td>
-		</tr>
+	<tbody dojoAttachPoint="dateRowsNode" dojoAttachEvent="onclick: _onDayClick" class="dijitReset dijitCalendarBodyContainer">
+			${!dateRowsHtml}
 	</tbody>
 	<tfoot class="dijitReset dijitCalendarYearContainer">
 		<tr>

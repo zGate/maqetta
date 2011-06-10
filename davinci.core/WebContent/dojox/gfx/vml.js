@@ -1,13 +1,6 @@
-dojo.provide("dojox.gfx.vml");
-
-dojo.require("dojox.gfx._base");
-dojo.require("dojox.gfx.shape");
-dojo.require("dojox.gfx.path");
-dojo.require("dojox.gfx.arc");
-dojo.require("dojox.gfx.gradient");
-
-(function(){
-	var d = dojo, g = dojox.gfx, m = g.matrix, gs = g.shape, vml = g.vml;
+define(["./_base","./shape","./path","./arc","./gradient"],function(){
+	var vml = dojo.getObject("dojox.gfx.vml", true),
+		d = dojo, g = dojox.gfx, m = g.matrix, gs = g.shape;
 
 	// dojox.gfx.vml.xmlns: String: a VML's namespace
 	vml.xmlns = "urn:schemas-microsoft-com:vml";
@@ -260,6 +253,7 @@ dojo.require("dojox.gfx.gradient");
 			rawNode.stroked = "f";
 			rawNode.filled  = "f";
 			this.rawNode = rawNode;
+			this.rawNode.__gfxObject__ = this.getUID();
 		},
 
 		// move family
@@ -348,6 +342,7 @@ dojo.require("dojox.gfx.gradient");
 				node.arcsize = r;
 				node.style.display = "inline-block";
 				this.rawNode = node;
+				this.rawNode.__gfxObject__ = this.getUID();						
 			}else{
 				this.rawNode.arcsize = r;
 			}
@@ -362,7 +357,7 @@ dojo.require("dojox.gfx.gradient");
 			style.left   = shape.x.toFixed();
 			style.top    = shape.y.toFixed();
 			style.width  = (typeof shape.width == "string" && shape.width.indexOf("%") >= 0)  ? shape.width  : shape.width.toFixed();
-			style.height = (typeof shape.width == "string" && shape.height.indexOf("%") >= 0) ? shape.height : shape.height.toFixed();
+			style.height = (typeof shape.height == "string" && shape.height.indexOf("%") >= 0) ? shape.height : shape.height.toFixed();
 			// set all necessary styles, which are lost by VML (yes, it's a VML's bug)
 			return this.setTransform(this.matrix).setFill(this.fillStyle).setStroke(this.strokeStyle);	// self
 		}
@@ -1201,9 +1196,20 @@ dojo.require("dojox.gfx.gradient");
 	d.extend(vml.Surface, gs.Creator);
 	d.extend(vml.Surface, Creator);
 
-	// see if we are required to initilize
-	if(g.loadAndSwitch === "vml"){
-		g.switchTo("vml");
-		delete g.loadAndSwitch;
-	}
-})();
+	// Mouse/Touch event
+	vml.fixTarget = function(event, gfxElement){
+		// summary: 
+		//     Adds the gfxElement to event.gfxTarget if none exists. This new 
+		//     property will carry the GFX element associated with this event.
+		// event: Object 
+		//     The current input event (MouseEvent or TouchEvent)
+		// gfxElement: Object
+		//     The GFX target element
+		if (!event.gfxTarget) {
+			event.gfxTarget = dojox.gfx.shape.byId(event.target.__gfxObject__);
+		}
+		return true;
+	};
+	
+	return vml;
+});

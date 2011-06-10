@@ -1,8 +1,9 @@
-dojo.provide("dojox.grid.EnhancedGrid");
-
-dojo.require("dojox.grid.DataGrid");
-dojo.require("dojox.grid.enhanced._PluginManager");
-dojo.requireLocalization("dojox.grid.enhanced", "EnhancedGrid");
+define([
+	"dojo",
+	"dojox",
+	"./DataGrid",
+	"./enhanced/_PluginManager",
+	"dojo/i18n!./enhanced/nls/EnhancedGrid"], function(dojo, dojox){
 
 dojo.experimental("dojox.grid.EnhancedGrid");
 
@@ -218,7 +219,6 @@ dojo.declare("dojox.grid.EnhancedGrid", dojox.grid.DataGrid, {
 	}
 });
 
-dojo.provide("dojox.grid.enhanced.DataSelection");
 dojo.require("dojox.grid.enhanced.plugins._SelectionPreserver");//default loaded plugin
 
 dojo.declare("dojox.grid.enhanced.DataSelection", dojox.grid.DataSelection, {
@@ -254,3 +254,7 @@ dojox.grid.EnhancedGrid.markupFactory = function(props, node, ctor, cellFunc){
 dojox.grid.EnhancedGrid.registerPlugin = function(clazz, props){
 	dojox.grid.enhanced._PluginManager.registerPlugin(clazz, props);
 };
+
+return dojox.grid.EnhancedGrid;
+
+});

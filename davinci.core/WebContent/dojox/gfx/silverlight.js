@@ -1,13 +1,7 @@
-dojo.provide("dojox.gfx.silverlight");
-
-dojo.require("dojox.gfx._base");
-dojo.require("dojox.gfx.shape");
-dojo.require("dojox.gfx.path");
-
-dojo.experimental("dojox.gfx.silverlight");
-
-(function(){
-	var d = dojo, g = dojox.gfx, gs = g.shape, sl = g.silverlight;
+define(["./_base","./shape","./path"], function(){
+	var sl = dojo.getObject("dojox.gfx.silverlight", true);
+	dojo.experimental("dojox.gfx.silverlight");
+	var d = dojo, g = dojox.gfx, gs = g.shape;
 
 	var dasharray = {
 			solid:				"none",
@@ -213,6 +207,7 @@ dojo.experimental("dojox.gfx.silverlight");
 			rawNode.fill = null;
 			rawNode.stroke = null;
 			this.rawNode = rawNode;
+			this.rawNode.tag = this.getUID();						
 		},
 
 		// move family
@@ -248,6 +243,8 @@ dojo.experimental("dojox.gfx.silverlight");
 			// summary: sets a raw Silverlight node to be used by this shape
 			// rawNode: Node: an Silverlight node
 			this.rawNode = rawNode;
+			this.rawNode.tag = this.getUID();						
+			
 		}
 	});
 	sl.Group.nodeType = "Canvas";
@@ -377,6 +374,7 @@ dojo.experimental("dojox.gfx.silverlight");
 			//	shape. Once set, transforms, gradients, etc, can be applied.
 			//	(no fill & stroke by default)
 			this.rawNode = rawNode;
+			this.rawNode.tag = this.getUID();						
 		}
 	});
 	sl.Image.nodeType = "Image";
@@ -446,6 +444,7 @@ dojo.experimental("dojox.gfx.silverlight");
 			//	shape. Once set, transforms, gradients, etc, can be applied.
 			//	(no fill & stroke by default)
 			this.rawNode = rawNode;
+			this.rawNode.tag = this.getUID();						
 		},
 		getTextWidth: function(){
 			// summary: get the text width in pixels
@@ -718,6 +717,8 @@ dojo.experimental("dojox.gfx.silverlight");
 			if(a.source){
 				// support silverlight 2.0
 				ev.target = a.source;
+				var gfxId = ev.target.tag;				
+				ev.gfxTarget = dojox.gfx.shape.byId(gfxId);
 			}
 		}catch(e){
 			// a.source does not exist in 1.0
@@ -752,6 +753,7 @@ dojo.experimental("dojox.gfx.silverlight");
 			if(a.source){
 				// source is defined from Silverlight 2+
 				ev.target = a.source;
+				ev.gfxTarget = dojox.gfx.shape.byId(ev.target.tag);
 			}
 		}catch(e){
 			// a.source does not exist in 1.0
@@ -803,10 +805,6 @@ dojo.experimental("dojox.gfx.silverlight");
 		return a && b && a.equals(b);
 	};
 	
-	// see if we are required to initilize
-	if(g.loadAndSwitch === "silverlight"){
-		g.switchTo("silverlight");
-		delete g.loadAndSwitch;
-	}
-})();
+	return sl;
+});
 

@@ -1,8 +1,20 @@
-define("dijit/form/SimpleTextarea", ["dojo", "dijit", "dijit/form/TextBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"./TextBox",
+	"dojo/_base/html", // dojo.addClass
+	"dojo/_base/sniff", // dojo.isIE dojo.isOpera
+	"dojo/_base/window" // dojo.doc.selection dojo.doc.selection.createRange
+], function(dojo, dijit){
 
-dojo.declare("dijit.form.SimpleTextarea",
-	dijit.form.TextBox,
-	{
+// module:
+//		dijit/form/SimpleTextarea
+// summary:
+//		A simple textarea that degrades, and responds to
+// 		minimal LayoutContainer usage, and works with dijit.form.Form.
+//		Doesn't automatically size according to input, like Textarea.
+
+dojo.declare("dijit.form.SimpleTextarea", dijit.form.TextBox, {
 	// summary:
 	//		A simple textarea that degrades, and responds to
 	// 		minimal LayoutContainer usage, and works with dijit.form.Form.
@@ -15,10 +27,6 @@ dojo.declare("dijit.form.SimpleTextarea",
 	//	|	new dijit.form.SimpleTextarea({ rows:20, cols:30 }, "foo");
 
 	baseClass: "dijitTextBox dijitTextArea",
-
-	attributeMap: dojo.delegate(dijit.form._FormValueWidget.prototype.attributeMap, {
-		rows:"textbox", cols: "textbox"
-	}),
 
 	// rows: Number
 	//		The number of rows of text.
@@ -55,7 +63,6 @@ dojo.declare("dijit.form.SimpleTextarea",
 		return this.inherited(arguments);
 	},
 
-	_previousValue: "",
 	_onInput: function(/*Event?*/ e){
 		// Override TextBox._onInput() to enforce maxLength restriction
 		if(this.maxLength){
@@ -63,7 +70,6 @@ dojo.declare("dijit.form.SimpleTextarea",
 			var value = this.textbox.value.replace(/\r/g,'');
 			var overflow = value.length - maxLength;
 			if(overflow > 0){
-				if(e){ dojo.stopEvent(e); }
 				var textarea = this.textbox;
 				if(textarea.selectionStart){
 					var pos = textarea.selectionStart;
@@ -83,7 +89,6 @@ dojo.declare("dijit.form.SimpleTextarea",
 					range.select();
 				}
 			}
-			this._previousValue = this.textbox.value;
 		}
 		this.inherited(arguments);
 	}

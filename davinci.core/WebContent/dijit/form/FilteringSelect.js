@@ -1,9 +1,21 @@
-define("dijit/form/FilteringSelect", ["dojo", "dijit", "dijit/form/ComboBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"./MappedTextBox",
+	"./ComboBoxMixin",
+	"dojo/_base/Deferred", // dojo.when
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/lang", // dojo.clone dojo.isString
+	"dojo/data/util/filter" // dojo.data.util.filter.patternToRegExp
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.form.FilteringSelect",
-	[dijit.form.MappedTextBox, dijit.form.ComboBoxMixin],
-	{
+	// module:
+	//		dijit/form/FilteringSelect
+	// summary:
+	//		An enhanced version of the HTML SELECT tag, populated dynamically
+
+
+	dojo.declare("dijit.form.FilteringSelect", [dijit.form.MappedTextBox, dijit.form.ComboBoxMixin], {
 		// summary:
 		//		An enhanced version of the HTML SELECT tag, populated dynamically
 		//
@@ -53,39 +65,37 @@ dojo.declare(
 
 		_callbackSetLabel: function(
 						/*Array*/ result,
-						/*Object*/ dataObject,
+						/*Object*/ query,
+						/*Object*/ options,
 						/*Boolean?*/ priorityChange){
 			// summary:
-			//		Callback from dojo.data after lookup of user entered value finishes
+			//		Callback from dojo.store after lookup of user entered value finishes
 
 			// setValue does a synchronous lookup,
 			// so it calls _callbackSetLabel directly,
 			// and so does not pass dataObject
 			// still need to test against _lastQuery in case it came too late
-			if((dataObject && dataObject.query[this.searchAttr] != this._lastQuery) || (!dataObject && result.length && this.store.getIdentity(result[0]) != this._lastQuery)){
+			if((query && query[this.searchAttr] !== this._lastQuery) || (!query && result.length && this.store.getIdentity(result[0]) != this._lastQuery)){
 				return;
 			}
 			if(!result.length){
 				//#3268: don't modify display value on bad input
 				//#3285: change CSS to indicate error
-				this.valueNode.value = "";
-				dijit.form.TextBox.superclass._setValueAttr.call(this, "", priorityChange || (priorityChange === undefined && !this._focused));
-				this._set("item", null);
-				this.validate(this._focused);
+				this.set("value", '', priorityChange || (priorityChange === undefined && !this.focused), this.textbox.value, null);
 			}else{
 				this.set('item', result[0], priorityChange);
 			}
 		},
 
-		_openResultList: function(/*Object*/ results, /*Object*/ dataObject){
+		_openResultList: function(/*Object*/ results, /*Object*/ query, /*Object*/ options){
 			// Callback when a data store query completes.
 			// Overrides ComboBox._openResultList()
 
 			// #3285: tap into search callback to see if user's query resembles a match
-			if(dataObject.query[this.searchAttr] != this._lastQuery){
+			if(query[this.searchAttr] !== this._lastQuery){
 				return;
 			}
-			dijit.form.ComboBoxMixin.prototype._openResultList.apply(this, arguments);
+			this.inherited(arguments);
 
 			if(this.item === undefined){ // item == undefined for keyboard search
 				// If the search returned no items that means that the user typed
@@ -109,28 +119,32 @@ dojo.declare(
 			return "value";
 		},
 
-		_setValueAttr: function(/*String*/ value, /*Boolean?*/ priorityChange){
+		_setValueAttr: function(/*String*/ value, /*Boolean?*/ priorityChange, /*String?*/ displayedValue, /*item?*/ item){
 			// summary:
 			//		Hook so set('value', value) works.
 			// description:
 			//		Sets the value of the select.
 			//		Also sets the label to the corresponding value by reverse lookup.
 			if(!this._onChangeActive){ priorityChange = null; }
-			this._lastQuery = value;
 
-			if(value === null || value === ''){
-				this._setDisplayedValueAttr('', priorityChange);
-				return;
-			}
-
-			//#3347: fetchItemByIdentity if no keyAttr specified
-			var self = this;
-			this.store.fetchItemByIdentity({
-				identity: value,
-				onItem: function(item){
-					self._callbackSetLabel(item? [item] : [], undefined, priorityChange);
+			if(item === undefined){
+				if(value === null || value === ''){
+					value = '';
+					if(!dojo.isString(displayedValue)){
+						this._setDisplayedValueAttr(displayedValue||'', priorityChange);
+						return;
+					}
 				}
-			});
+
+				var self = this;
+				this._lastQuery = value;
+				dojo.when(this.store.get(value), function(item){
+					self._callbackSetLabel(item? [item] : [], undefined, undefined, priorityChange);
+				});
+			}else{
+				this.valueNode.value = value;
+				this.inherited(arguments);
+			}
 		},
 
 		_setItemAttr: function(/*item*/ item, /*Boolean?*/ priorityChange, /*String?*/ displayedValue){
@@ -143,7 +157,6 @@ dojo.declare(
 			// tags:
 			//		private
 			this.inherited(arguments);
-			this.valueNode.value = this.value;
 			this._lastDisplayedValue = this.textbox.value;
 		},
 
@@ -176,8 +189,15 @@ dojo.declare(
 			if(this.store){
 				this.closeDropDown();
 				var query = dojo.clone(this.query); // #6196: populate query with user-specifics
-				// escape meta characters of dojo.data.util.filter.patternToRegExp().
-				this._lastQuery = query[this.searchAttr] = this._getDisplayQueryString(label);
+
+				// Query on searchAttr is a regex (for benefit of dojo.store.MemoryStore),
+				// but with a toString() method to help JsonStore
+				// Escape meta characters of dojo.data.util.filter.patternToRegExp().
+				var qs = this._getDisplayQueryString(label),
+					q = dojo.data.util.filter.patternToRegExp(qs, this.ignoreCase);	// "Co*" --> /^Co.*$/i
+				q.toString = function(){ return qs; };
+				this._lastQuery = query[this.searchAttr] = q;
+
 				// If the label is not valid, the callback will never set it,
 				// so the last valid value will get the warning textbox.   Set the
 				// textbox value now so that the impending warning will make
@@ -186,33 +206,26 @@ dojo.declare(
 				this._lastDisplayedValue = label;
 				this._set("displayedValue", label);	// for watch("displayedValue") notification
 				var _this = this;
-				var fetch = {
-					query: query,
-					queryOptions: {
-						ignoreCase: this.ignoreCase,
-						deep: true
-					},
-					onComplete: function(result, dataObject){
-						_this._fetchHandle = null;
-						dojo.hitch(_this, "_callbackSetLabel")(result, dataObject, priorityChange);
-					},
-					onError: function(errText){
-						_this._fetchHandle = null;
-						console.error('dijit.form.FilteringSelect: ' + errText);
-						dojo.hitch(_this, "_callbackSetLabel")([], undefined, false);
-					}
+				var options = {
+					ignoreCase: this.ignoreCase,
+					deep: true
 				};
-				dojo.mixin(fetch, this.fetchProperties);
-				this._fetchHandle = this.store.fetch(fetch);
+				dojo.mixin(options, this.fetchProperties);
+				this._fetchHandle = this.store.query(query, options);
+				dojo.when(this._fetchHandle, function(result, err){
+					_this._fetchHandle = null;
+					if(err){
+						console.error('dijit.form.FilteringSelect: ' + err.toString());
+					}
+					_this._callbackSetLabel(result || [], query, options, priorityChange);
+				});
 			}
 		},
 
 		undo: function(){
 			this.set('displayedValue', this._lastDisplayedValue);
 		}
-	}
-);
+	});
 
-
-return dijit.form.FilteringSelect;
+	return dijit.form.FilteringSelect;
 });

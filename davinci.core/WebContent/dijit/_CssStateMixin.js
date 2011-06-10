@@ -1,4 +1,18 @@
-define("dijit/_CssStateMixin", ["dojo", "dijit"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"dojo/touch",
+	"dojo/_base/array", // dojo.forEach dojo.map
+	"dojo/_base/html", // dojo.toggleClass
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/window" // dojo.body
+], function(dojo, dijit, touch){
+
+// module:
+//		dijit/_CssStateMixin
+// summary:
+//		Mixin for widgets to set CSS classes on the widget DOM nodes depending on hover/mouse press/focus
+//		state changes, and also higher-level state changes such becoming disabled or selected.
 
 dojo.declare("dijit._CssStateMixin", [], {
 	// summary:
@@ -32,7 +46,7 @@ dojo.declare("dijit._CssStateMixin", [], {
 	// hovering: [readonly] Boolean
 	//		True if cursor is over this widget
 	hovering: false,
-	
+
 	// active: [readonly] Boolean
 	//		True if mouse was pressed while over this widget, and hasn't been released yet
 	active: false,
@@ -45,10 +59,10 @@ dojo.declare("dijit._CssStateMixin", [], {
 		this.inherited(arguments);
 
 		// Automatically monitor mouse events (essentially :hover and :active) on this.domNode
-		dojo.forEach(["onmouseenter", "onmouseleave", "onmousedown"], function(e){
+		dojo.forEach(["onmouseenter", "onmouseleave", touch.press], function(e){
 			this.connect(this.domNode, e, "_cssMouseEvent");
 		}, this);
-		
+
 		// Monitoring changes to disabled, readonly, etc. state, and update CSS class of root node
 		dojo.forEach(["disabled", "readOnly", "checked", "selected", "focused", "state", "hovering", "active"], function(attr){
 			this.watch(attr, dojo.hitch(this, "_setStateClass"));
@@ -82,13 +96,14 @@ dojo.declare("dijit._CssStateMixin", [], {
 					this._set("active", false);
 					break;
 
-				case "mousedown" :
+				case "mousedown":
+				case "touchpress":
 					this._set("active", true);
 					this._mouseDown = true;
 					// Set a global event to handle mouseup, so it fires properly
 					// even if the cursor leaves this.domNode before the mouse up event.
 					// Alternately could set active=false on mouseout.
-					var mouseUpConnector = this.connect(dojo.body(), "onmouseup", function(){
+					var mouseUpConnector = this.connect(dojo.body(), touch.release, function(){
 						this._mouseDown = false;
 						this._set("active", false);
 						this.disconnect(mouseUpConnector);
@@ -136,8 +151,9 @@ dojo.declare("dijit._CssStateMixin", [], {
 			multiply("Rtl");
 		}
 
+		var checkedState = this.checked == "mixed" ? "Mixed" : (this.checked ? "Checked" : "");
 		if(this.checked){
-			multiply("Checked");
+			multiply(checkedState);
 		}
 		if(this.state){
 			multiply(this.state);
@@ -158,7 +174,7 @@ dojo.declare("dijit._CssStateMixin", [], {
 			}
 		}
 
-		if(this._focused){
+		if(this.focused){
 			multiply("Focused");
 		}
 
@@ -225,11 +241,11 @@ dojo.declare("dijit._CssStateMixin", [], {
 			active = false;
 			setClass();
 		});
-		cn("onmousedown", function(){
+		cn(touch.press, function(){
 			active = true;
 			setClass();
 		});
-		cn("onmouseup", function(){
+		cn(touch.release, function(){
 			active = false;
 			setClass();
 		});

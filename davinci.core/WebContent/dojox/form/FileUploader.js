@@ -1,13 +1,6 @@
-dojo.provide("dojox.form.FileUploader");
-dojo.require("dojox.embed.Flash");
-dojo.require("dojo.io.iframe");
-dojo.require("dojox.html.styles");
-dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
-dojo.require("dojox.embed.flashVars");
-dojo.require("dijit._Contained");
+define(['dojo', 'dijit', 'dojo/io/iframe', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'dijit/_Contained', 'dojox/embed/Flash', 'dojox/embed/flashVars', 'dojox/html/styles'],function(dojo, dijit){
 
-console.warn("DEPRECATED: dojox.form.FileUploader is no longer supported and will be removed in 2.0. Suggested that you use dojox.form.Uploader instead.");
+dojo.deprecated("dojox.form.FileUploader", "Use dojox.form.Uploader", "2.0");
 
 	//	Usage Notes:
 	//		To center text vertically, use vertical-align:middle;
@@ -15,7 +8,7 @@ console.warn("DEPRECATED: dojox.form.FileUploader is no longer supported and wil
 	//			can cause height problems in IE6
 
 
-dojo.declare("dojox.form.FileUploader", [dijit._Widget, dijit._Templated, dijit._Contained], {
+dojo.declare("dojox.form.FileUploader", [dijit._Widget, dijit._TemplatedMixin, dijit._Contained], {
 	// version:
 	//		1.5 (deprecated)
 	// summary:
@@ -325,26 +318,6 @@ dojo.declare("dojox.form.FileUploader", [dijit._Widget, dijit._Templated, dijit.
 
 		// cleaning up solves memory leak issues in the HTML version
 		dojo.addOnUnload(this, this.destroy);
-	},
-
-	getHiddenWidget: function(){
-		// summary:
-		//		Internal.
-		//		If a parent widget has an onShow event, it is assumed
-		//		that it is hidden and the parsing of the uploader is
-		//		delayed until onShow fires. Note that the widget must
-		//		fire onShow even if it is defaulted to showing/selected.
-		//		this seems to work for Tabs (the primary fix).
-		//
-		var node = this.domNode.parentNode;
-		while(node){
-			var id = node.getAttribute && node.getAttribute("widgetId");
-			if(id && dijit.byId(id).onShow){
-				return dijit.byId(id);
-			}
-			node = node.parentNode;
-		}
-		return null;
 	},
 
 	getHiddenNode: function(/*DomNode*/ node){
@@ -725,7 +698,7 @@ dojo.declare("dojox.form.FileUploader", [dijit._Widget, dijit._Templated, dijit.
 		}else if(display === false){
 			dojo.style(this.insideNode,{
 				display: "",
-				left: "0px"
+				top: "0"
 			});
 			dojo.style(this.progNode,"display","none");
 		}else{
@@ -1438,4 +1411,6 @@ dojo.declare("dojox.form.FileUploader", [dijit._Widget, dijit._Templated, dijit.
 		dojo.destroy(temp);
 		return style;
 	}
+});
+return dojox.form.FileUploader;
 });

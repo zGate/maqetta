@@ -1,10 +1,22 @@
-define("dijit/MenuBar", ["dojo", "dijit", "text!dijit/templates/MenuBar.html", "dijit/Menu"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"dojo/text!./templates/MenuBar.html",
+	"./Menu",
+	"dojo/_base/connect", // dojo.keys dojo.keys.DOWN_ARROW
+	"dojo/_base/event" // dojo.stopEvent
+], function(dojo, dijit, template){
+
+// module:
+//		dijit/MenuBar
+// summary:
+//		A menu bar, listing menu choices horizontally, like the "File" menu in most desktop applications
 
 dojo.declare("dijit.MenuBar", dijit._MenuBase, {
 	// summary:
 	//		A menu bar, listing menu choices horizontally, like the "File" menu in most desktop applications
 
-	templateString: dojo.cache("dijit", "templates/MenuBar.html"),
+	templateString: template,
 
 	baseClass: "dijitMenuBar",
 
@@ -20,7 +32,7 @@ dojo.declare("dijit.MenuBar", dijit._MenuBase, {
 		);
 
 		// parameter to dijit.popup.open() about where to put popup (relative to this.domNode)
-		this._orient = this.isLeftToRight() ? {BL: 'TL'} : {BR: 'TR'};
+		this._orient = ["below"];
 	},
 
 	focusChild: function(item){

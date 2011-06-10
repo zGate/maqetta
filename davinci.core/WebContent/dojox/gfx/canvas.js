@@ -1,17 +1,8 @@
-dojo.provide("dojox.gfx.canvas");
-
-dojo.require("dojox.gfx._base");
-dojo.require("dojox.gfx.shape");
-dojo.require("dojox.gfx.path");
-dojo.require("dojox.gfx.arc");
-dojo.require("dojox.gfx.decompose");
-
-dojo.experimental("dojox.gfx.canvas");
-
-(function(){
-	var d = dojo, g = dojox.gfx, gs = g.shape, ga = g.arc, canvas = g.canvas,
-		m = g.matrix, mp = m.multiplyPoint, pi = Math.PI, twoPI = 2 * pi, halfPI = pi /2,
-		pattrnbuffer = null;
+define(["./_base", "./shape", "./path", "./arc", "./decompose"], function(){
+	var canvas = dojo.getObject("dojox.gfx.canvas", true);
+	dojo.experimental("dojox.gfx.canvas");
+	var d = dojo, g = dojox.gfx, gs = g.shape, ga = g.arc, pattrnbuffer = null,
+		m = g.matrix, mp = m.multiplyPoint, pi = Math.PI, twoPI = 2 * pi, halfPI = pi /2;
 
 	d.declare("dojox.gfx.canvas.Shape", gs.Shape, {
 		_render: function(/* Object */ ctx){
@@ -654,9 +645,17 @@ dojo.experimental("dojox.gfx.canvas");
 			this.width  = g.normalizedLength(width);	// in pixels
 			this.height = g.normalizedLength(height);	// in pixels
 			if(!this.rawNode) return this;
-			this.rawNode.width = width;
-			this.rawNode.height = height;
-			this.makeDirty();
+			var dirty = false;
+			if (this.rawNode.width != this.width){
+				this.rawNode.width = this.width;
+				dirty = true;
+			}
+			if (this.rawNode.height != this.height){
+				this.rawNode.height = this.height;
+				dirty = true;
+			}
+			if (dirty)
+				this.makeDirty();
 			return this;	// self
 		},
 		getDimensions: function(){
@@ -791,9 +790,10 @@ dojo.experimental("dojox.gfx.canvas");
 	d.extend(canvas.Surface, gs.Creator);
 	d.extend(canvas.Surface, Creator);
 	
-	// see if we are required to initilize
-	if(g.loadAndSwitch === "canvas"){
-		g.switchTo("canvas");
-		delete g.loadAndSwitch;
-	}
-})();
+	// no event support -> nothing to fix. 
+	canvas.fixTarget = function(event, gfxElement){
+		return true;
+	};
+	 
+	return canvas;
+});

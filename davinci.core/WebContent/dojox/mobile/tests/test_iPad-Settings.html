@@ -5,12 +5,13 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<title>iPad Settings</title>
 		<style>
-		@import "../themes/iphone/iphone.css";
+		@import "../themes/iphone/base.css";
 		@import "../themes/iphone/ipad.css";
-		@import "../themes/FixedSplitter.css";
+		@import "../themes/common/FixedSplitter.css";
 		html, body{
 			height: 100%;
 			overflow: hidden;
+			position: relative;
 		}
 		.mblEdgeToEdgeList {
 			background-color: #DBDDE2;
@@ -19,15 +20,15 @@
 		<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 
 		<script language="JavaScript" type="text/javascript">
-			//dojo.require("dojo.parser"); // Use the lightweight parser.
-			dojo.require("dojox.mobile.parser");
-			dojo.require("dojox.mobile");
+			dojo.require("dojox.mobile");			// This is a mobile app.
+			dojo.require("dojox.mobile.parser");	// This mobile app supports running on desktop browsers
+			dojo.require("dojox.mobile.compat");	// This mobile app uses declarative programming with fast mobile parser
 			dojo.require("dojox.mobile.FixedSplitter");
 			dojo.require("dojox.mobile.ScrollableView");
-
-			dojo.requireIf(!dojo.isWebKit, "dojox.mobile.compat");
-			dojo.requireIf(!dojo.isWebKit, "dojo.fx");
-			dojo.requireIf(!dojo.isWebKit, "dojo.fx.easing");
+			dojo.require("dojox.mobile.EdgeToEdgeList");
+			dojo.require("dojox.mobile.EdgeToEdgeCategory");
+			dojo.require("dojox.mobile.Heading");
+			dojo.require("dojox.mobile.FixedSplitterPane");
 		</script>
 	</head>
 	<body>
@@ -35,7 +36,7 @@
 			<div dojoType="dojox.mobile.FixedSplitterPane" style="width:300px;border-right:1px solid black;">
 				<div id="settings" dojoType="dojox.mobile.ScrollableView" selected="true">
 					<h1 dojoType="dojox.mobile.Heading" fixed="top">Settings</h1>
-					<ul dojoType="dojox.mobile.EdgeToEdgeList" transition="none" stateful="true">
+					<ul dojoType="dojox.mobile.EdgeToEdgeList" transition="flip" stateful="true">
 						<li dojoType="dojox.mobile.ListItem" icon="images/i-icon-1.png" moveTo="wifi">
 							Wi-Fi
 						</li>

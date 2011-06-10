@@ -46,15 +46,15 @@
 					dijit.byId("test19").promptMessage="really really really really really really really really really really really really really really really really really really really really";
 				}else if(width > 1200){
 					//Make a shorter tooltip longer in order to span the whole width
-					dijit.byId("test1").promptMessage="really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br><br><br><br><br><br>a"
-					dijit.byId("test4").promptMessage="really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br>a"
-					dijit.byId("test10").promptMessage="really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br>a"
+					dijit.byId("test1").promptMessage = "really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br><br><br><br><br><br>a";
+					dijit.byId("test4").promptMessage = "really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br>a";
+					dijit.byId("test10").promptMessage = "really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br>a";
 					dijit.byId("test20").promptMessage="really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really<br><br><br><br><br><br><br><br><br>a"
 				}
 				
 				if(height < 600){
 					//Make the taller tooltips shorter
-					for(var i=1;i<22;i++) {
+					for(var i=1;i<22;i++){
 						if(i==7){
 							//skip
 						}else{
@@ -131,7 +131,7 @@
 				var view = dojo.window.getBox();
 				var isIE6 = dojo.isIE < 7;
 				//verify the entire width is utilized.  Small tooltips will not utilize the entire width.
-				if(verifyFullWidthIsUtilized && !isIE6 && !dojo.isOpera) {
+				if(verifyFullWidthIsUtilized && !isIE6 && !dojo.isOpera){
 					if(toTheLeft){
 						doh.t(tooltipContainerPos.w + 3/*space in between arrow and textbox*/ >= textboxPos.x, "The entire width was not utilized to the left");					
 					}else{

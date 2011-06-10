@@ -1,4 +1,9 @@
-define("dojo/date", ["dojo"], function(dojo) {
+define(["./_base/kernel"], function(dojo) {
+	// module:
+	//		dojo/date
+	// summary:
+	//		TODOC
+
 dojo.getObject("date", true, dojo);
 
 /*=====
@@ -104,7 +109,7 @@ dojo.date.compare = function(/*Date*/date1, /*Date?*/date2, /*String?*/portion){
 		date1.setFullYear(0, 0, 0);
 		date2.setFullYear(0, 0, 0);
 	}
-	
+
 	if(date1 > date2){ return 1; } // int
 	if(date1 < date2){ return -1; } // int
 	return 0; // int

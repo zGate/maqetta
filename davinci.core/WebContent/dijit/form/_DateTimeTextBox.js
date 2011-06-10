@@ -1,28 +1,43 @@
-define("dijit/form/_DateTimeTextBox", ["dojo", "dijit", "text!dijit/form/templates/DropDownBox.html", "dojo/date", "dojo/date/locale", "dojo/date/stamp", "dijit/form/ValidationTextBox", "dijit/_HasDropDown"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.getObject
+	"..",
+	"dojo/text!./templates/DropDownBox.html",
+	"dojo/date", // dojo.date dojo.date.compare
+	"dojo/date/locale", // dojo.date.locale.regexp
+	"dojo/date/stamp", // dojo.date.stamp.fromISOString dojo.date.stamp.toISOString
+	"./RangeBoundTextBox",
+	"../_HasDropDown",
+	"dojo/_base/declare" // dojo.declare
+], function(dojo, dijit, template){
 
-new Date("X"); // workaround for #11279, new Date("") == NaN
-
-/*=====
-dojo.declare(
-	"dijit.form._DateTimeTextBox.__Constraints",
-	[dijit.form.RangeBoundTextBox.__Constraints, dojo.date.locale.__FormatOptions], {
+	// module:
+	//		dijit/form/_DateTimeTextBox
 	// summary:
-	//		Specifies both the rules on valid/invalid values (first/last date/time allowed),
-	//		and also formatting options for how the date/time is displayed.
-	// example:
-	//		To restrict to dates within 2004, displayed in a long format like "December 25, 2005":
-	//	|		{min:'2004-01-01',max:'2004-12-31', formatLength:'long'}
-});
-=====*/
+	//		Base class for validating, serializable, range-bound date or time text box.
 
-dojo.declare(
-	"dijit.form._DateTimeTextBox",
-	[ dijit.form.RangeBoundTextBox, dijit._HasDropDown ],
-	{
+
+	new Date("X"); // workaround for #11279, new Date("") == NaN
+
+	/*=====
+	dojo.declare(
+		"dijit.form._DateTimeTextBox.__Constraints",
+		[dijit.form.RangeBoundTextBox.__Constraints, dojo.date.locale.__FormatOptions], {
+		// summary:
+		//		Specifies both the rules on valid/invalid values (first/last date/time allowed),
+		//		and also formatting options for how the date/time is displayed.
+		// example:
+		//		To restrict to dates within 2004, displayed in a long format like "December 25, 2005":
+		//	|		{min:'2004-01-01',max:'2004-12-31', formatLength:'long'}
+	});
+	=====*/
+
+	dojo.declare(
+		"dijit.form._DateTimeTextBox",
+		[dijit.form.RangeBoundTextBox, dijit._HasDropDown], {
 		// summary:
 		//		Base class for validating, serializable, range-bound date or time text box.
 
-		templateString: dojo.cache("dijit.form", "templates/DropDownBox.html"),
+		templateString: template,
 
 		// hasDownArrow: [const] Boolean
 		//		Set this textbox to display a down arrow button, to open the drop down list.
@@ -49,6 +64,11 @@ dojo.declare(
 		//		JavaScript namespace to find calendar routines.	 Uses Gregorian calendar routines
 		//		at dojo.date, by default.
 		datePackage: "dojo.date",
+
+		postMixInProperties: function(){
+			this.inherited(arguments);
+			this._set("type", "text"); // in case type="date"|"time" was specified which messes up parse/format
+		},
 
 		// Override _FormWidget.compare() to work for dates/times
 		compare: function(/*Date*/ val1, /*Date*/ val2){
@@ -229,9 +249,8 @@ dojo.declare(
 		_setDisplayedValueAttr: function(/*String*/ value, /*Boolean?*/ priorityChange){
 			this._setValueAttr(this.parse(value, this.constraints), priorityChange, value);
 		}
-	}
-);
+	});
 
 
-return dijit.form._DateTimeTextBox;
+	return dijit.form._DateTimeTextBox;
 });

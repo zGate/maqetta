@@ -1,4 +1,9 @@
-define("dojo/store/Cache", ["dojo"], function(dojo) {
+define(["../main"], function(dojo) {
+	// module:
+	//		dojo/store/Cache
+	// summary:
+	//		TODOC
+
 dojo.getObject("store", true, dojo);
 
 /*=====

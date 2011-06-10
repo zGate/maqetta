@@ -1,8 +1,20 @@
-define("dijit/layout/_TabContainerBase", ["dojo", "dijit", "text!dijit/layout/templates/TabContainer.html", "dijit/layout/StackContainer", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/text!./templates/TabContainer.html",
+	"./StackContainer",
+	"../_TemplatedMixin",
+	"dojo/_base/html" // dojo.addClass dojo.contentBox dojo.style
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.layout._TabContainerBase",
-	[dijit.layout.StackContainer, dijit._Templated],
-	{
+// module:
+//		dijit/layout/_TabContainerBase
+// summary:
+//		Abstract base class for TabContainer.   Must define _makeController() to instantiate
+//		and return the widget that displays the tab labels
+
+
+dojo.declare("dijit.layout._TabContainerBase",[dijit.layout.StackContainer, dijit._TemplatedMixin], {
 	// summary:
 	//		Abstract base class for TabContainer.   Must define _makeController() to instantiate
 	//		and return the widget that displays the tab labels
@@ -29,7 +41,7 @@ dojo.declare("dijit.layout._TabContainerBase",
 	//		border since the outer TabContainer already has a border.
 	nested: false,
 
-	templateString: dojo.cache("dijit.layout", "templates/TabContainer.html"),
+	templateString: template,
 
 	postMixInProperties: function(){
 		// set class name according to tab position, ex: dijitTabContainerTop

@@ -1,8 +1,6 @@
-dojo.provide("dojox.form.Uploader");
-dojo.experimental("dojox.form.Uploader");
-dojo.require("dojox.form.uploader.Base");
-dojo.require("dijit.form.Button");
-
+define(['dojo', 'dijit', 'dojox/form/uploader/Base', 'dijit/form/Button'],function(dojo, dijit){
+	
+	dojo.experimental("dojox.form.Uploader");
 	//
 	// TODO:
 	//		i18n
@@ -12,6 +10,7 @@ dojo.require("dijit.form.Button");
 	//		Use new FileReader() for thumbnails
 	//		flashFieldName should default to Flash
 	//		get('value'); and set warning
+	//		Make it so URL can change (current set to Flash on build)
 	//
 
 dojo.declare("dojox.form.Uploader", [dojox.form.uploader.Base], {
@@ -377,7 +376,6 @@ dojo.declare("dojox.form.Uploader", [dojox.form.uploader.Base], {
 	}
 });
 
-(function(){
 	dojox.form.UploaderOrg = dojox.form.Uploader;
 	var extensions = [dojox.form.UploaderOrg];
 	dojox.form.addUploaderPlugin = function(plug){
@@ -388,4 +386,6 @@ dojo.declare("dojox.form.Uploader", [dojox.form.uploader.Base], {
 		extensions.push(plug);
 		dojo.declare("dojox.form.Uploader", extensions, {});
 	}
-})();
+
+	return dojox.form.Uploader;
+});

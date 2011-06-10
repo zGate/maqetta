@@ -1,4 +1,9 @@
-define("dojo/DeferredList", ["dojo"], function(dojo) {
+define(["./_base/kernel", "./_base/Deferred", "./_base/array"], function(dojo) {
+	// module:
+	//		dojo/DeferredList
+	// summary:
+	//		TODOC
+
 
 dojo.DeferredList = function(/*Array*/ list, /*Boolean?*/ fireOnOneCallback, /*Boolean?*/ fireOnOneErrback, /*Boolean?*/ consumeErrors, /*Function?*/ canceller){
 	// summary:
@@ -50,7 +55,7 @@ dojo.DeferredList = function(/*Array*/ list, /*Boolean?*/ fireOnOneCallback, /*B
 			if(finished === list.length){
 				self.resolve(resultList);
 			}
-			
+
 		}
 	});
 };

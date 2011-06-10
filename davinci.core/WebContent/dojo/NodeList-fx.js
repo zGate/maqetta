@@ -1,4 +1,9 @@
-define("dojo/NodeList-fx", ["dojo", "dojo/fx"], function(dojo) {
+define(["./main", "./fx"], function(dojo) {
+	// module:
+	//		dojo/NodeList-fx
+	// summary:
+	//		TODOC
+
 
 /*=====
 dojo["NodeList-fx"] = {

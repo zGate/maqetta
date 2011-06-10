@@ -1,4 +1,9 @@
-define("dojo/string", ["dojo"], function(dojo) {
+define(["./_base/kernel", "./_base/lang", "./_base/window"], function(dojo) {
+	// module:
+	//		dojo/string
+	// summary:
+	//		TODOC
+
 dojo.getObject("string", true, dojo);
 
 /*=====
@@ -14,9 +19,9 @@ dojo.string.rep = function(/*String*/str, /*Integer*/num){
 	//		the string to replicate
 	//	num:
 	//		number of times to replicate the string
-	
+
 	if(num <= 0 || !str){ return ""; }
-	
+
 	var buf = [];
 	for(;;){
 		if(num & 1){

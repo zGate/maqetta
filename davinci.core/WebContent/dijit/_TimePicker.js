@@ -1,34 +1,54 @@
-define("dijit/_TimePicker", ["dojo", "dijit", "text!dijit/templates/TimePicker.html", "dijit/form/_FormWidget", "dojo/date/locale"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated dojo.mixin
+	".",
+	"dojo/text!./templates/TimePicker.html",
+	"./form/_FormWidget",
+	"dojo/date/locale", // dojo.date.locale.format
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.keys
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.addClass dojo.create dojo.hasClass dojo.toggleClass
+	"dojo/_base/sniff", // dojo.isIE
+	"dojo/date", // dojo.date.compare
+	"dojo/date/stamp", // dojo.date.stamp.fromISOString dojo.date.stamp.toISOString
+	"dojo/query", // dojo.query
+	"dijit/typematic"
+], function(dojo, dijit, template){
 
-/*=====
-dojo.declare(
-	"dijit._TimePicker.__Constraints",
-	dojo.date.locale.__FormatOptions,
-	{
-		// clickableIncrement: String
-		//		See `dijit._TimePicker.clickableIncrement`
-		clickableIncrement: "T00:15:00",
+	// module:
+	//		dijit/_TimePicker
+	// summary:
+	//		A graphical time picker.
 
-		// visibleIncrement: String
-		//		See `dijit._TimePicker.visibleIncrement`
-		visibleIncrement: "T01:00:00",
 
-		// visibleRange: String
-		//		See `dijit._TimePicker.visibleRange`
-		visibleRange: "T05:00:00"
-	}
-);
-=====*/
+	/*=====
+	dojo.declare(
+		"dijit._TimePicker.__Constraints",
+		dojo.date.locale.__FormatOptions,
+		{
+			// clickableIncrement: String
+			//		See `dijit._TimePicker.clickableIncrement`
+			clickableIncrement: "T00:15:00",
+	
+			// visibleIncrement: String
+			//		See `dijit._TimePicker.visibleIncrement`
+			visibleIncrement: "T01:00:00",
 
-dojo.declare("dijit._TimePicker",
-	[dijit._Widget, dijit._Templated],
-	{
+			// visibleRange: String
+			//		See `dijit._TimePicker.visibleRange`
+			visibleRange: "T05:00:00"
+		}
+	);
+	=====*/
+
+	dojo.declare("dijit._TimePicker", [dijit._Widget, dijit._TemplatedMixin], {
 		// summary:
 		//		A graphical time picker.
 		//		This widget is used internally by other widgets and is not available
 		//		as a standalone widget due to lack of accessibility support.
 
-		templateString: dojo.cache("dijit", "templates/TimePicker.html"),
+		templateString: template,
 
 		// baseClass: [protected] String
 		//		The root className to use for the various states of this widget
@@ -463,9 +483,7 @@ dojo.declare("dijit._TimePicker",
 				return e.charOrCode === dk.TAB;
 			}
 		}
-	}
-);
+	});
 
-
-return dijit._TimePicker;
+	return dijit._TimePicker;
 });

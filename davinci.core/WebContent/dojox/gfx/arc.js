@@ -1,8 +1,5 @@
-dojo.provide("dojox.gfx.arc");
-
-dojo.require("dojox.gfx.matrix");
-
-(function(){
+define(["./matrix"], function(matrix){
+	dojo.getObject("dojox.gfx.arc", true);
 	var m = dojox.gfx.matrix,
 		twoPI = 2 * Math.PI, pi4 = Math.PI / 4, pi8 = Math.PI / 8,
 		pi48 = pi4 + pi8, curvePI4 = unitArcAsBezier(pi8);
@@ -98,8 +95,7 @@ dojo.require("dojox.gfx.matrix");
 					step  = sweep ? alpha : -alpha;
 					angle = 0;	// stop the loop
 				}
-				var c1, c2, e,
-					M = m.normalize([elliptic_transform, m.rotate(startAngle + step)]);
+				var c2, e, M = m.normalize([elliptic_transform, m.rotate(startAngle + step)]);
 				if(sweep){
 					c1 = m.multiplyPoint(M, curve.c1);
 					c2 = m.multiplyPoint(M, curve.c2);
@@ -116,4 +112,6 @@ dojo.require("dojox.gfx.matrix");
 			return result;	// Array
 		}
 	};
-})();
+
+	return dojox.gfx.arc;
+});

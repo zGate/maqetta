@@ -1,4 +1,4 @@
-dojo.provide("dojox.grid.enhanced.plugins._StoreLayer");
+define(["dojo", "dojox"], function(dojo, dojox){
 // summary:
 //		The dojo.data.api.Read API is powerful, but it's difficult to give the store some special commands before
 //		fetch, so that the store content can be temporarily modified or transformed, and acts as another store. The
@@ -32,8 +32,8 @@ dojo.provide("dojox.grid.enhanced.plugins._StoreLayer");
 //		//now use the store as usual...
 //
 //		store.unwrap(); //remove all the layers, get the original store back.
-(function(){
-	var ns = dojox.grid.enhanced.plugins,
+
+	var ns = dojo.getObject("grid.enhanced.plugins", true, dojox);
 	
 	getPrevTags = function(tags){
 		var tagList = ["reorder", "sizeChange", "normal", "presentation"];
@@ -380,4 +380,7 @@ dojo.provide("dojox.grid.enhanced.plugins._StoreLayer");
 			throw error;
 		}
 	});
-})();
+
+	return dojox.grid.enhanced.plugins._StoreLayer;
+
+});

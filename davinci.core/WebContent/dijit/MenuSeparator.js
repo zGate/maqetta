@@ -1,12 +1,24 @@
-define("dijit/MenuSeparator", ["dojo", "dijit", "text!dijit/templates/MenuSeparator.html", "dijit/_Widget", "dijit/_Templated", "dijit/_Contained"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	".",
+	"dojo/text!./templates/MenuSeparator.html",
+	"./_WidgetBase",
+	"./_TemplatedMixin",
+	"./_Contained",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html" // dojo.setSelectable
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.MenuSeparator",
-		[dijit._Widget, dijit._Templated, dijit._Contained],
-		{
+	// module:
+	//		dijit/MenuSeparator
+	// summary:
+	//		A line between two menu items
+
+	dojo.declare("dijit.MenuSeparator", [dijit._WidgetBase, dijit._TemplatedMixin, dijit._Contained], {
 		// summary:
 		//		A line between two menu items
 
-		templateString: dojo.cache("dijit", "templates/MenuSeparator.html"),
+		templateString: template,
 
 		buildRendering: function(){
 			this.inherited(arguments);
@@ -23,6 +35,5 @@ dojo.declare("dijit.MenuSeparator",
 		}
 	});
 
-
-return dijit.MenuSeparator;
+	return dijit.MenuSeparator;
 });

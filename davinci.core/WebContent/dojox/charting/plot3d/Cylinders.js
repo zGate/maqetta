@@ -1,8 +1,5 @@
-dojo.provide("dojox.charting.plot3d.Cylinders");
-
-dojo.require("dojox.charting.plot3d.Base");
-
-(function(){
+define(["dojo/_base/kernel", "dojox/gfx3d", "dojo/_base/window", "dojo/_base/window", "dojo/_base/Color", "./Base"],
+	function(dojo, gfx3d) {
 
 	// reduce function borrowed from dojox.fun
 	var reduce = function(/*Array*/ a, /*Function|String|Array*/ f, /*Object?*/ o){
@@ -14,7 +11,7 @@ dojo.require("dojox.charting.plot3d.Base");
 		return z;	// Object
 	};
 
-	dojo.declare("dojox.charting.plot3d.Cylinders", dojox.charting.plot3d.Base, {
+	return dojo.declare("dojox.charting.plot3d.Cylinders", dojox.charting.plot3d.Base, {
 		constructor: function(width, height, kwArgs){
 			this.depth = "auto";
 			this.gap   = 0;
@@ -57,10 +54,10 @@ dojo.require("dojox.charting.plot3d.Base");
 						radius: step / 2 - this.gap,
 						height: this.data[i] * scale
 					})
-					.setTransform(dojox.gfx3d.matrix.rotateXg(-90))
+					.setTransform(gfx3d.matrix.rotateXg(-90))
 					.setFill(this.material).setStroke(this.outline);
 			}
 		}
 	});
-})();
+});
 

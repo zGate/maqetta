@@ -1,13 +1,12 @@
-dojo.provide("dojox.charting.plot2d.Lines");
+define(["dojo/_base/kernel", "dojo/_base/declare", "./Default"], function(dojo, declare, Default){
 
-dojo.require("dojox.charting.plot2d.Default");
-
-dojo.declare("dojox.charting.plot2d.Lines", dojox.charting.plot2d.Default, {
-	//	summary:
-	//		A convenience constructor to create a typical line chart.
-	constructor: function(){
+	return dojo.declare("dojox.charting.plot2d.Lines", dojox.charting.plot2d.Default, {
 		//	summary:
-		//		Preset our default plot to be line-based.
-		this.opt.lines = true;
-	}
+		//		A convenience constructor to create a typical line chart.
+		constructor: function(){
+			//	summary:
+			//		Preset our default plot to be line-based.
+			this.opt.lines = true;
+		}
+	});
 });

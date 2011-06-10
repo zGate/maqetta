@@ -1,29 +1,44 @@
-define("dijit/MenuItem", ["dojo", "dijit", "text!dijit/templates/MenuItem.html", "dijit/_Widget", "dijit/_Templated", "dijit/_Contained", "dijit/_CssStateMixin"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated
+	".",
+	"dojo/text!./templates/MenuItem.html",
+	"./_Widget",
+	"./_TemplatedMixin",
+	"./_Contained",
+	"./_CssStateMixin",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.attr dojo.setSelectable dojo.toggleClass
+	"dojo/_base/sniff" // dojo.isIE
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.MenuItem",
-		[dijit._Widget, dijit._Templated, dijit._Contained, dijit._CssStateMixin],
+	// module:
+	//		dijit/MenuItem
+	// summary:
+	//		A line item in a Menu Widget
+
+
+	dojo.declare("dijit.MenuItem",
+		[dijit._Widget, dijit._TemplatedMixin, dijit._Contained, dijit._CssStateMixin],
 		{
 		// summary:
 		//		A line item in a Menu Widget
 
 		// Make 3 columns
 		// icon, label, and expand arrow (BiDi-dependent) indicating sub-menu
-		templateString: dojo.cache("dijit", "templates/MenuItem.html"),
-
-		attributeMap: dojo.delegate(dijit._Widget.prototype.attributeMap, {
-			label: { node: "containerNode", type: "innerHTML" },
-			iconClass: { node: "iconNode", type: "class" }
-		}),
+		templateString: template,
 
 		baseClass: "dijitMenuItem",
 
 		// label: String
 		//		Menu text
 		label: '',
+		_setLabelAttr: { node: "containerNode", type: "innerHTML" },
 
 		// iconClass: String
 		//		Class to apply to DOMNode to make it display an icon.
-		iconClass: "",
+		iconClass: "dijitNoIcon",
+		_setIconClassAttr: { node: "iconNode", type: "class" },
 
 		// accelKey: String
 		//		Text for the accelerator (shortcut) key combination.
@@ -53,7 +68,7 @@ dojo.declare("dijit.MenuItem",
 				dojo.attr(this.accelKeyNode, "id", this.id + "_accel");
 				label += " " + this.id + "_accel";
 			}
-			dijit.setWaiState(this.domNode, "labelledby", label);
+			this.domNode.setAttribute("aria-labelledby", label);
 			dojo.setSelectable(this.domNode, false);
 		},
 
@@ -107,7 +122,7 @@ dojo.declare("dijit.MenuItem",
 					// needed for IE8 which won't scroll TR tags into view on focus yet calling scrollIntoView creates flicker (#10275)
 					this.containerNode.focus();
 				}
-				dijit.focus(this.focusNode);
+				this.focusNode.focus();
 			}catch(e){
 				// this throws on IE (at least) in some scenarios
 			}
@@ -166,7 +181,7 @@ dojo.declare("dijit.MenuItem",
 			//		Hook for attr('disabled', ...) to work.
 			//		Enable or disable this menu item.
 
-			dijit.setWaiState(this.focusNode, 'disabled', value ? 'true' : 'false');
+			this.focusNode.setAttribute('aria-disabled', value ? 'true' : 'false');
 			this._set("disabled", value);
 		},
 		_setAccelKeyAttr: function(/*String*/ value){
@@ -178,11 +193,11 @@ dojo.declare("dijit.MenuItem",
 			this.accelKeyNode.innerHTML=value;
 			//have to use colSpan to make it work in IE
 			dojo.attr(this.containerNode,'colSpan',value?"1":"2");
-			
+
 			this._set("accelKey", value);
 		}
 	});
 
 
-return dijit.MenuItem;
+	return dijit.MenuItem;
 });

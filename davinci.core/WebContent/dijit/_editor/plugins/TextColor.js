@@ -1,4 +1,17 @@
-define("dijit/_editor/plugins/TextColor", ["dojo", "dijit", "dijit/_editor/_Plugin", "dijit/ColorPalette"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"../..",
+	"../_Plugin",
+	"../../form/DropDownButton",
+	"../../ColorPalette",
+	"dojo/colors" // dojo.colorFromRgb
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/plugins/TextColor
+// summary:
+//		This plugin provides dropdown color pickers for setting text color and background color
+
 
 dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 	// summary:
@@ -8,10 +21,10 @@ dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 	//		The commands provided by this plugin are:
 	//		* foreColor - sets the text color
 	//		* hiliteColor - sets the background color
-	
+
 	// Override _Plugin.buttonClass to use DropDownButton (with ColorPalette) to control this plugin
 	buttonClass: dijit.form.DropDownButton,
-	
+
 	// useDefaultCommand: Boolean
 	//		False as we do not use the default editor command/click behavior.
 	useDefaultCommand: false,
@@ -20,7 +33,7 @@ dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 		this.dropDown = new dijit.ColorPalette();
 		this.connect(this.dropDown, "onChange", function(color){
 			this.editor.execCommand(this.command, color);
-			
+
 		});
 	},
 
@@ -30,18 +43,18 @@ dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 		//		to show the color of the currently selected text.
 		// tags:
 		//		protected
-		
+
 		var _e = this.editor;
 		var _c = this.command;
 		if(!_e || !_e.isLoaded || !_c.length){
 			return;
 		}
-		
+
 		if(this.button){
 			var disabled = this.get("disabled");
 			this.button.set("disabled", disabled);
 			if(disabled){ return; }
-			
+
 			var value;
 			try{
 				value = _e.queryCommandValue(_c)|| "";
@@ -50,7 +63,7 @@ dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 				value = "";
 			}
 		}
-		
+
 		if(value == ""){
 			value = "#000000";
 		}
@@ -67,9 +80,9 @@ dojo.declare("dijit._editor.plugins.TextColor", dijit._editor._Plugin, {
 			value =((value & 0x0000ff)<< 16)|(value & 0x00ff00)|((value & 0xff0000)>>> 16);
 			value = value.toString(16);
 			value = "#000000".slice(0, 7 - value.length)+ value;
-			
+
 		}
-		
+
 		if(value !== this.dropDown.get('value')){
 			this.dropDown.set('value', value, false);
 		}

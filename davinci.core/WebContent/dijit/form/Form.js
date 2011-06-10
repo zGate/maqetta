@@ -1,9 +1,24 @@
-define("dijit/form/Form", ["dojo", "dijit", "dijit/_Widget", "dijit/_Templated", "dijit/form/_FormMixin", "dijit/layout/_ContentPaneResizeMixin"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated
+	"..",
+	"../_Widget",
+	"../_TemplatedMixin",
+	"./_FormMixin",
+	"../layout/_ContentPaneResizeMixin",
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.attr
+	"dojo/_base/sniff" // dojo.isIE
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.form.Form",
-	[dijit._Widget, dijit._Templated, dijit.form._FormMixin, dijit.layout._ContentPaneResizeMixin],
-	{
+	// module:
+	//		dijit/form/Form
+	// summary:
+	//		Widget corresponding to HTML form tag, for validation and serialization
+
+
+	dojo.declare("dijit.form.Form",
+		[dijit._Widget, dijit._TemplatedMixin, dijit.form._FormMixin, dijit.layout._ContentPaneResizeMixin], {
 		// summary:
 		//		Widget corresponding to HTML form tag, for validation and serialization
 		//
@@ -48,18 +63,9 @@ dojo.declare(
 
 		templateString: "<form dojoAttachPoint='containerNode' dojoAttachEvent='onreset:_onReset,onsubmit:_onSubmit' ${!nameAttrSetting}></form>",
 
-		attributeMap: dojo.delegate(dijit._Widget.prototype.attributeMap, {
-			action: "",
-			method: "",
-			encType: "",
-			"accept-charset": "",
-			accept: "",
-			target: ""
-		}),
-
 		postMixInProperties: function(){
 			// Setup name=foo string to be referenced from the template (but only if a name has been specified)
-			// Unfortunately we can't use attributeMap to set the name due to IE limitations, see #8660
+			// Unfortunately we can't use _setNameAttr to set the name due to IE limitations, see #8660
 			this.nameAttrSetting = this.name ? ("name='" + this.name + "'") : "";
 			this.inherited(arguments);
 		},
@@ -82,18 +88,6 @@ dojo.declare(
 			this.encType = value;
 			dojo.attr(this.domNode, "encType", value);
 			if(dojo.isIE){ this.domNode.encoding = value; }
-		},
-
-		postCreate: function(){
-			// IE tries to hide encType
-			// TODO: remove in 2.0, no longer necessary with data-dojo-params
-			if(dojo.isIE && this.srcNodeRef && this.srcNodeRef.attributes){
-				var item = this.srcNodeRef.attributes.getNamedItem('encType');
-				if(item && !item.specified && (typeof item.value == "string")){
-					this.set('encType', item.value);
-				}
-			}
-			this.inherited(arguments);
 		},
 
 		reset: function(/*Event?*/ e){
@@ -169,9 +163,8 @@ dojo.declare(
 				this.containerNode.submit();
 			}
 		}
-	}
-);
+	});
 
 
-return dijit.form.Form;
+	return dijit.form.Form;
 });

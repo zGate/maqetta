@@ -103,12 +103,12 @@
 			button.innerHTML= widget.disabled ? "Enable" : "Disable";
 		}
 
-		function getValue() {
+		function getValue(){
 			var f = document.getElementById("form1");
 			var s = "";
-			for (var i = 0; i < f.elements.length; i++) {
+			for(var i = 0; i < f.elements.length; i++){
 				var elem = f.elements[i];
-				if (elem.nodeName.toLowerCase() == "button" || elem.type=="submit" || elem.type=="button")  { continue; }
+				if(elem.nodeName.toLowerCase() == "button" || elem.type=="submit" || elem.type=="button")  { continue; }
 				s += elem.name + ": " + elem.value + "\n";
 			}
 			return s;
@@ -146,7 +146,6 @@
 		<script type="text/javascript">
 			function setValueTestOnChange(newValue){
 				if(this.lastlabelFuncMsg){
-					console.info(this.lastlabelFuncMsg);
 					this.lastlabelFuncMsg = '';
 				}
 				dojo.byId('oc1').value = newValue;
@@ -501,7 +500,7 @@
 				selectOnClick:true,
 				value:"h1",
 				labelType:"html",
-				labelFunc:function(node){ var txt = node.innerHTML; return "<"+txt+">"+txt+"</"+txt+">"; }
+				labelFunc:function(item){ var txt = item.value; return "<"+txt+">"+txt+"</"+txt+">"; }
 		'>
 			<option value="h1">h1</option>
 			<option value="h2">h2</option>

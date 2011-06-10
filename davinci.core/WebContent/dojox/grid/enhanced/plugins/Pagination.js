@@ -1,12 +1,15 @@
-dojo.provide("dojox.grid.enhanced.plugins.Pagination");
-
-dojo.require("dijit.form.NumberTextBox");
-dojo.require("dijit.form.Button");
-dojo.require("dojox.grid.enhanced._Plugin");
-dojo.require("dojox.grid.enhanced.plugins.Dialog");
-dojo.require("dojox.grid.enhanced.plugins._StoreLayer");
-
-dojo.requireLocalization("dojox.grid.enhanced", "Pagination");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/text!../templates/Pagination.html",
+	"./Dialog",
+	"./_StoreLayer",
+	"../_Plugin",
+	"dijit/form/Button",
+	"dijit/form/NumberTextBox",
+	"dijit/focus",		// dijit.focus()
+	"dojo/i18n!../nls/Pagination"], function(dojo, dijit, dojox, template){
 
 dojo.declare("dojox.grid.enhanced.plugins.Pagination", dojox.grid.enhanced._Plugin, {
 	// summary:
@@ -16,7 +19,7 @@ dojo.declare("dojox.grid.enhanced.plugins.Pagination", dojox.grid.enhanced._Plug
 	// The page size used with the store, default = 25.
 	pageSize: 25,
 	
-	defaultRows: 25,
+	_defaultRowsPerPage: 25,
 	
 	//current page we are at
 	_currentPage: 0,
@@ -54,16 +57,9 @@ dojo.declare("dojox.grid.enhanced.plugins.Pagination", dojox.grid.enhanced._Plug
 		var g = this.grid,
 			ns = dojox.grid.enhanced.plugins;
 		this._store = g.store;
-		this.query = g.query;
 		
 		this.forcePageStoreLayer = new ns._ForcedPageStoreLayer(this);
 		ns.wrap(g, "_storeLayerFetch", this.forcePageStoreLayer);
-		
-		this.connect(g, "setQuery", function(query){
-			if(query !== this.query){
-				this.query = query;
-			}
-		});
 	},
 	
 	_stopEvent: function(event){
@@ -182,7 +178,7 @@ dojo.declare("dojox.grid.enhanced.plugins.Pagination", dojox.grid.enhanced._Plug
 		if(page < totalPages && page >= 0 && this._currentPage !== page){
 			this._currentPage = page;
 			// this._updateSelected();
-			this.grid.setQuery(this.query);
+			this.grid._refresh(true);
 			this.grid.resize();
 		}
 	},
@@ -211,7 +207,8 @@ dojo.declare("dojox.grid.enhanced.plugins.Pagination", dojox.grid.enhanced._Plug
 		dojo.forEach(this.paginators, function(f){
 			f.currentPageSize = this.grid.rowsPerPage = this.pageSize = size;
 			if(size >= this._maxSize){
-				this.grid.rowsPerPage = this.defaultRows;
+				this.grid.rowsPerPage = this._defaultRowsPerPage;
+				this.showAll = true;
 				this.grid.usingPagination = false;
 			}else{
 				this.grid.usingPagination = true;
@@ -315,8 +312,8 @@ dojo.declare("dojox.grid.enhanced.plugins._ForcedPageStoreLayer", dojox.grid.enh
 	}
 });
 
-dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Templated], {
-	templatePath: dojo.moduleUrl("dojox.grid","enhanced/templates/Pagination.html"),
+dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._TemplatedMixin], {
+	templateString: template,
 		
 	// pagination bar position - "bottom"|"top"
 	position: "bottom",
@@ -561,7 +558,7 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 			var labelValue = size.toLowerCase() == "all" ? this.plugin.nls.allItemsLabelTemplate : dojo.string.substitute(this.plugin.nls.pageSizeLabelTemplate, [size]);
 			node = dojo.create("span", {innerHTML: size, title: labelValue, value: size, tabindex: 0}, this.sizeSwitchTd, "last");
 			// for accessibility
-			dijit.setWaiState(node, "label", labelValue);
+			node.setAttribute("aria-label", labelValue);
 			// connect event
 			this.plugin.connect(node, "onclick", dojo.hitch(this, "_onSwitchPageSize"));
 			this.plugin.connect(node, "onmouseover", function(e){
@@ -645,9 +642,9 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 			label = "",
 			node = null;
 		for(var i = startPage; i < this.maxPageStep + 1; i++){
-			label = dojo.string.substitute(this.plugin.nls.pageStepLabelTemplate, [i + ""]);
+			label = dojo.string.substitute(this.plugin.nls.pageStepLabelTemplate, [i]);
 			node = dojo.create("div", {innerHTML: i, value: i, title: label, tabindex: i < startPage + stepSize ? 0 : -1}, this.pageStepperDiv, "last");
-			dijit.setWaiState(node, "label", label);
+			node.setAttribute("aria-label", label);
 			// connect event
 			this.plugin.connect(node, "onclick", dojo.hitch(this, "_onPageStep"));
 			this.plugin.connect(node, "onmouseover", function(e){
@@ -671,7 +668,7 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 		var createWardBtn = function(value, label, position){
 			var node = dojo.create("div", {value: value, title: label, tabindex: 1}, self.pageStepperDiv, position);
 			self.plugin.connect(node, "onclick", dojo.hitch(self, "_onPageStep"));
-			dijit.setWaiState(node, "label", label);
+			node.setAttribute("aria-label", label);
 			// for high contrast
 			var highConrastNode = dojo.create("span", {value: value, title: label, innerHTML: highContrastLabel[value]}, node, position);
 			dojo.addClass(highConrastNode, "dojoxGridWardButtonInner");
@@ -689,14 +686,18 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 		var startPage = this._getStartPage(),
 			stepSize = this._getStepPageSize(),
 			stepNodes = this.pageStepperDiv.childNodes,
-			node = null;
-		for(var i = startPage, j = 2; j < stepNodes.length - 2; j++, i++){
+			node = null, i = startPage, j = 2, tip;
+		for(; j < stepNodes.length - 2; j++, i++){
 			node = stepNodes[j];
 			if(i < startPage + stepSize){
-				dojo.attr(node, "innerHTML", i);
-				dojo.attr(node, "value", i);
+				tip = dojo.string.substitute(this.plugin.nls.pageStepLabelTemplate, [i]);
+				dojo.attr(node, {
+					"innerHTML": i,
+					"title": tip,
+					"value": i
+				});
 				dojo.style(node, "display", "block");
-				dijit.setWaiState(node, "label", dojo.string.substitute(this.plugin.nls.pageStepLabelTemplate, [i + ""]));
+				node.setAttribute("aria-label", tip);
 			}else{
 				dojo.style(node, "display", "none");
 			}
@@ -778,6 +779,9 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 	_openGotopageDialog: function(event){
 		// summary:
 		//		Show the goto page dialog
+		if(this._getPageCount() <= 1){
+			return;
+		}
 		if(!this._gotoPageDialog){
 			this._gotoPageDialog = new dojox.grid.enhanced.plugins.pagination._GotoPageDialog(this.plugin);
 		}
@@ -1022,7 +1026,9 @@ dojo.declare("dojox.grid.enhanced.plugins._Paginator", [dijit._Widget,dijit._Tem
 		}
 		if(dojo.trim(size.toLowerCase()) == "all"){
 			size = this._maxItemSize;
-			showAll = true;
+			this.plugin.showAll = true;
+		}else{
+			this.plugin.showAll = false;
 		}
 		this.plugin.grid.usingPagination = !this.plugin.showAll;
 		
@@ -1222,3 +1228,7 @@ dojo.declare("dojox.grid.enhanced.plugins.pagination._GotoPageDialog", null, {
 });
 
 dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.Pagination/*name:'pagination'*/);
+
+return dojox.grid.enhanced.plugins.Pagination;
+
+});

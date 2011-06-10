@@ -1,9 +1,6 @@
-dojo.provide("dojox.gfx.utils");
-
-dojo.require("dojox.gfx");
-
-(function(){
-	var d = dojo, g = dojox.gfx, gu = g.utils;
+define(["dojox/gfx"], function(){
+	var gu = dojo.getObject("dojox.gfx.utils", true);
+	var d = dojo, g = dojox.gfx;
 
 	dojo.mixin(gu, {
 		forEach: function(
@@ -234,7 +231,7 @@ dojo.require("dojox.gfx");
 				}
 				//We have to load the GFX SVG proxy frame.  Default is to use the one packaged in dojox.
 				var uri = (dojo.config["dojoxGfxSvgProxyFrameUrl"]||dojo.moduleUrl("dojox", "gfx/resources/gfxSvgProxyFrame.html"));
-				f.setAttribute("src", uri);
+				f.setAttribute("src", uri.toString());
 				dojo.body().appendChild(f);
 			}
 		},
@@ -274,4 +271,6 @@ dojo.require("dojox.gfx");
 			return svg;  //Cleaned SVG text.
 		}
 	});
-})();
+
+	return gu;
+});

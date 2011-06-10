@@ -1,7 +1,12 @@
-define("dojo/store/Observable", ["dojo"], function(dojo) {
+define(["../main"], function(dojo) {
+	// module:
+	//		dojo/store/Observable
+	// summary:
+	//		TODOC
+
 dojo.getObject("store", true, dojo);
 
-dojo.store.Observable = function(store){
+return dojo.store.Observable = function(store){
 	// summary:
 	//		The Observable store wrapper takes a store and sets an observe method on query()
 	//		results that can be used to monitor results for changes.
@@ -58,7 +63,7 @@ dojo.store.Observable = function(store){
 					queryUpdaters.push(queryUpdater = function(changed, existingId){
 						dojo.when(results, function(resultsArray){
 							var atEnd = resultsArray.length != options.count;
-							var i;
+							var i, l;
 							if(++queryRevision != revision){
 								throw new Error("Query is out of date, you must observe() the query prior to any data modifications");
 							}
@@ -159,6 +164,4 @@ dojo.store.Observable = function(store){
 
 	return store;
 };
-
-return dojo.store.Observable;
 });

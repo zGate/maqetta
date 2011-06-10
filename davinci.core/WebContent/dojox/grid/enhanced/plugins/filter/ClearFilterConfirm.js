@@ -1,8 +1,6 @@
-dojo.provide("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm");
+define(["dojo", "dijit", "dojox", "dijit/form/Button", "dijit/_WidgetsInTemplateMixin"], function(dojo, dijit, dojox){
 
-dojo.require("dijit.form.Button");
-
-dojo.declare("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm",[dijit._Widget,dijit._Templated],{
+dojo.declare("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm",[dijit._Widget, dijit._TemplatedMixin, dijit._WidgetsInTemplateMixin], {
 	// summary:
 	//		The UI for user to confirm the operation of clearing filter.
 	templateString: dojo.cache("dojox.grid", "enhanced/templates/ClearFilterConfirmPane.html"),
@@ -16,8 +14,8 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm",[dijit._Wid
 	},
 	postCreate: function(){
 		this.inherited(arguments);
-		dijit.setWaiState(this.cancelBtn.domNode, "label", this.plugin.nls["waiCancelButton"]);
-		dijit.setWaiState(this.clearBtn.domNode, "label", this.plugin.nls["waiClearButton"]);
+		this.cancelBtn.domNode.setAttribute("aria-label", this.plugin.nls["waiCancelButton"]);
+		this.clearBtn.domNode.setAttribute("aria-label", this.plugin.nls["waiClearButton"]);
 	},
 	uninitialize: function(){
 		this.plugin = null;
@@ -31,3 +29,6 @@ dojo.declare("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm",[dijit._Wid
 	}
 });
 
+return dojox.grid.enhanced.plugins.filter.ClearFilterConfirm;
+
+});

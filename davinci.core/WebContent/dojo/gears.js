@@ -1,4 +1,9 @@
-define("dojo/gears", ["dojo"], function(dojo) {
+define(["./main"], function(dojo) {
+	// module:
+	//		dojo/gears
+	// summary:
+	//		TODOC
+
 dojo.getObject("gears", true, dojo);
 
 dojo.gears._gearsObject = function(){
@@ -6,11 +11,10 @@ dojo.gears._gearsObject = function(){
 	//		factory method to get a Google Gears plugin instance to
 	//		expose in the browser runtime environment, if present
 	var factory;
-	var results;
-	
+
 	var gearsObj = dojo.getObject("google.gears");
 	if(gearsObj){ return gearsObj; } // already defined elsewhere
-	
+
 	if(typeof GearsFactory != "undefined"){ // Firefox
 		factory = new GearsFactory();
 	}else{
@@ -34,7 +38,7 @@ dojo.gears._gearsObject = function(){
 
 	// still nothing?
 	if(!factory){ return null; }
-	
+
 	// define the global objects now; don't overwrite them though if they
 	// were somehow set internally by the Gears plugin, which is on their
 	// dev roadmap for the future

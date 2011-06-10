@@ -1,4 +1,9 @@
-define("dojo/dnd/Moveable", ["dojo", "dojo/dnd/Mover"], function(dojo) {
+define(["../main", "./Mover"], function(dojo) {
+	// module:
+	//		dojo/dnd/Moveable
+	// summary:
+	//		TODOC
+
 
 /*=====
 dojo.declare("dojo.dnd.__MoveableArgs", [], {
@@ -26,7 +31,7 @@ dojo.declare("dojo.dnd.Moveable", null, {
 	handle: "",
 	delay: 0,
 	skip: false,
-	
+
 	constructor: function(node, params){
 		// summary:
 		//		an object, which makes a node moveable
@@ -62,7 +67,7 @@ dojo.declare("dojo.dnd.Moveable", null, {
 		dojo.forEach(this.events, dojo.disconnect);
 		this.events = this.node = this.handle = null;
 	},
-	
+
 	// mouse event processors
 	onMouseDown: function(e){
 		// summary:
@@ -116,7 +121,7 @@ dojo.declare("dojo.dnd.Moveable", null, {
 			dojo.stopEvent(e);
 		}
 	},
-	
+
 	// local events
 	onDragDetected: function(/* Event */ e){
 		// summary:
@@ -142,7 +147,7 @@ dojo.declare("dojo.dnd.Moveable", null, {
 		// summary:
 		//		called during the very first move notification;
 		//		can be used to initialize coordinates, can be overwritten.
-		
+
 		// default implementation does nothing
 	},
 	onMove: function(/* dojo.dnd.Mover */ mover, /* Object */ leftTop, /* Event */ e){
@@ -158,13 +163,13 @@ dojo.declare("dojo.dnd.Moveable", null, {
 	onMoving: function(/* dojo.dnd.Mover */ mover, /* Object */ leftTop){
 		// summary:
 		//		called before every incremental move; can be overwritten.
-		
+
 		// default implementation does nothing
 	},
 	onMoved: function(/* dojo.dnd.Mover */ mover, /* Object */ leftTop){
 		// summary:
 		//		called after every incremental move; can be overwritten.
-		
+
 		// default implementation does nothing
 	}
 });

@@ -1,16 +1,27 @@
-define("dijit/form/TimeTextBox", ["dojo", "dijit", "dijit/_TimePicker", "dijit/form/_DateTimeTextBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"../_TimePicker",
+	"./_DateTimeTextBox",
+	"dojo/_base/connect", // dojo.keys.DOWN_ARROW dojo.keys.ENTER dojo.keys.ESCAPE dojo.keys.TAB dojo.keys.UP_ARROW
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/lang" // dojo.hitch
+], function(dojo, dijit){
 
-/*=====
-dojo.declare(
-	"dijit.form.TimeTextBox.__Constraints",
-	[dijit.form._DateTimeTextBox.__Constraints, dijit._TimePicker.__Constraints]
-);
-=====*/
+	// module:
+	//		dijit/form/TimeTextBox
+	// summary:
+	//		A validating, serializable, range-bound time text box with a drop down time picker
 
-dojo.declare(
-	"dijit.form.TimeTextBox",
-	dijit.form._DateTimeTextBox,
-	{
+
+	/*=====
+	dojo.declare(
+		"dijit.form.TimeTextBox.__Constraints",
+		[dijit.form._DateTimeTextBox.__Constraints, dijit._TimePicker.__Constraints]
+	);
+	=====*/
+
+	dojo.declare("dijit.form.TimeTextBox", dijit.form._DateTimeTextBox, {
 		// summary:
 		//		A validating, serializable, range-bound time text box with a drop down time picker
 
@@ -58,7 +69,7 @@ dojo.declare(
 						// it will be used in openDropDown()
 						var val = this.get('displayedValue');
 						this.filterString = (val && !this.parse(val, this.constraints)) ? val.toLowerCase() : "";
-	
+
 						// close the drop down and reopen it, in order to filter the items shown in the list
 						// and also since the drop down may need to be repositioned if the number of list items has changed
 						// and it's being displayed above the <input>
@@ -69,8 +80,7 @@ dojo.declare(
 					}), 0);
 			}
 		}
-	}
-);
+	});
 
-return dijit.form.TimeTextBox;
+	return dijit.form.TimeTextBox;
 });

@@ -1,4 +1,9 @@
-define("dojo/AdapterRegistry", ["dojo"], function(dojo) {
+define(["./main"], function(dojo) {
+	// module:
+	//		dojo/AdapterRegistry
+	// summary:
+	//		TODOC
+
 
 dojo.AdapterRegistry = function(/*Boolean?*/ returnWrappers){
 	//	summary:

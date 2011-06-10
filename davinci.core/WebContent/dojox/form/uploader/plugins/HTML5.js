@@ -1,4 +1,4 @@
-dojo.provide("dojox.form.uploader.plugins.HTML5");
+define(['dojo'],function(dojo){
 
 dojo.declare("dojox.form.uploader.plugins.HTML5", [], {
 	//
@@ -34,6 +34,7 @@ dojo.declare("dojox.form.uploader.plugins.HTML5", [], {
 		// summary:
 		// 		See: dojox.form.Uploader.upload
 		//
+		console.log("upload html5")
 		this.onBegin(this.getFileList());
 		if(this.supports("FormData")){
 			this.uploadWithFormData(formData);
@@ -212,3 +213,8 @@ dojo.declare("dojox.form.uploader.plugins.HTML5", [], {
 
 });
 dojox.form.addUploaderPlugin(dojox.form.uploader.plugins.HTML5);
+
+
+
+return dojox.form.uploader.plugins.HTML5;
+});

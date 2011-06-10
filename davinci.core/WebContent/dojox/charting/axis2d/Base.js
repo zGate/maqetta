@@ -1,8 +1,6 @@
-dojo.provide("dojox.charting.axis2d.Base");
+define(["dojo/_base/kernel", "dojo/_base/declare", "../Element"], function(dojo, declare, Element){
 
-dojo.require("dojox.charting.Element");
-
-dojo.declare("dojox.charting.axis2d.Base", dojox.charting.Element, {
+return dojo.declare("dojox.charting.axis2d.Base", dojox.charting.Element, {
 	//	summary:
 	//		The base class for any axis.  This is more of an interface/API
 	//		definition than anything else; see dojox.charting.axis2d.Default
@@ -10,7 +8,7 @@ dojo.declare("dojox.charting.axis2d.Base", dojox.charting.Element, {
 	constructor: function(chart, kwArgs){
 		//	summary:
 		//		Return a new base axis.
-		//	chart: dojox.charting.Chart2D
+		//	chart: dojox.charting.Chart
 		//		The chart this axis belongs to.
 		//	kwArgs: dojox.charting.axis2d.__AxisCtorArgs?
 		//		An optional arguments object to define the axis parameters.
@@ -66,4 +64,5 @@ dojo.declare("dojox.charting.axis2d.Base", dojox.charting.Element, {
 		this.dirty = false;
 		return this;	//	dojox.charting.axis2d.Base
 	}
+});
 });

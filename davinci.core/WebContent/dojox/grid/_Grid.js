@@ -1,25 +1,25 @@
-dojo.provide("dojox.grid._Grid");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/text!./resources/_Grid.html",
+	"dojo/i18n!dijit/nls/loading",
+	"dijit/dijit",
+	"dijit/CheckedMenuItem",
+	"dijit/Menu",
+	"dojox/html/metrics",
+	"./util",
+	"./_Scroller",
+	"./_Layout",
+	"./_View",
+	"./_ViewManager",
+	"./_RowManager",
+	"./_FocusManager",
+	"./_EditManager",
+	"./Selection",
+	"./_RowSelector",
+	"./_Events"], function(dojo, dijit, dojox, template){
 
-dojo.require("dijit.dijit");
-dojo.require("dijit.Menu");
-
-dojo.require("dojox.html.metrics");
-dojo.require("dojox.grid.util");
-dojo.require("dojox.grid._Scroller");
-dojo.require("dojox.grid._Layout");
-dojo.require("dojox.grid._View");
-dojo.require("dojox.grid._ViewManager");
-dojo.require("dojox.grid._RowManager");
-dojo.require("dojox.grid._FocusManager");
-dojo.require("dojox.grid._EditManager");
-dojo.require("dojox.grid.Selection");
-dojo.require("dojox.grid._RowSelector");
-dojo.require("dojox.grid._Events");
-
-
-dojo.requireLocalization("dijit", "loading");
-
-(function(){
 	// NOTE: this is for backwards compatibility with Dojo 1.3
 	if(!dojo.isCopyKey){
 		dojo.isCopyKey = dojo.dnd.getCopyKeyState;
@@ -142,7 +142,7 @@ dojo.requireLocalization("dijit", "loading");
 	=====*/
 
 	dojo.declare('dojox.grid._Grid',
-		[ dijit._Widget, dijit._Templated, dojox.grid._Events ],
+		[ dijit._Widget, dijit._TemplatedMixin, dojox.grid._Events ],
 		{
 		// summary:
 		// 		A grid widget with virtual scrolling, cell editing, complex rows,
@@ -181,7 +181,7 @@ dojo.requireLocalization("dijit", "loading");
 		//	|		structure="structure"
 		//	|		dojoType="dojox.grid._Grid"></div>
 
-		templatePath: dojo.moduleUrl("dojox.grid","resources/_Grid.html"),
+		templateString: template,
 
 		// classTag: String
 		// 		CSS class applied to the grid's domNode
@@ -347,7 +347,7 @@ dojo.requireLocalization("dijit", "loading");
 			this.connect(dojox.html.metrics, "onFontResize", "textSizeChanged");
 			dojox.grid.util.funnelEvents(this.domNode, this, 'doKeyEvent', dojox.grid.util.keyEvents);
 			if (this.selectionMode != "none") {
-				dojo.attr(this.domNode, "aria-multiselectable", this.selectionMode == "single" ? "false" : "true");
+				this.domNode.setAttribute("aria-multiselectable", this.selectionMode == "single" ? "false" : "true");
 			}
 
 			dojo.addClass(this.domNode, this.classTag);
@@ -727,7 +727,7 @@ dojo.requireLocalization("dijit", "loading");
 			if(resultSize){
 				changeSize = resultSize;
 			}
-			if(changeSize){
+			if(!this._autoHeight && changeSize){
 				dojo.marginBox(this.domNode, changeSize);
 				this.height = this.domNode.style.height;
 				delete this.fitTo;
@@ -1369,4 +1369,7 @@ dojo.requireLocalization("dijit", "loading");
 
 		return new ctor(props, node);
 	};
-})();
+
+	return dojox.grid._Grid;
+
+});

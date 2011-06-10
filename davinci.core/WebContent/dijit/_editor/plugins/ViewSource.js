@@ -1,6 +1,28 @@
-define("dijit/_editor/plugins/ViewSource", ["dojo", "dijit", "dojo/window", "dojo/i18n", "dijit/_editor/_Plugin", "dijit/form/Button", "i18n!dijit/_editor/nls/commands"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"../..",
+	"../../focus",	// dijit.focus()
+	"dojo/window", // dojo.window.getBox
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"../_Plugin",
+	"../../form/ToggleButton",
+	"dojo/i18n!../nls/commands",
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.connect dojo.disconnect dojo.keys.F12
+	"dojo/_base/event", // dojo.stopEvent
+	"dojo/_base/html", // dojo.attr dojo.create dojo.marginBox dojo.place dojo.position dojo.style
+	"dojo/_base/lang", // dojo.hitch
+	"dojo/_base/sniff", // dojo.isIE dojo.isWebKit
+	"dojo/_base/window" // dojo.body dojo.global
+], function(dojo, dijit){
 
-dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
+// module:
+//		dijit/_editor/plugins/ViewSource
+// summary:
+//		This plugin provides a simple view source capability.
+
+
+dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin, {
 	// summary:
 	//		This plugin provides a simple view source capability.  When view
 	//		source mode is enabled, it disables all other buttons/plugins on the RTE.
@@ -124,12 +146,7 @@ dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
 				// plugins to check their state.
 				ed._sourceQueryCommandEnabled = ed.queryCommandEnabled;
 				ed.queryCommandEnabled = function(cmd){
-					var lcmd = cmd.toLowerCase();
-					if(lcmd === "viewsource"){
-						return true;
-					}else{
-						return false;
-					}
+					return cmd.toLowerCase() === "viewsource";
 				};
 				this.editor.onDisplayChanged();
 				html = ed.get("value");
@@ -152,13 +169,11 @@ dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
 				}
 
 				this.sourceArea.value = html;
-				var is = dojo._getMarginSize(ed.iframe.parentNode);
 
-				dojo.marginBox(this.sourceArea, {
-					w: is.w,
-					h: is.h
-				});
-
+				// Since neither iframe nor textarea have margin, border, or padding,
+				// just set sizes equal
+				this.sourceArea.style.height = ed.iframe.style.height;
+				this.sourceArea.style.width = ed.iframe.style.width;
 				dojo.style(ed.iframe, "display", "none");
 				dojo.style(this.sourceArea, {
 					display: "block"
@@ -202,7 +217,7 @@ dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
 				this.editor.onNormalizedDisplayChanged();
 
 				this.editor.__oldGetValue = this.editor.getValue;
-				this.editor.getValue = dojo.hitch(this, function() {
+				this.editor.getValue = dojo.hitch(this, function(){
 					var txt = this.sourceArea.value;
 					txt = this._filter(txt);
 					return txt;
@@ -240,7 +255,7 @@ dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
 				dojo.style(this.sourceArea, "display", "none");
 				dojo.style(ed.iframe, "display", "block");
 				delete ed._sourceQueryCommandEnabled;
-                
+
 				//Trigger a check for command enablement/disablement.
 				this.editor.onDisplayChanged();
 			}
@@ -283,10 +298,9 @@ dojo.declare("dijit._editor.plugins.ViewSource",dijit._editor._Plugin,{
 		var containerMargin = dojo._getMarginExtents(ed.iframe.parentNode);
 
 		var extents = dojo._getPadBorderExtents(ed.domNode);
-		var mExtents = dojo._getMarginExtents(ed.domNode);
 		var edb = {
-			w: eb.w - (extents.w + mExtents.w),
-			h: eb.h - (tbH + extents.h + mExtents.h + fH)
+			w: eb.w - extents.w,
+			h: eb.h - (tbH + extents.h + + fH)
 		};
 
 		// Fullscreen gets odd, so we need to check for the FS plugin and

@@ -1,13 +1,21 @@
-define("dojo/store/JsonRest", ["dojo", "dojo/store/util/QueryResults"], function(dojo) {
+define(["../_base/kernel", "../_base/xhr", "../json", "../_base/declare", "./util/QueryResults"], function(dojo, xhr, JSON, declare, QueryResults) {
+  //  module:
+  //    dojo/store/JsonRest
+  //  summary:
+  //    The module defines a JSON/REST based object store 
 
-dojo.declare("dojo.store.JsonRest", null, {
+return declare("dojo.store.JsonRest", null, {
+	// summary:
+	//		This is a basic store for RESTful communicating with a server through JSON
+	//		formatted data. It implements dojo.store.api.Store.
+
 	constructor: function(/*dojo.store.JsonRest*/ options){
 		// summary:
 		//		This is a basic store for RESTful communicating with a server through JSON
 		//		formatted data.
 		// options:
 		//		This provides any configuration information that will be mixed into the store
-		dojo.mixin(this, options);
+		dojo.safeMixin(this, options);
 	},
 	// target: String
 	//		The target base URL to use for all requests to the server. This string will be
@@ -29,7 +37,7 @@ dojo.declare("dojo.store.JsonRest", null, {
 		//		The object in the store that matches the given id.
 		var headers = options || {};
 		headers.Accept = "application/javascript, application/json";
-		return dojo.xhrGet({
+		return xhr("GET", {
 			url:this.target + id,
 			handleAs: "json",
 			headers: headers
@@ -56,9 +64,9 @@ dojo.declare("dojo.store.JsonRest", null, {
 		options = options || {};
 		var id = ("id" in options) ? options.id : this.getIdentity(object);
 		var hasId = typeof id != "undefined";
-		return dojo.xhr(hasId && !options.incremental ? "PUT" : "POST", {
+		return xhr(hasId && !options.incremental ? "PUT" : "POST", {
 				url: hasId ? this.target + id : this.target,
-				postData: dojo.toJson(object),
+				postData: JSON.stringify(object),
 				handleAs: "json",
 				headers:{
 					"Content-Type": "application/json",
@@ -85,7 +93,7 @@ dojo.declare("dojo.store.JsonRest", null, {
 		//		Deletes an object by its identity. This will trigger a DELETE request to the server.
 		// id: Number
 		//		The identity to use to delete the object
-		return dojo.xhrDelete({
+		return xhr("DELETE",{
 			url:this.target + id
 		});
 	},
@@ -95,7 +103,7 @@ dojo.declare("dojo.store.JsonRest", null, {
 		//		query added as a query string.
 		// query: Object
 		//		The query to use for retrieving objects from the store.
-		// options: dojo.store.api.Store.QueryOptions?
+		//	options: dojo.store.api.Store.QueryOptions?
 		//		The optional arguments to apply to the resultset.
 		//	returns: dojo.store.api.Store.QueryResults
 		//		The results of the query, extended with iterative methods.
@@ -107,7 +115,7 @@ dojo.declare("dojo.store.JsonRest", null, {
 				(("count" in options && options.count != Infinity) ?
 					(options.count + (options.start || 0) - 1) : '');
 		}
-		if(dojo.isObject(query)){
+		if(query && typeof query == "object"){
 			query = dojo.objectToQuery(query);
 			query = query ? "?" + query: "";
 		}
@@ -119,7 +127,7 @@ dojo.declare("dojo.store.JsonRest", null, {
 			}
 			query += ")";
 		}
-		var results = dojo.xhrGet({
+		var results = xhr("GET", {
 			url: this.target + (query || ""),
 			handleAs: "json",
 			headers: headers
@@ -128,9 +136,8 @@ dojo.declare("dojo.store.JsonRest", null, {
 			var range = results.ioArgs.xhr.getResponseHeader("Content-Range");
 			return range && (range=range.match(/\/(.*)/)) && +range[1];
 		});
-		return dojo.store.util.QueryResults(results);
+		return QueryResults(results);
 	}
 });
 
-return dojo.store.JsonRest;
 });

@@ -1,7 +1,22 @@
-define("dijit/_editor/_Plugin", ["dojo", "dijit", "dijit/_Widget", "dijit/form/Button"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	"..",
+	"../_Widget",
+	"../form/Button",
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/connect", // dojo.connect dojo.disconnect
+	"dojo/_base/lang" // dojo.hitch
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/_Plugin
+// summary:
+//		Base class for a "plugin" to the editor, which is usually
+//		a single button on the Toolbar and some associated code
+
 
 dojo.declare("dijit._editor._Plugin", null, {
-	// summary
+	// summary:
 	//		Base class for a "plugin" to the editor, which is usually
 	//		a single button on the Toolbar and some associated code
 
@@ -177,7 +192,7 @@ dojo.declare("dijit._editor._Plugin", null, {
 		}
 		// console.debug("adding", this.button, "to:", toolbar);
 	},
-	
+
 	set: function(/* attribute */ name, /* anything */ value){
 		// summary:
 		//		Set a property on a plugin
@@ -249,7 +264,7 @@ dojo.declare("dijit._editor._Plugin", null, {
 		this.disabled = disabled;
 		this.updateState();
 	},
-	
+
 	_getAttrNames: function(name){
 		// summary:
 		//		Helper function for get() and set().
@@ -265,7 +280,7 @@ dojo.declare("dijit._editor._Plugin", null, {
 			g: "_get"+uc+"Attr"
 		});
 	},
-	
+
 	_set: function(/*String*/ name, /*anything*/ value){
 		// summary:
 		//		Helper function to set new value for specified attribute

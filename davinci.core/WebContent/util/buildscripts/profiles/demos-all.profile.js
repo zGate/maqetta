@@ -97,11 +97,72 @@ dependencies = {
 				"demos.faces.src"
 			]
 		},
+        {
+        name: "../demos/mobileMvc/src.js",
+			dependencies:[
+				"demos.mobileMvc.src"
+			]
+		},		
+		{
+			name: "../demos/mobileGauges/src.js",
+			dependencies:[
+				"demos.mobileGauges.src"
+			]
+		},
+		{
+			name: "../demos/mobileCharting/src.js",
+			dependencies:[
+				"demos.mobileCharting.src"
+			]
+		},
+		{
+			name: "../demos/mobileGeoCharting/src.js",
+			dependencies:[
+				"demos.mobileGeoCharting.src"
+			]
+		},
+		{
+			name: "../demos/mobileFileBrowser/src.js",
+			dependencies:[
+				"demos.mobileFileBrowser.src"
+			]
+		},
+		{
+			name: "../demos/mobileOpenLayers/src.js",
+			dependencies:[
+				"demos.mobileOpenLayers.src"
+			]
+		},
+		{
+			name: "../demos/mobileGallery/src.js",
+			dependencies:[
+				"demos.mobileGallery.src"
+			]
+		},
+		{
+			name: "../demos/touch/src.js",
+			dependencies:[
+				"demos.touch.src"
+			]
+		},
 		{
 			// the CSS3 animations demo
 			name: "../demos/css3/src.js",
 			dependencies:[
 				"demos.css3.src"
+			]
+		},
+		// Gridx demo
+		{
+			name: "../demos/gridx/MiniGrid.js",
+			dependencies: [
+				"demos.gridx.MiniGrid"
+			]
+		},
+		{
+			name: "../demos/gridx/AdvancedGrid.js",
+			dependencies: [
+				"demos.gridx.AdvancedGrid"
 			]
 		}
 	],

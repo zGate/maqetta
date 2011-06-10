@@ -1,8 +1,19 @@
-define("dijit/form/NumberSpinner", ["dojo", "dijit", "dijit/form/_Spinner", "dijit/form/NumberTextBox"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"./_Spinner",
+	"./NumberTextBox",
+	"dojo/_base/connect", // dojo.keys.END dojo.keys.HOME
+	"dojo/_base/event" // dojo.stopEvent
+], function(dojo, dijit){
 
-dojo.declare("dijit.form.NumberSpinner",
-	[dijit.form._Spinner, dijit.form.NumberTextBoxMixin],
-	{
+// module:
+//		dijit/form/NumberSpinner
+// summary:
+//		Extends NumberTextBox to add up/down arrows and pageup/pagedown for incremental change to the value
+
+
+dojo.declare("dijit.form.NumberSpinner", [dijit.form._Spinner, dijit.form.NumberTextBoxMixin], {
 	// summary:
 	//		Extends NumberTextBox to add up/down arrows and pageup/pagedown for incremental change to the value
 	//

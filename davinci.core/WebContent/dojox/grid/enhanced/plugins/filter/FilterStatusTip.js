@@ -1,19 +1,21 @@
-dojo.provide("dojox.grid.enhanced.plugins.filter.FilterStatusTip");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/string",
+	"dojo/date/locale",
+	"dijit/TooltipDialog",
+	"dijit/_base/popup",
+	"dijit/form/Button",
+	"dojo/i18n!../../nls/Filter"], function(dojo, dijit, dojox){
 
-dojo.requireLocalization("dojox.grid.enhanced", "Filter");
-dojo.require("dijit.TooltipDialog");
-dojo.require("dijit._base.popup");
-dojo.require("dijit.form.Button");
-dojo.require("dojo.string");
-dojo.require("dojo.date.locale");
-
-(function(){
-var gridCssCls = "", headerCssCls = "", cellCssCls = "", rowCssCls = "",
-	oddRowCssCls = "dojoxGridFStatusTipOddRow",
-	handleHolderCssCls = "dojoxGridFStatusTipHandle",
-	conditionCssCls = "dojoxGridFStatusTipCondition",
-	_removeRuleIconCls = "dojoxGridFStatusTipDelRuleBtnIcon",
-	_statusFooter = "</tbody></table>";
+	var gridCssCls = "", headerCssCls = "", cellCssCls = "", rowCssCls = "",
+		oddRowCssCls = "dojoxGridFStatusTipOddRow",
+		handleHolderCssCls = "dojoxGridFStatusTipHandle",
+		conditionCssCls = "dojoxGridFStatusTipCondition",
+		_removeRuleIconCls = "dojoxGridFStatusTipDelRuleBtnIcon",
+		_statusFooter = "</tbody></table>"
+	;
 	
 	dojo.declare("dojox.grid.enhanced.plugins.filter.FilterStatusTip", null, {
 		// summary:
@@ -133,7 +135,10 @@ var gridCssCls = "", headerCssCls = "", cellCssCls = "", rowCssCls = "",
 			p.filterDefDialog.showDialog(p.filterBar.getColumnIdx(this._pos.x));
 		}
 	});
-	dojo.declare("dojox.grid.enhanced.plugins.filter.FilterStatusPane", [dijit._Widget, dijit._Templated], {
+	dojo.declare("dojox.grid.enhanced.plugins.filter.FilterStatusPane", [dijit._Widget, dijit._TemplatedMixin], {
 		templateString: dojo.cache("dojox.grid", "enhanced/templates/FilterStatusPane.html")
 	});
-})();
+
+	return dojox.grid.enhanced.plugins.filter.FilterStatusTip;
+
+});

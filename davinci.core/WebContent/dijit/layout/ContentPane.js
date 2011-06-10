@@ -1,8 +1,28 @@
-define("dijit/layout/ContentPane", ["dojo", "dijit", "dijit/_Widget", "dijit/layout/_ContentPaneResizeMixin", "dojo/string", "dojo/html", "i18n!dijit/nls/loading"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.deprecated dojo.mixin
+	"..",
+	"../_Widget",
+	"./_ContentPaneResizeMixin",
+	"dojo/string", // dojo.string.substitute
+	"dojo/html", // dojo.html._ContentSetter dojo.html._emptyNode
+	"dojo/i18n!../nls/loading",
+	"dojo/_base/Deferred", // dojo.Deferred
+	"dojo/_base/array", // dojo.forEach
+	"dojo/_base/html", // dojo.attr dojo.byId
+	"dojo/_base/lang", // dojo.delegate dojo.hitch dojo.isFunction dojo.isObject
+	"dojo/_base/window", // dojo.body dojo.doc.createDocumentFragment
+	"dojo/_base/xhr", // dojo.xhrGet
+	"dojo/i18n" // dojo.i18n.getLocalization
+], function(dojo, dijit){
 
-dojo.declare(
-	"dijit.layout.ContentPane", [dijit._Widget, dijit.layout._ContentPaneResizeMixin],
-{
+// module:
+//		dijit/layout/ContentPane
+// summary:
+//		A widget containing an HTML fragment, specified inline
+//		or by uri.  Fragment may include widgets.
+
+
+dojo.declare("dijit.layout.ContentPane", [dijit._Widget, dijit.layout._ContentPaneResizeMixin], {
 	// summary:
 	//		A widget containing an HTML fragment, specified inline
 	//		or by uri.  Fragment may include widgets.
@@ -37,13 +57,11 @@ dojo.declare(
 	//		Changing href after creation doesn't have any effect; Use set('href', ...);
 	href: "",
 
-/*=====
 	// content: String || DomNode || NodeList || dijit._Widget
 	//		The innerHTML of the ContentPane.
 	//		Note that the initialization parameter / argument to set("content", ...)
 	//		can be a String, DomNode, Nodelist, or _Widget.
 	content: "",
-=====*/
 
 	// extractContent: Boolean
 	//		Extract visible content from inside of <body> .... </body>.
@@ -75,11 +93,11 @@ dojo.declare(
 
 	// loadingMessage: String
 	//		Message that shows while downloading
-	loadingMessage: "<span class='dijitContentPaneLoading'>${loadingState}</span>",
+	loadingMessage: "<span class='dijitContentPaneLoading'><span class='dijitInline dijitIconLoading'></span>${loadingState}</span>",
 
 	// errorMessage: String
 	//		Message that shows if an error occurs
-	errorMessage: "<span class='dijitContentPaneError'>${errorState}</span>",
+	errorMessage: "<span class='dijitContentPaneError'><span class='dijitInline dijitIconError'></span>${errorState}</span>",
 
 	// isLoaded: [readonly] Boolean
 	//		True if the ContentPane has data in it, either specified
@@ -107,12 +125,10 @@ dojo.declare(
 	//		or content is loaded.
 	onLoadDeferred: null,
 
-	// Override _Widget's attributeMap because we don't want the title attribute (used to specify
+	// Cancel _WidgetBase's _setTitleAttr because we don't want the title attribute (used to specify
 	// tab labels) to be copied to ContentPane.domNode... otherwise a tooltip shows up over the
 	// entire pane.
-	attributeMap: dojo.delegate(dijit._Widget.prototype.attributeMap, {
-		title: []
-	}),
+	_setTitleAttr: null,
 
 	// Flag to parser that I'll parse my contents, so it shouldn't.
 	stopParser: true,
@@ -129,7 +145,7 @@ dojo.declare(
 		// Avoid modifying original params object since that breaks NodeList instantiation, see #11906.
 		if((!params || !params.template) && srcNodeRef && !("href" in params) && !("content" in params)){
 			var df = dojo.doc.createDocumentFragment();
-			srcNodeRef = dojo.byId(srcNodeRef)
+			srcNodeRef = dojo.byId(srcNodeRef);
 			while(srcNodeRef.firstChild){
 				df.appendChild(srcNodeRef.firstChild);
 			}
@@ -159,7 +175,7 @@ dojo.declare(
 		this.domNode.title = "";
 
 		if(!dojo.attr(this.domNode,"role")){
-			dijit.setWaiRole(this.domNode, "group");
+			this.domNode.setAttribute("role", "group");
 		}
 	},
 
@@ -464,16 +480,17 @@ dojo.declare(
 				})/*,
 				_onError */
 			});
-		};
+		}
 
 		var setterParams = dojo.mixin({
 			cleanContent: this.cleanContent,
 			extractContent: this.extractContent,
-			parseContent: this.parseOnLoad,
+			parseContent: !cont.domNode && this.parseOnLoad,
 			parserScope: this.parserScope,
 			startup: false,
 			dir: this.dir,
-			lang: this.lang
+			lang: this.lang,
+			textDir: this.textDir
 		}, this._contentSetterParams || {});
 
 		setter.set( (dojo.isObject(cont) && cont.domNode) ? cont.domNode : cont, setterParams );
@@ -489,7 +506,7 @@ dojo.declare(
 			if(this._started){
 				// Startup each top level child widget (and they will start their children, recursively)
 				this._startChildren();
-	
+
 				// Call resize() on each of my child layout widgets,
 				// or resize() on my single child layout widget...
 				// either now (if I'm currently visible) or when I become visible

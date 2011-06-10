@@ -1,9 +1,8 @@
-dojo.provide("dojox.charting.DataChart");
-dojo.require("dojox.charting.Chart2D");
-dojo.require("dojox.charting.themes.PlotKit.blue");
-dojo.experimental("dojox.charting.DataChart");
+define(["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/declare", "dojo/_base/html", "dojo/_base/connect",
+	 "./Chart2D", "./themes/PlotKit/blue"], 
+	 function(dojo, lang, declare, html, connect, Chart2D, blue){
 
-(function(){
+	dojo.experimental("dojox.charting.DataChart");
 
 	// Defaults for axes
 	//	to be mixed in with xaxis/yaxis custom properties
@@ -40,7 +39,7 @@ dojo.experimental("dojox.charting.DataChart");
 		gap:2
 	};
 
-	dojo.declare("dojox.charting.DataChart", [dojox.charting.Chart2D], {
+	return dojo.declare("dojox.charting.DataChart", dojox.charting.Chart2D, {
 		//	summary:
 		//		DataChart
 		//		Extension to the 2D chart that connects to a data store in
@@ -113,7 +112,7 @@ dojo.experimental("dojox.charting.DataChart");
 		//
 		//		chartTheme: dojox.charting.themes.*
 		//			The theme to style the chart. Defaults to PlotKit.blue.
-		chartTheme: dojox.charting.themes.PlotKit.blue,
+		chartTheme: blue,
 		//
 		//		displayRange: Number
 		//			The number of major ticks to show on the xaxis
@@ -514,4 +513,4 @@ dojo.experimental("dojox.charting.DataChart");
 			this.resize(w, h);
 		}
 	});
-})();
+});

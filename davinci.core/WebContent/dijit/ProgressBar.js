@@ -1,6 +1,22 @@
-define("dijit/ProgressBar", ["dojo", "dijit", "text!dijit/templates/ProgressBar.html", "dojo/fx", "dojo/number", "dijit/_Widget", "dijit/_Templated"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.mixin
+	".",
+	"dojo/text!./templates/ProgressBar.html",
+	"dojo/number", // dojo.number.format
+	"./_Widget",
+	"./_TemplatedMixin",
+	"dojo/_base/html", // dojo.toggleClass
+	"dojo/_base/url" // dojo.moduleUrl
+], function(dojo, dijit, template){
 
-dojo.declare("dijit.ProgressBar", [dijit._Widget, dijit._Templated], {
+// module:
+//		dijit/ProgressBar
+// summary:
+//		A progress indication widget, showing the amount completed
+//		(often the percentage completed) of a task.
+
+
+dojo.declare("dijit.ProgressBar", [dijit._Widget, dijit._TemplatedMixin], {
 	// summary:
 	//		A progress indication widget, showing the amount completed
 	//		(often the percentage completed) of a task.
@@ -47,7 +63,7 @@ dojo.declare("dijit.ProgressBar", [dijit._Widget, dijit._Templated], {
 	//		this widget in a dijit.form.Form widget (such as dijit.Dialog)
 	name: '',
 
-	templateString: dojo.cache("dijit", "templates/ProgressBar.html"),
+	templateString: template,
 
 	// _indeterminateHighContrastImagePath: [private] dojo._URL
 	//		URL to image to use for indeterminate progress bar when display is in high contrast mode
@@ -88,22 +104,22 @@ dojo.declare("dijit.ProgressBar", [dijit._Widget, dijit._Templated], {
 		var tip = this.internalProgress, ap = this.domNode;
 		var percent = 1;
 		if(this.indeterminate){
-			dijit.removeWaiState(ap, "valuenow");
-			dijit.removeWaiState(ap, "valuemin");
-			dijit.removeWaiState(ap, "valuemax");
+			ap.removeAttribute("aria-valuenow");
+			ap.removeAttribute("aria-valuemin");
+			ap.removeAttribute("aria-valuemax");
 		}else{
 			if(String(this.progress).indexOf("%") != -1){
 				percent = Math.min(parseFloat(this.progress)/100, 1);
 				this.progress = percent * this.maximum;
 			}else{
 				this.progress = Math.min(this.progress, this.maximum);
-				percent = this.progress / this.maximum;
+				percent = this.maximum ? this.progress / this.maximum : 0;
 			}
 
-			dijit.setWaiState(ap, "describedby", this.labelNode.id);
-			dijit.setWaiState(ap, "valuenow", this.progress);
-			dijit.setWaiState(ap, "valuemin", 0);
-			dijit.setWaiState(ap, "valuemax", this.maximum);
+			ap.setAttribute("aria-describedby", this.labelNode.id);
+			ap.setAttribute("aria-valuenow", this.progress);
+			ap.setAttribute("aria-valuemin", 0);
+			ap.setAttribute("aria-valuemax", this.maximum);
 		}
 		this.labelNode.innerHTML = this.report(percent);
 

@@ -1,4 +1,29 @@
-define("dijit/_editor/plugins/LinkDialog", ["dojo", "dijit", "dijit/_Widget", "dijit/_editor/_Plugin", "dijit/TooltipDialog", "dijit/form/DropDownButton", "dijit/form/ValidationTextBox", "dijit/form/Select", "dijit/_editor/range", "dojo/i18n", "dojo/string", "i18n!dijit/nls/common", "i18n!dijit/_editor/nls/LinkDialog"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"../..",
+	"../../_Widget",
+	"../_Plugin",
+	"../../TooltipDialog",
+	"../../form/DropDownButton",
+	"../../form/ValidationTextBox",
+	"../../form/Select",
+	"../range",
+	"dojo/i18n", // dojo.i18n.getLocalization
+	"dojo/string", // dojo.string.substitute
+	"dojo/i18n!../../nls/common",
+	"dojo/i18n!../nls/LinkDialog",
+	"dojo/_base/connect", // dojo.keys.ENTER
+	"dojo/_base/html", // dojo.attr
+	"dojo/_base/lang", // dojo.delegate dojo.hitch dojo.trim
+	"dojo/_base/sniff", // dojo.isIE
+	"dojo/_base/window" // dojo.withGlobal
+], function(dojo, dijit){
+
+// module:
+//		dijit/_editor/plugins/LinkDialog
+// summary:
+//		Editor plugins: LinkDialog (for inserting links) and ImgLinkDialog (for inserting images)
+
 
 dojo.declare("dijit._editor.plugins.LinkDialog", dijit._editor._Plugin, {
 	// summary:
@@ -76,7 +101,7 @@ dojo.declare("dijit._editor.plugins.LinkDialog", dijit._editor._Plugin, {
 		// Override _Plugin._initButton() to initialize DropDownButton and TooltipDialog.
 		var _this = this;
 		this.tag = this.command == 'insertImage' ? 'img' : 'a';
-		var messages = dojo.mixin(dojo.i18n.getLocalization("dijit", "common", this.lang),
+		var messages = dojo.delegate(dojo.i18n.getLocalization("dijit", "common", this.lang),
 			dojo.i18n.getLocalization("dijit._editor", "LinkDialog", this.lang));
 		var dropDown = (this.dropDown = new dijit.TooltipDialog({
 			title: messages[this.command + "Title"],
@@ -116,6 +141,17 @@ dojo.declare("dijit._editor.plugins.LinkDialog", dijit._editor._Plugin, {
 			// Function over-ride of isValid to test if the input matches a url or a mailto style link.
 			var value = this._urlInput.get("value");
 			return this._urlRegExp.test(value) || this._emailRegExp.test(value);
+		});
+		
+		// Listen for enter and execute if valid.
+		this.connect(dropDown.domNode, "onkeypress", function(e){
+			if(e && e.charOrCode == dojo.keys.ENTER && 
+				!e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey){
+				if(!this._setButton.get("disabled")){
+					dropDown.onExecute();
+					dropDown.execute(dropDown.get('value'));
+				}
+			}
 		});
 
 		this._connectTagEvents();
@@ -326,12 +362,15 @@ dojo.declare("dijit._editor.plugins.LinkDialog", dijit._editor._Plugin, {
 					 "selectElement",
 					 dijit._editor.selection, [t]);
 				this.editor.onDisplayChanged();
-				
+
 				setTimeout(dojo.hitch(this, function(){
 					// Focus shift outside the event handler.
 					// IE doesn't like focus changes in event handles.
 					this.button.set("disabled", false);
 					this.button.openDropDown();
+					if(this.button.dropDown.focus){
+						this.button.dropDown.focus();
+					}
 				}), 10);
 			}
 		}
@@ -473,6 +512,9 @@ dojo.declare("dijit._editor.plugins.ImgLinkDialog", [dijit._editor.plugins.LinkD
 					// IE doesn't like focus changes in event handles.
 					this.button.set("disabled", false);
 					this.button.openDropDown();
+					if(this.button.dropDown.focus){
+						this.button.dropDown.focus();
+					}
 				}), 10);
 			}
 		}

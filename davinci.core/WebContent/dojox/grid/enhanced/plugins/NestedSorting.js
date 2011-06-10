@@ -1,6 +1,4 @@
-dojo.provide("dojox.grid.enhanced.plugins.NestedSorting");
-
-dojo.require("dojox.grid.enhanced._Plugin");
+define(["dojo", "dijit", "dojox", "../_Plugin"], function(dojo, dijit, dojox){
 
 dojo.declare("dojox.grid.enhanced.plugins.NestedSorting", dojox.grid.enhanced._Plugin, {
 	// summary:
@@ -378,21 +376,21 @@ dojo.declare("dojox.grid.enhanced.plugins.NestedSorting", dojox.grid.enhanced._P
 			var a11ySingleLabelHover = columnInfo + ' - choose to sort by ' + orderAction;
 			var a11yNestedLabelHover = columnInfo + ' - choose to nested sort by ' + orderAction;
 			
-			dijit.setWaiState(singleSortBtn, 'label', a11ySingleLabel);
-			dijit.setWaiState(nestedSortBtn, 'label', a11yNestedLabel);
+			singleSortBtn.setAttribute("aria-label", a11ySingleLabel);
+			nestedSortBtn.setAttribute("aria-label", a11yNestedLabel);
 			
 			var handles = [
 				_this.connect(singleSortBtn, "onmouseover", function(){
-					dijit.setWaiState(singleSortBtn, 'label', a11ySingleLabelHover);
+					singleSortBtn.setAttribute("aria-label", a11ySingleLabelHover);
 				}),
 				_this.connect(singleSortBtn, "onmouseout", function(){
-					dijit.setWaiState(singleSortBtn, 'label', a11ySingleLabel);
+					singleSortBtn.setAttribute("aria-label", a11ySingleLabel);
 				}),
 				_this.connect(nestedSortBtn, "onmouseover", function(){
-					dijit.setWaiState(nestedSortBtn, 'label', a11yNestedLabelHover);
+					nestedSortBtn.setAttribute("aria-label", a11yNestedLabelHover);
 				}),
 				_this.connect(nestedSortBtn, "onmouseout", function(){
-					dijit.setWaiState(nestedSortBtn, 'label', a11yNestedLabel);
+					nestedSortBtn.setAttribute("aria-label", a11yNestedLabel);
 				})
 			];
 			dojo.forEach(handles, function(handle){ handle._sort = true; });
@@ -574,7 +572,7 @@ dojo.declare("dojox.grid.enhanced.plugins.NestedSorting", dojox.grid.enhanced._P
 		region.blur();
 	},
 	_getCurrentRegion: function(){
-		return this._focusRegions[this._currRegionIdx];
+		return this._focusRegions ? this._focusRegions[this._currRegionIdx] : null;
 	},
 	_getRegionHeader: function(region){
 		while(region && !dojo.hasClass(region, 'dojoxGridCell')){
@@ -588,4 +586,9 @@ dojo.declare("dojox.grid.enhanced.plugins.NestedSorting", dojox.grid.enhanced._P
 		this.inherited(arguments);
 	}
 });
+
 dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.NestedSorting);
+
+return dojox.grid.enhanced.plugins.NestedSorting;
+
+});

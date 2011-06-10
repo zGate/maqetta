@@ -1,8 +1,6 @@
-dojo.require("dojox.gfx.vml");
-
-dojo.experimental("dojox.gfx.vml_attach");
-
-(function(){
+define(["./vml"],function (){
+	dojo.getObject("dojox.gfx.vml_attach", true);
+	dojo.experimental("dojox.gfx.vml_attach");
 	var g = dojox.gfx, m = g.matrix, vml = g.vml;
 	
 	vml.attachNode = function(node){
@@ -92,34 +90,34 @@ dojo.experimental("dojox.gfx.vml_attach");
 	var attachFill = function(object){
 		// summary: deduces a fill style from a node.
 		// object: dojox.gfx.Shape: an VML shape
-		var fillStyle = null, r = object.rawNode, fo = r.fill;
+		var fillStyle = null, r = object.rawNode, fo = r.fill, stops, i, t;
 		if(fo.on && fo.type == "gradient"){
-			var fillStyle = dojo.clone(g.defaultLinearGradient),
+			fillStyle = dojo.clone(g.defaultLinearGradient),
 				rad = m._degToRad(fo.angle);
 			fillStyle.x2 = Math.cos(rad);
 			fillStyle.y2 = Math.sin(rad);
 			fillStyle.colors = [];
-			var stops = fo.colors.value.split(";");
-			for(var i = 0; i < stops.length; ++i){
-				var t = stops[i].match(/\S+/g);
+			stops = fo.colors.value.split(";");
+			for(i = 0; i < stops.length; ++i){
+				 t = stops[i].match(/\S+/g);
 				if(!t || t.length != 2){ continue; }
 				fillStyle.colors.push({offset: vml._parseFloat(t[0]), color: new dojo.Color(t[1])});
 			}
 		}else if(fo.on && fo.type == "gradientradial"){
-			var fillStyle = dojo.clone(g.defaultRadialGradient),
+			fillStyle = dojo.clone(g.defaultRadialGradient),
 				w = parseFloat(r.style.width), h = parseFloat(r.style.height);
 			fillStyle.cx = isNaN(w) ? 0 : fo.focusposition.x * w;
 			fillStyle.cy = isNaN(h) ? 0 : fo.focusposition.y * h;
 			fillStyle.r  = isNaN(w) ? 1 : w / 2;
 			fillStyle.colors = [];
-			var stops = fo.colors.value.split(";");
-			for(var i = stops.length - 1; i >= 0; --i){
-				var t = stops[i].match(/\S+/g);
+			stops = fo.colors.value.split(";");
+			for(i = stops.length - 1; i >= 0; --i){
+				t = stops[i].match(/\S+/g);
 				if(!t || t.length != 2){ continue; }
 				fillStyle.colors.push({offset: vml._parseFloat(t[0]), color: new dojo.Color(t[1])});
 			}
 		}else if(fo.on && fo.type == "tile"){
-			var fillStyle = dojo.clone(g.defaultPattern);
+			fillStyle = dojo.clone(g.defaultPattern);
 			fillStyle.width  = g.pt2px(fo.size.x); // from pt
 			fillStyle.height = g.pt2px(fo.size.y); // from pt
 			fillStyle.x = fo.origin.x * fillStyle.width;
@@ -361,4 +359,6 @@ dojo.experimental("dojox.gfx.vml_attach");
 			shape.path = t.join(" ");
 		}
 	};
-})();
+
+	return vml; //return augmented vml api
+});

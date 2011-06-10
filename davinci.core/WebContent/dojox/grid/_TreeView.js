@@ -1,10 +1,13 @@
-dojo.provide("dojox.grid._TreeView");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/text!./resources/Expando.html",
+	"dijit/_Widget",
+	"dijit/_TemplatedMixin",
+	"./_View"], function(dojo, dijit, dojox, template){
 
-dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
-dojo.require("dojox.grid._View");
-
-dojo.declare("dojox.grid._Expando", [ dijit._Widget, dijit._Templated ], {
+dojo.declare("dojox.grid._Expando", [ dijit._Widget, dijit._TemplatedMixin ], {
 	open: false,
 	toggleClass: "",
 	itemId: "",
@@ -14,7 +17,7 @@ dojo.declare("dojox.grid._Expando", [ dijit._Widget, dijit._Templated ], {
 	rowIdx: -1,
 	expandoCell: null,
 	level: 0,
-	templatePath: dojo.moduleUrl("dojox.grid", "resources/Expando.html"),
+	templateString: template,
 	_toggleRows: function(toggleClass, open){
 		if(!toggleClass || !this.rowNode){ return; }
 		if(dojo.query("table.dojoxGridRowTableNeedsRowUpdate").length){
@@ -408,12 +411,12 @@ dojo.declare("dojox.grid._TreeView", [dojox.grid._View], {
 						expando.cellIdx = -1;
 					}
 				}else{
-					expando = dojo.parser.parse(n.parentNode)[0];
 					if(idty){
+						expando = dojo.parser.parse(n.parentNode)[0];
 						this._expandos[idty][tc] = expando;
 					}
 				}
-				if(!expando.setRowNode(inRowIndex, inRowNode, this)){
+				if(expando && !expando.setRowNode(inRowIndex, inRowNode, this)){
 					expando.domNode.parentNode.removeChild(expando.domNode);
 				}
 			}
@@ -439,5 +442,13 @@ dojo.declare("dojox.grid._TreeView", [dojox.grid._View], {
 		if(row){
 			return this.content.getCellNode(row, inCellIndex);
 		}
+	},
+	destroy: function(){
+		this._cleanupExpandoCache();
+		this.inherited(arguments);
 	}
+});
+
+return dojox.grid._TreeView;
+
 });

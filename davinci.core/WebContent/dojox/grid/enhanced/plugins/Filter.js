@@ -1,17 +1,17 @@
-dojo.provide("dojox.grid.enhanced.plugins.Filter");
+define([
+	"dojo",
+	"dojox",
+	"../_Plugin",
+	"./Dialog",
+	"./filter/FilterLayer",
+	"./filter/FilterBar",
+	"./filter/FilterDefDialog",
+	"./filter/FilterStatusTip",
+	"./filter/ClearFilterConfirm",
+	"dojo/i18n!../nls/Filter"], function(dojo, dojox){
 
-dojo.requireLocalization("dojox.grid.enhanced", "Filter");
-dojo.require("dojox.grid.enhanced._Plugin");
-dojo.require("dojox.grid.enhanced.plugins.Dialog");
-dojo.require("dojox.grid.enhanced.plugins.filter.FilterLayer");
-dojo.require("dojox.grid.enhanced.plugins.filter.FilterBar");
-dojo.require("dojox.grid.enhanced.plugins.filter.FilterDefDialog");
-dojo.require("dojox.grid.enhanced.plugins.filter.FilterStatusTip");
-dojo.require("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm");
-
-(function(){
-	var ns = dojox.grid.enhanced.plugins,
-		fns = ns.filter;
+	var ns = dojo.getObject("grid.enhanced.plugins", true, dojox),
+		fns = dojo.getObject("grid.enhanced.plugins.filter", true, dojox);
 		
 	dojo.declare("dojox.grid.enhanced.plugins.Filter", dojox.grid.enhanced._Plugin, {
 		// summary:
@@ -155,6 +155,9 @@ dojo.require("dojox.grid.enhanced.plugins.filter.ClearFilterConfirm");
 			return cell.get(rowIndex, datarow);
 		}
 	});
-})();
 
-dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.Filter/*name:'filter'*/);
+	dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.Filter/*name:'filter'*/);
+
+	return dojox.grid.enhanced.plugins.Filter;
+
+});

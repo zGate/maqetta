@@ -1,23 +1,19 @@
-dojo.provide("dojox.grid.cells._base");
+define(["dojo", "dijit", "dojox", "../util", "dijit/_Widget"], function(dojo, dijit, dojox){
 
-dojo.require("dojox.grid.util");
-dojo.require("dijit._Widget");
-
-dojo.declare("dojox.grid._DeferredTextWidget", dijit._Widget, {
-	deferred: null,
-	_destroyOnRemove: true,
-	postCreate: function(){
-		if(this.deferred){
-			this.deferred.addBoth(dojo.hitch(this, function(text){
-				if(this.domNode){
-					this.domNode.innerHTML = text;
-				}
-			}));
+	dojo.declare("dojox.grid._DeferredTextWidget", dijit._Widget, {
+		deferred: null,
+		_destroyOnRemove: true,
+		postCreate: function(){
+			if(this.deferred){
+				this.deferred.addBoth(dojo.hitch(this, function(text){
+					if(this.domNode){
+						this.domNode.innerHTML = text;
+					}
+				}));
+			}
 		}
-	}
-});
+	});
 
-(function(){
 	var focusSelectNode = function(inNode){
 		try{
 			dojox.grid.util.fire(inNode, "focus");
@@ -30,7 +26,7 @@ dojo.declare("dojox.grid._DeferredTextWidget", dijit._Widget, {
 		setTimeout(dojo.hitch.apply(dojo, arguments), 0);
 	};
 
-	var dgc = dojox.grid.cells;
+	var dgc = dojo.getObject("grid.cells", true, dojox);
 
 	dojo.declare("dojox.grid.cells._Base", null, {
 		// summary:
@@ -168,7 +164,9 @@ dojo.declare("dojox.grid._DeferredTextWidget", dijit._Widget, {
 			if(this._formatPending){
 				this._formatPending = false;
 				// make cell selectable
-				dojo.setSelectable(this.grid.domNode, true);
+				if(!dojo.isIE){
+					dojo.setSelectable(this.grid.domNode, true);
+				}
 				this.formatNode(this.getEditNode(inRowIndex), inDatum, inRowIndex);
 			}
 		},
@@ -450,4 +448,7 @@ dojo.declare("dojox.grid._DeferredTextWidget", dijit._Widget, {
 	dgc.Bool.markupFactory = function(node, cell){
 		dgc.AlwaysEdit.markupFactory(node, cell);
 	};
-})();
+
+	return dojox.grid.cells._base;
+
+});

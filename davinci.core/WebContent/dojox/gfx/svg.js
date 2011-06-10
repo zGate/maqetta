@@ -1,12 +1,14 @@
-dojo.provide("dojox.gfx.svg");
-
-dojo.require("dojox.gfx._base");
-dojo.require("dojox.gfx.shape");
-dojo.require("dojox.gfx.path");
-
-(function(){
-	var d = dojo, g = dojox.gfx, gs = g.shape, svg = g.svg;
+define(["./_base","./path"], function(){
+	var svg = dojo.getObject("gfx.svg", true, dojox),
+		d = dojo, g = dojox.gfx, gs = g.shape;
 	svg.useSvgWeb = (typeof window.svgweb != "undefined");
+	
+	// Need to detect iOS in order to workaround bug when
+	// touching nodes with text
+	var uagent = navigator.userAgent.toLowerCase(),
+		safMobile = uagent.search('iphone') > -1 ||
+					uagent.search('ipad') > -1 ||
+					uagent.search('ipod') > -1;
 	
 	function _createElementNS(ns, nodeType){
 		// summary:
@@ -270,6 +272,9 @@ dojo.require("dojox.gfx.path");
 			r.setAttribute("stroke-linecap", "butt");
 			r.setAttribute("stroke-linejoin", "miter");
 			r.setAttribute("stroke-miterlimit", 4);
+			// Bind GFX object with SVG node for ease of retrieval - that is to
+			// save code/performance to keep this association elsewhere
+			r.__gfxObject__ = this.getUID();
 		},
 
 		setShape: function(newShape){
@@ -316,6 +321,9 @@ dojo.require("dojox.gfx.path");
 			// summary: sets a raw SVG node to be used by this shape
 			// rawNode: Node: an SVG node
 			this.rawNode = rawNode;
+			// Bind GFX object with SVG node for ease of retrieval - that is to
+			// save code/performance to keep this association elsewhere
+			this.rawNode.__gfxObject__ = this.getUID();
 		}
 	});
 	svg.Group.nodeType = "g";
@@ -392,6 +400,9 @@ dojo.require("dojox.gfx.path");
 			}
 			rawNode.setAttribute("preserveAspectRatio", "none");
 			rawNode.setAttributeNS(svg.xmlns.xlink, "xlink:href", this.shape.src);
+			// Bind GFX object with SVG node for ease of retrieval - that is to
+			// save code/performance to keep this association elsewhere
+			rawNode.__gfxObject__ = this.getUID();
 			return this;	// self
 		}
 	});
@@ -585,6 +596,7 @@ else
 
 		var s = new svg.Surface();
 		s.rawNode = _createElementNS(svg.xmlns.svg, "svg");
+		s.rawNode.setAttribute("overflow", "hidden");
 		if(width){
 			s.rawNode.setAttribute("width",  width);
 		}
@@ -707,6 +719,25 @@ else
 	d.extend(svg.Surface, gs.Creator);
 	d.extend(svg.Surface, Creator);
 
+	// Mouse/Touch event
+	svg.fixTarget = function(event, gfxElement) {
+		// summary: 
+		//     Adds the gfxElement to event.gfxTarget if none exists. This new 
+		//     property will carry the GFX element associated with this event.
+		// event: Object 
+		//     The current input event (MouseEvent or TouchEvent)
+		// gfxElement: Object
+		//     The GFX target element
+		if (!event.gfxTarget) {
+			if (safMobile && event.target.wholeText) {
+				// Workaround iOS bug when touching text nodes
+				event.gfxTarget = dojox.gfx.shape.byId(event.target.parentElement.__gfxObject__);
+			} else { 
+				event.gfxTarget = dojox.gfx.shape.byId(event.target.__gfxObject__);
+			}
+		}
+		return true;
+	};
 
 	// some specific override for svgweb + flash
 	if(svg.useSvgWeb){
@@ -785,9 +816,5 @@ else
 		dojo.extend(svg.Surface, _eventsProcessing);
 	}
 
-	// see if we are required to initilize
-	if(g.loadAndSwitch === "svg"){
-		g.switchTo("svg");
-		delete g.loadAndSwitch;
-	}
-})();
+	return svg;
+});

@@ -1,11 +1,12 @@
-dojo.provide("dojox.grid.enhanced.plugins.Cookie");
+define([
+	"dojo",
+	"dijit",
+	"dojox",
+	"dojo/cookie",
+	"../_Plugin",
+	"../../_RowSelector",
+	"../../cells/_base"], function(dojo, dijit, dojox){
 
-dojo.require("dojox.grid.enhanced._Plugin");
-dojo.require("dojo.cookie");
-dojo.require("dojox.grid._RowSelector");
-dojo.require("dojox.grid.cells._base");
-
-(function(){
 	// Generate a cookie key for the given grid.
 	var _cookieKeyBuilder = function(grid){
 		return window.location + "/" + grid.id;
@@ -342,4 +343,7 @@ dojo.require("dojox.grid.cells._base");
 		}
 	});
 	dojox.grid.EnhancedGrid.registerPlugin(dojox.grid.enhanced.plugins.Cookie/*name:'cookie'*/, {"preInit": true});
-})();
+
+	return dojox.grid.enhanced.plugins.Cookie;
+
+});

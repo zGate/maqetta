@@ -1,11 +1,23 @@
-define("dijit/layout/TabController", ["dojo", "dijit", "text!dijit/layout/templates/_TabButton.html", "dijit/layout/StackController", "dijit/Menu", "dijit/MenuItem", "i18n!dijit/nls/common"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel",
+	"..",
+	"dojo/text!./templates/_TabButton.html",
+	"./StackController",
+	"../Menu",
+	"../MenuItem",
+	"dojo/i18n!../nls/common",
+	"dojo/_base/html", // dojo.attr dojo.setSelectable dojo.toggleClass
+	"dojo/_base/lang", // dojo.hitch dojo.trim
+	"dojo/i18n" // dojo.i18n.getLocalization
+], function(dojo, dijit, template){
 
-// Menu is used for an accessible close button, would be nice to have a lighter-weight solution
+// module:
+//		dijit/layout/TabController
+// summary:
+// 		Set of tabs (the things with titles and a close button, that you click to show a tab panel).
+//		Used internally by `dijit.layout.TabContainer`.
 
-
-dojo.declare("dijit.layout.TabController",
-	dijit.layout.StackController,
-{
+dojo.declare("dijit.layout.TabController", dijit.layout.StackController, {
 	// summary:
 	// 		Set of tabs (the things with titles and a close button, that you click to show a tab panel).
 	//		Used internally by `dijit.layout.TabContainer`.
@@ -46,9 +58,7 @@ dojo.declare("dijit.layout.TabController",
 	}
 });
 
-dojo.declare("dijit.layout._TabButton",
-	dijit.layout._StackButton,
-	{
+dojo.declare("dijit.layout._TabButton", dijit.layout._StackButton, {
 	// summary:
 	//		A tab (the thing you click to select a pane).
 	// description:
@@ -66,7 +76,7 @@ dojo.declare("dijit.layout._TabButton",
 		closeNode: "dijitTabCloseButton"
 	},
 
-	templateString: dojo.cache("dijit.layout","templates/_TabButton.html"),
+	templateString: template,
 
 	// Override _FormWidget.scrollOnFocus.
 	// Don't scroll the whole tab container into view when the button is focused.
@@ -106,6 +116,7 @@ dojo.declare("dijit.layout._TabButton",
 				id: this.id+"_Menu",
 				dir: this.dir,
 				lang: this.lang,
+				textDir: this.textDir,
 				targetNodeIds: [this.domNode]
 			});
 
@@ -113,6 +124,7 @@ dojo.declare("dijit.layout._TabButton",
 				label: _nlsResources.itemClose,
 				dir: this.dir,
 				lang: this.lang,
+				textDir: this.textDir,
 				onClick: dojo.hitch(this, "onClickCloseButton")
 			}));
 		}else{
@@ -130,7 +142,7 @@ dojo.declare("dijit.layout._TabButton",
 		//		Inherited ToggleButton implementation will Set the label (text) of the button;
 		//		Need to set the alt attribute of icon on tab buttons if no label displayed
 		this.inherited(arguments);
-		if(this.showLabel == false && !this.params.title){
+		if(!this.showLabel && !this.params.title){
 			this.iconNode.alt = dojo.trim(this.containerNode.innerText || this.containerNode.textContent || '');
 		}
 	},

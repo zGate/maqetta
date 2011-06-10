@@ -1,15 +1,9 @@
-dojo.provide("dojox.charting.widget.Chart");
-
-dojo.require("dijit._Widget");
-dojo.require("dojox.charting.Chart");
-dojo.require("dojox.lang.functional");
-
-(function(){
+define(["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/declare", "dojo/query", "dijit/_Widget", "../Chart", 
+	"dojox/lang/utils", "dojox/lang/functional"], 
+	function(dojo, lang, declare, query, Widget, Chart, du, df){
 	var collectParams, collectAxisParams, collectPlotParams,
 		collectActionParams, collectDataParams,
 		notNull = function(o){ return o; },
-		df = dojox.lang.functional,
-		du = dojox.lang.utils,
 		dc = dojox.charting,
 		d = dojo;
 	
@@ -22,14 +16,18 @@ dojo.require("dojox.lang.functional");
 		// margins for the chart: {l: 10, r: 10, t: 10, b: 10}
 		margins: null,
 		
-		// chart area
-		stroke: null,
-		fill:   null,
+		// chart area, define them as undefined to:
+		// allow the parser to take them into account
+		// but make sure they have no defined value to not override theme
+		stroke: undefined,
+		fill:   undefined,
 		
 		// methods
 		
 		buildRendering: function(){
-			var n = this.domNode = this.srcNodeRef;
+			this.inherited(arguments);
+			
+			n = this.domNode;
 			
 			// collect chart parameters
 			var axes    = d.query("> .axis", n).map(collectAxisParams).filter(notNull),
@@ -39,10 +37,11 @@ dojo.require("dojox.lang.functional");
 			
 			// build the chart
 			n.innerHTML = "";
-			var c = this.chart = new dc.Chart(n, {
+			var c = this.chart = new Chart(n, {
 				margins: this.margins,
 				stroke:  this.stroke,
-				fill:    this.fill
+				fill:    this.fill,
+				textDir: this.textDir
 			});
 			
 			// add collected parameters
@@ -57,7 +56,7 @@ dojo.require("dojox.lang.functional");
 			});
 			
 			this.actions = actions.map(function(action){
-				return new action.action(c, action.plot, action.kwArgs)
+				return new action.action(c, action.plot, action.kwArgs);
 			});
 			
 			var render = df.foldl(series, function(render, series){
@@ -264,4 +263,6 @@ dojo.require("dojox.lang.functional");
 		}
 		return null;
 	};
-})();
+	
+	return dojox.charting.widget.Chart;
+});

@@ -1,13 +1,24 @@
-define("dijit/_editor/plugins/ToggleDir", ["dojo", "dijit", "dijit/_editor/_Plugin", "dijit/form/ToggleButton"], function(dojo, dijit) {
+define([
+	"dojo/_base/kernel", // dojo.experimental
+	"../..",
+	"../_Plugin",
+	"../../form/ToggleButton",
+	"dojo/_base/connect", // dojo.subscribe
+	"dojo/_base/declare", // dojo.declare
+	"dojo/_base/html", // dojo.getComputedStyle
+	"dojo/_base/lang" // dojo.hitch
+], function(dojo, dijit){
 
-dojo.experimental("dijit._editor.plugins.ToggleDir");
+	// module:
+	//		dijit/_editor/plugins/ToggleDir
+	// summary:
+	//		This plugin is used to toggle direction of the edited document,
+	//		independent of what direction the whole page is.
 
-dojo.require("dijit._editor._Plugin");
-dojo.require("dijit.form.ToggleButton");
 
-dojo.declare("dijit._editor.plugins.ToggleDir",
-	dijit._editor._Plugin,
-	{
+	dojo.experimental("dijit._editor.plugins.ToggleDir");
+
+	dojo.declare("dijit._editor.plugins.ToggleDir", dijit._editor._Plugin, {
 		// summary:
 		//		This plugin is used to toggle direction of the edited document,
 		//		independent of what direction the whole page is.
@@ -53,18 +64,17 @@ dojo.declare("dijit._editor.plugins.ToggleDir",
 			editDoc = editDoc.getElementsByTagName("body")[0];
 			editDoc.dir/*html node*/ = dir;
 		}
-	}
-);
+	});
 
-// Register this plugin.
-dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
-	if(o.plugin){ return; }
-	switch(o.args.name){
-	case "toggleDir":
-		o.plugin = new dijit._editor.plugins.ToggleDir({command: o.args.name});
-	}
-});
+	// Register this plugin.
+	dojo.subscribe(dijit._scopeName + ".Editor.getPlugin",null,function(o){
+		if(o.plugin){ return; }
+		switch(o.args.name){
+		case "toggleDir":
+			o.plugin = new dijit._editor.plugins.ToggleDir({command: o.args.name});
+		}
+	});
 
 
-return dijit._editor.plugins.ToggleDir;
+	return dijit._editor.plugins.ToggleDir;
 });
