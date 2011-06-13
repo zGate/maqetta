@@ -100,7 +100,7 @@ dojo.mixin(davinci.Workbench, {
 			dojo.forEach(toolbar1.getChildren(), function(child){
  				if (child.isEnabled)
  				{
- 					child.setDisabled(!child.isEnabled(change.targetObjectId));
+ 					child.set("disabled", !child.isEnabled(change.targetObjectId));
  				}
  			});
 		}
@@ -112,9 +112,9 @@ dojo.mixin(davinci.Workbench, {
 		   actionSets = davinci.Runtime.getExtensions('davinci.actionSets');
 		for(var i = 0;i<actionSets.length;i++){
 			this._loadActionSetContainer(actionSets[i]);
-			var actions = actionSets[i]['actions'];
+			var actions = actionSets[i].actions;
 			for(var k = 0;k<actions.length;k++){
-			  var toolBarPath = actions[k]['toolbarPath'];
+			  var toolBarPath = actions[k].toolbarPath;
 			  if(toolBarPath){
 				  if(!_toolbarcache[toolBarPath]){
 					  _toolbarcache[toolBarPath] = []
@@ -153,12 +153,10 @@ dojo.mixin(davinci.Workbench, {
 						{
 							dojoAction =new dijit.form.ToggleButton(parms);
 							dojoAction.item=action;
-							dojoAction.setChecked(action.initialValue);
+							dojoAction.set("checked", action.initialValue);
 							if (action.radioGroup)
 							{
-								var group=radioGroups[action.radioGroup];
-								if (!group)
-									group=radioGroups[action.radioGroup]=[];
+								var group=radioGroups[action.radioGroup] || [];
 								group.push(dojoAction);
 								dojoAction.onChange=dojo.hitch(this,"_toggleButton",dojoAction,context,group);
 							}
@@ -173,7 +171,7 @@ dojo.mixin(davinci.Workbench, {
 						if (action.icon)
 						{
 							var imageNode = document.createElement('img');
-							imageNode.src=action['icon'];
+							imageNode.src=action.icon;
 							imageNode.height = imageNode.width = 18;
 							dojoAction.domNode.appendChild(imageNode);
 						}
@@ -181,9 +179,9 @@ dojo.mixin(davinci.Workbench, {
 						toolbar1.addChild(dojoAction);
 						if(action.isEnabled && !action.isEnabled(targetObjectId) ){ 
 							dojoAction.isEnabled = action.isEnabled;
-							dojoAction.setDisabled(true);
+							dojoAction.set("disabled", true);
 						}else{
-							dojoAction.setDisabled(false);
+							dojoAction.set("disabled", false);
 						}
 				}
 		
@@ -273,7 +271,7 @@ dojo.mixin(davinci.Workbench, {
 			
 			dojo.connect(mainBody.tabs.editors, "removeChild", this, this._editorTabClosed);
 		}
-		mainBody.editorsStackContainer.addChild(mainBody.tabs['editors']);
+		mainBody.editorsStackContainer.addChild(mainBody.tabs.editors);
 		mainBody.editorsStackContainer.selectChild(mainBody.editorsWelcomePage);
 		dojo.connect(dijit.byId("editors_tabcontainer"),"selectChild",function(child){
 			if (child.editor)
@@ -544,7 +542,7 @@ dojo.mixin(davinci.Workbench, {
 							{
 								var menuItems=menu.populate();
 								for (var item in menuItems)
-									addItem(menuItems[item], menuItems[item]['menubarPath']);
+									addItem(menuItems[item], menuItems[item].menubarPath);
 							}
 								
 						}
@@ -690,7 +688,7 @@ dojo.mixin(davinci.Workbench, {
 			return;
 		for (var i=0;i<group.length;i++)
 			if (group[i]!=button)
-				group[i].setChecked(false);
+				group[i].set("checked", false);
 		this._runAction(button.item,context,button.item.id);
 	},
 	_runAction: function (item,context,arg)
@@ -837,14 +835,14 @@ dojo.mixin(davinci.Workbench, {
 	},
 	
 	hideView: function(viewId){
-		for(position in mainBody.tabs['perspective']){
-			if(position=='left' || position == 'right') position+='-top'
-			if(! mainBody.tabs['perspective'][position]) continue;
-			var children = mainBody.tabs['perspective'][position].getChildren();
+		for(position in mainBody.tabs.perspective){
+			if(position=='left' || position == 'right'){ position+='-top'; }
+			if(! mainBody.tabs.perspective[position]) continue;
+			var children = mainBody.tabs.perspective[position].getChildren();
 			var found = false;
 			for ( var i = 0; i < children.length && !found; i++) {
 				if (children[i].id == viewId) {
-					 mainBody.tabs['perspective'][position].removeChild(children[i]);
+					mainBody.tabs.perspective[position].removeChild(children[i]);
 					children[i].destroyRecursive(false);
 				}
 			}									
@@ -857,7 +855,7 @@ dojo.mixin(davinci.Workbench, {
 		if(found) 
 			this.hideView(viewId);
 		else
-			this.showView(viewId, true)
+			this.showView(viewId, true);
 	},
 
 	openEditor: function (keywordArgs) {
@@ -1169,8 +1167,9 @@ dojo.mixin(davinci.Workbench, {
 		{
 			cmd=this.keyBindings[this.currentContext][seq];
 		}
-		if (!cmd)
-			cmd=this.keyBindings['all'][seq];
+		if (!cmd) {
+			cmd=this.keyBindings.all[seq];
+		}
 		if (cmd)
 		{
 			davinci.Runtime.executeCommand(cmd);
