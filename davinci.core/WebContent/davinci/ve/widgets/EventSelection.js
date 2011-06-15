@@ -67,7 +67,7 @@ dojo.declare("davinci.ve.widgets.EventSelection", [davinci.workbench.ViewLite], 
 	_onChange : function(a){
 		
 		var index = a.target;
-		var widget = dijit.byId(this.pageTemplate[index]['id']);
+		var widget = dijit.byId(this.pageTemplate[index].id);
 		var	value = widget.attr('value');
 		
 		value.replace(/'/,"\\'");
@@ -112,8 +112,8 @@ dojo.declare("davinci.ve.widgets.EventSelection", [davinci.workbench.ViewLite], 
 	},
 	_clearValues : function(){
 		for(var i = 0;i<this.pageTemplate.length;i++){
-			var box = dijit.byId(this.pageTemplate[i]['id']);
-				box.attr("value","", false );
+			var box = dijit.byId(this.pageTemplate[i].id);
+			box.attr("value", "", false);
 		}
 	},
 	
@@ -127,15 +127,15 @@ dojo.declare("davinci.ve.widgets.EventSelection", [davinci.workbench.ViewLite], 
 		}
 		
 		for(var i=0;i<this.pageTemplate.length;i++){
-			var box = dijit.byId(this.pageTemplate[i]['id']);
-			box.store.clearValues();
-			box.store.setValues(items);
+			var box = dijit.byId(this.pageTemplate[i].id);
+			box.store.store.clearValues();
+			box.store.store.setValues(items);
 		}
 	},
 	_setValues: function() {
 		
 		for(var i=0;i<this.pageTemplate.length;i++){
-			var name = this.pageTemplate[i]['target'];
+			var name = this.pageTemplate[i].target;
 			var widget = this._widget;
 			var	value = "";
 	
@@ -149,7 +149,7 @@ dojo.declare("davinci.ve.widgets.EventSelection", [davinci.workbench.ViewLite], 
 				/* check the model for the events value */
 				value = widget._srcElement.getAttribute(name);
 			}
-			var box = dijit.byId(this.pageTemplate[i]['id']);
+			var box = dijit.byId(this.pageTemplate[i].id);
 			box.attr('value', value, false);
 		}
 	}
