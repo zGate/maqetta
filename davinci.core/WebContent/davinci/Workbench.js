@@ -1327,17 +1327,19 @@ dojo.mixin(davinci.Workbench, {
 	_switchEditor: function(newEditor, startup)
 	{
 		var oldEditor = davinci.Runtime.currentEditor;
-		davinci.Runtime.currentEditor =newEditor;
+		davinci.Runtime.currentEditor = newEditor;
 		try {
 			dojo.publish("/davinci/ui/editorSelected", [{
 				editor: newEditor,
 				oldEditor: oldEditor
 			}]);
-		} catch (ex) {console.log(ex);}
+		} catch (ex) {
+			console.error(ex);
+		}
 		this._updateTitle(newEditor);
-		davinci.Workbench._state.activeEditor=newEditor ? newEditor.fileName : null;
-	
-		if(newEditor && newEditor.focus) newEditor.focus();
+		davinci.Workbench._state.activeEditor = newEditor ? newEditor.fileName : null;
+
+		if(newEditor && newEditor.focus){ newEditor.focus(); }
 		
 		if(!startup) {
 			davinci.Workbench._updateWorkbenchState();
