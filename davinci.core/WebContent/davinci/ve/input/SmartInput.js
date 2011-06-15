@@ -696,12 +696,12 @@ dojo.declare("davinci.ve.input.SmartInput", null, {
 			var n = dojo.create("div", { innerHTML: value});
 			if (format === 'html'){
 			
-				htmlRadio.setChecked(true);
-				textRadio.setChecked(false);
+				htmlRadio.set("checked", true);
+				textRadio.set("checked", false);
 			}else{ 
 				
-				htmlRadio.setChecked(false);
-				textRadio.setChecked(true);
+				htmlRadio.set("checked", false);
+				textRadio.set("checked", true);
 			}
 			this._format = format;
 
@@ -747,8 +747,8 @@ dojo.declare("davinci.ve.input.SmartInput", null, {
 			if (disabled){
 				dojo.addClass(textObj,'inlineEditDisabled');
 				dojo.addClass(htmlObj,'inlineEditDisabled');
-				htmlRadio.setChecked(false);
-				textRadio.setChecked(true);
+				htmlRadio.set("checked", false);
+				textRadio.set("checked", true);
 			}else{
 				dojo.removeClass(textObj,'inlineEditDisabled');
 				dojo.removeClass(htmlObj,'inlineEditDisabled');

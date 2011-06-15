@@ -87,7 +87,7 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 		this.pageX = e.pageX;
 		this.pageY = e.pageY;
 		this.scrollOffset = dojo._docScroll();
-		this.dragStartPosition = dojo._abs(this.refNode, true); // {x:#, y:#}
+		this.dragStartPosition = dojo.position(this.refNode, true); // {x:#, y:#}
 		this.dragStartCssPosition = {
 			y: this.refNode.offsetTop,
 			x: this.refNode.offsetLeft
@@ -96,9 +96,9 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 			y: e.pageY - this.dragStartPosition.y,
 			x: e.pageX - this.dragStartPosition.x
 		};
-		this.offsetParentCoords = dojo._abs(this.offsetParent, true); // {x:#, y:#}
+		this.offsetParentCoords = dojo.position(this.offsetParent, true); // {x:#, y:#}
 
-		var parentPosition = dojo._abs(this.domNode.parentNode, true);
+		var parentPosition = dojo.position(this.domNode.parentNode, true);
 		this.parentCoords = {
 			y: parentPosition.y - this.offsetParentCoords.y,
 			x: parentPosition.x - this.offsetParentCoords.x
@@ -124,7 +124,7 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 
 	createDragClone: function(e){
 		var dragClone = this.dragClone = this.dragObject.cloneNode(true);
-		dojo._setOpacity(dragClone, 0.5);
+		dojo.style(dragClone, "opacity", 0.5);
 		dragClone.style.zIndex = 1000;
 
 		var box = dojo.contentBox(this.dragObject);
@@ -159,7 +159,7 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 	},
 
 	returnClone: function(){
-		var startCoords = dojo._abs(this.dragClone, true); // {x, y}
+		var startCoords = dojo.position(this.dragClone, true); // {x, y}
 		var endCoords = this.dragStartPosition; // {x, y}
 //		var endCoords = {
 //			left: this.dragStartPosition.x,
@@ -189,7 +189,7 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 
 	globalChangeCursor: function(cursor){
 		var sheet = dojo.doc.styleSheets[0];
-		if(!sheet){ return };
+		if(!sheet){ return; }
 		if(cursor){
 			if(this._showingCursor){
 				if(this._showingCursor == cursor){ return; } // already showing
@@ -206,7 +206,7 @@ dojo.declare("davinci.ui.dnd.DragSource", null, {
 				sheet.insertRule("*" + "{cursor:"+cursor+" ! important;}", sheet.cssRules.length);
 			}
 		}else{
-			if(!this._showingCursor){ return };
+			if(!this._showingCursor){ return; }
 			this._showingCursor = null;
 			if(dojo.isIE){
 				sheet.removeRule(this._ruleIndex);
