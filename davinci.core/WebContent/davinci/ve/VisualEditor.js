@@ -174,7 +174,7 @@ dojo.declare("davinci.ve.VisualEditor", null, {
 		//FIXME: use dojo.cache?
 		if(!this.template){
 			dojo.xhrGet({
-				url: dojo.moduleUrl("davinci.ve")+"template.html",
+				url: dojo.moduleUrl("davinci.ve", "template.html"),
 				handleAs: "text",
 				sync: true
 			}).addCallback(dojo.hitch(this, function(result){
