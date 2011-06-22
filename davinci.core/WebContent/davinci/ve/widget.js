@@ -472,6 +472,18 @@ davinci.ve.widget.createWidget = function(data){
 		widget.setProperties(data.properties);
 	}
 
+	if(data.states){
+		widget.states = data.states;
+		var states_json = JSON.stringify(widget.states);
+		// Escape single quotes that aren't already escaped
+		states_json = states_json.replace(/(\\)?'/g, function($0, $1){ 
+			return $1 ? $0 : "\\'";
+		});
+		// Replace double quotes with single quotes
+		states_json = states_json.replace(/"/g, "'");
+		widget._srcElement.addAttribute(davinci.states.ATTRIBUTE, states_json);
+	}
+
 	return widget;
 };
 
