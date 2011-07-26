@@ -25,6 +25,11 @@ public class AddFiles extends Command {
         String path = request.getParameter("path");
         resp.setContentType("application/json");
 
+        String project = request.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        
         // Create a factory for disk-based file items
         FileItemFactory factory = new DiskFileItemFactory();
 
@@ -36,7 +41,7 @@ public class AddFiles extends Command {
             // Parse the request
             List /* FileItem */items = upload.parseRequest(request);
             Iterator iter = items.iterator();
-            IVResource userDirectory = user.getResource(path);
+            IVResource userDirectory = user.getResource(path,project);
             while (iter.hasNext()) {
                 FileItem item = (FileItem) iter.next();
 

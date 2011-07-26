@@ -17,9 +17,12 @@ public class Copy extends Command {
         String src = req.getParameter("source");
         String des = req.getParameter("dest");
         boolean recurse = Boolean.parseBoolean(req.getParameter("recurse"));
-
-        IVResource source = user.getResource(src);
-        IVResource newResource = user.createResource(des);
+        String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        IVResource source = user.getResource(src,project);
+        IVResource newResource = user.createResource(des,project);
 
         if (source.isDirectory()) {
             newResource.mkdir();

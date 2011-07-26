@@ -144,4 +144,7 @@ public class VEmptyFile implements IVResource {
         return null;
     }
 
+	public VProject getProject() {
+		return null;
+	}
 }

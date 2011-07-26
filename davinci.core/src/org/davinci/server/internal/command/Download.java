@@ -29,6 +29,12 @@ public class Download extends Command {
         String path = req.getParameter("fileName");
         String res = req.getParameter("resources");
         String libs = req.getParameter("libs");
+        String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        
+        
         ArrayList o = (ArrayList) JSONReader.read(res);
         List lib = null;
         boolean includeLibs = true;
@@ -40,7 +46,7 @@ public class Download extends Command {
 
         IVResource[] files = new IVResource[resources.length];
         for (int i = 0; i < files.length; i++) {
-            files[i] = user.getResource(resources[i]);
+            files[i] = user.getResource(resources[i],project);
         }
 
         try {

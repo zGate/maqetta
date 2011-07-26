@@ -17,7 +17,12 @@ public class GetWorkbenchState extends Command {
 
     @Override
     public void handleCommand(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
-        File userSettings = user.getSettingsDirectory();
+    	String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        
+        File userSettings = user.getSettingsDirectory(project);
         File settingsFile = new File(userSettings, IDavinciServerConstants.WORKBENCH_STATE_FILE);
         InputStream inputStream;
         if (settingsFile.exists()) {

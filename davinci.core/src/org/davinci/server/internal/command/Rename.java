@@ -16,9 +16,12 @@ public class Rename extends Command {
 
         String oldName = req.getParameter("oldName");
         String newName = req.getParameter("newName");
-
-        IVResource source = user.getResource(oldName);
-        IVResource newResource = user.createResource(newName);
+        String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        IVResource source = user.getResource(oldName,project);
+        IVResource newResource = user.createResource(newName,project);
         if (source.isDirectory()) {
             newResource.mkdir();
             VResourceUtils.copyDirectory(source, newResource, true);

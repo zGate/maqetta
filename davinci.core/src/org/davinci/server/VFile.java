@@ -344,4 +344,11 @@ public class VFile implements IVResource {
         // TODO Auto-generated method stub
         return null;
     }
+
+    public VProject getProject() {
+		IVResource parent = this.parent;
+		while(parent!=null && !(parent instanceof VProject))
+				parent = parent.getParent();
+		return parent!=null?(VProject)parent:null;
+	}
 }

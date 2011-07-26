@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.Path;
 
 public class VDirectory implements IVResource {
 
-    private Vector     children;
+    protected Vector     children;
     private IVResource parent;
     private String     name;
 
@@ -29,6 +29,8 @@ public class VDirectory implements IVResource {
         this.children = new Vector();
     }
 
+    
+    
     protected VDirectory() {
         // TODO Auto-generated constructor stub
         this.children = new Vector();
@@ -236,4 +238,11 @@ public class VDirectory implements IVResource {
         return (IVResource[]) results.toArray(new IVResource[results.size()]);
 
     }
+
+	public VProject getProject() {
+		IVResource parent = this.parent;
+		while(parent!=null && !(parent instanceof VProject))
+				parent = parent.getParent();
+		return parent!=null?(VProject)parent:null;
+	}
 }

@@ -6,6 +6,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
@@ -22,11 +25,15 @@ import org.davinci.server.VDirectory;
 import org.davinci.server.VFile;
 import org.davinci.server.VLibraryResource;
 import org.davinci.server.VResourceUtils;
-import org.davinci.server.VWorkspaceRoot;
+import org.davinci.server.VProject;
+import org.davinci.server.VWorkspace;
+import org.davinci.server.internal.Activator;
 import org.davinci.server.internal.Links;
 import org.davinci.server.internal.Links.Link;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.osgi.framework.Bundle;
 
 public class User {
 
@@ -35,24 +42,27 @@ public class User {
 	private Links links;
 	private Person person;
 	private IVResource workspace;
-	private LibrarySettings libSettings;
+	private Hashtable libSettings;
 
-	public User(Person person, IVResource userDirectory) {
-		this.person = person;
-		try {
-			this.userDirectory = new File(userDirectory.getURI());
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		rebuildWorkspace();
+	public User(Person person, IVResource userDirectory) throws URISyntaxException {
+		this(person, new File(userDirectory.getURI()));
 	}
 
 	public User(Person person, File userDirectory) {
 		this.person = person;
 		this.userDirectory = userDirectory;
-		rebuildWorkspace();
+		this.userDirectory.mkdirs();
+		
+		this.workspace = new VWorkspace();
+		/* assume all directories in the users space are projects */
+		File[] projects = this.userDirectory.listFiles();
+		for(int i=0;i<projects.length;i++){
+			if(projects[i].isDirectory()){
+				IVResource project = this.rebuildProject(projects[i].getName());
+				this.workspace.add(project);
+			}
+		}
+		
 	}
 
 	/* rebuilds the virtual part of the workspace.
@@ -61,13 +71,13 @@ public class User {
 	 * performance reasons. 
 	 */
 	
-	public void rebuildWorkspace() {
-		this.workspace = new VWorkspaceRoot(this);
-		LibInfo libs[] = getLibs("/");
+	public VProject rebuildProject(String projectName) {
+		VProject project = new VProject();
+		LibInfo libs[] = getLibs(projectName);
 		for (int i = 0; i < libs.length; i++) {
 			String defaultRoot = libs[i].getVirtualRoot();
 			IPath path = new Path(defaultRoot);
-			IVResource root = this.workspace;
+			IVResource root = project;
 			Library b = this.getLibrary(libs[i]);
 			/* library not found on server so avoid adding it to the workspace */
 			if (b == null) {
@@ -93,22 +103,46 @@ public class User {
 			IVResource libResource = new VLibraryResource(b, file, root,path.lastSegment(), "");
 			root.add(libResource);
 		}
+		return project;
 	}
 
-	private LibrarySettings getLibInfo() {
-		if (this.libSettings == null) {
-			this.libSettings = new LibrarySettings(this.getSettingsDirectory());
-		}
+    public void initNewProject(File userDir) {
+        List extensions = ServerManager.getServerManger().getExtensions(IDavinciServerConstants.EXTENSION_POINT_INITIAL_USER_FILES,
+                IDavinciServerConstants.EP_TAG_INITIAL_USER_FILE);
+        for (Iterator iterator = extensions.iterator(); iterator.hasNext();) {
+            IConfigurationElement libraryElement = (IConfigurationElement) iterator.next();
+            String path = libraryElement.getAttribute(IDavinciServerConstants.EP_ATTR_INITIAL_USER_FILE_PATH);
+            String name = libraryElement.getDeclaringExtension().getContributor().getName();
+            Bundle bundle = Activator.getActivator().getOtherBundle(name);
 
-		return this.libSettings;
+            VResourceUtils.copyDirectory(userDir, path, bundle);
+        }
+
+    }
+	
+	public void createProject(String projectName){
+		
+        File settingsDir = getSettingsDirectory(projectName);
+        settingsDir.mkdir();
+        initNewProject(getProjectFile(projectName));
+        
+	}
+	
+	private LibrarySettings getLibInfo(String project) {
+		if (this.libSettings == null) {
+			this.libSettings = new Hashtable();
+		}
+		if(!this.libSettings.contains(project))
+			this.libSettings.put(project, new LibrarySettings(this.getSettingsDirectory(project)));
+		return (LibrarySettings)this.libSettings.get(project);
 	}
 
 	public File getUserDirectory() {
 		return this.userDirectory;
 	}
 
-	public void modifyLibrary(String id, String version, boolean installed) {
-		LibrarySettings libs = this.getLibInfo();
+	public void modifyLibrary(String id, String version, String project, boolean installed) {
+		LibrarySettings libs = this.getLibInfo(project);
 
 		if (!installed) {
 			libs.removeLibrary(id, version);
@@ -117,18 +151,18 @@ public class User {
 			String defaultRoot = ServerManager.getServerManger().getLibraryManager().getDefaultRoot(id, version);
 			libs.addLibrary(id, version, id, defaultRoot);
 		}
-		rebuildWorkspace();
+		rebuildProject(project);
 	}
 
-	public void modifyLibrary(String id, String version, String virtualRoot) {
-		LibrarySettings libs = this.getLibInfo();
+	public void modifyLibrary(String id, String version, String project, String virtualRoot) {
+		LibrarySettings libs = this.getLibInfo(project);
 
 		libs.modifyLibrary(id, version, virtualRoot);
-		rebuildWorkspace();
+		rebuildProject(project);
 	}
 
 	
-	public IVResource[] listFiles(String path) {
+	public IVResource[] listFiles(String path, String project) {
 	    IVResource[] found = new IVResource[0];
 		
 	    
@@ -141,14 +175,14 @@ public class User {
     
 		/* list all files given a path, dont recurse. */
 		/* add users actual workspace files */
-		IVResource r1 = getUserFile(path);
+		IVResource r1 = getUserFile(path, project);
 		if (r1 != null) {
 			if (r1.isDirectory()) {
 				found = r1.listFiles();
 			}
 		}
 		/* add links */
-		r1 = getLinkedResource(path);
+		r1 = getLinkedResource(path,project);
 		if (r1 != null) {
             if (r1.isDirectory()) {
                 IVResource[] list = r1.listFiles();
@@ -157,7 +191,7 @@ public class User {
         }
 		
 		
-		r1 = getLibFile(path);
+		r1 = getLibFile(path,project);
         if (r1 != null) {
             if (r1.isDirectory()) {
                 IVResource[] list = r1.listFiles();
@@ -178,19 +212,19 @@ public class User {
 		}
 	}
 
-	public IVResource getResource(String path) {
+	public IVResource getResource(String path, String project) {
 
-	    IVResource r1 = getUserFile(path);
+	    IVResource r1 = getUserFile(path, project);
         if (r1 != null) {
             return r1;
         }
         /* add links */
-        r1 = getLinkedResource(path);
+        r1 = getLinkedResource(path, project);
         if (r1 != null) {
            return r1;
         }
         
-        return getLibFile(path);
+        return getLibFile(path, project);
     }
 
 	protected IVResource[] getRootLibraryEntries() {
@@ -207,9 +241,9 @@ public class User {
 
 	}
 
-	private IVResource getLibFile(String p1) {
+	private IVResource getLibFile(String p1, String project) {
 		IPath path = new Path(p1);
-		IVResource root = this.workspace;
+		IVResource root = this.getProject(project);
 		for (int i = 0; i < path.segmentCount() && root != null; i++) {
 			root = root.get(path.segment(i));
 
@@ -218,14 +252,15 @@ public class User {
 		return root;
 	}
 
-	private IVResource getLinkedResource(String path){
+	private IVResource getLinkedResource(String path, String project){
+
 	    String path1 = path;
         if (path1.startsWith("./")) {
             path1 = path.substring(2);
         } else if (path.length() > 0 && path.charAt(0) == '.') {
             path1 = path.substring(1);
         }
-	    Link link = this.getLinks().hasLink(path1);
+	    Link link = this.getLinks(path1).hasLink(path1);
         if (link != null) {
             path = link.location + "/" + path1.substring(link.path.length());
             path = path.replace('/', File.separatorChar);
@@ -237,23 +272,21 @@ public class User {
 	}
 	
 	
-	 private IVResource getUserFile(String p1) {
+	 private IVResource getUserFile(String p1, String project) {
 	       
 	        String path = p1;
-	        if (path.startsWith("./")) {
-	            path = path.substring(2);
-	        } else if (path.length() > 0 && path.charAt(0) == '.') {
-	            path = path.substring(1);
-	        }
+	        while(path.charAt(0)=='.' || path.charAt(0)=='/' || path.charAt(0)=='\\')
+            	path=path.substring(1);
 
-	       
 
-	        IPath a = new Path(this.userDirectory.getAbsolutePath()).append(path);
+	       File userProject = this.getProjectFile(project);
+
+	        IPath a = new Path(userProject.getAbsolutePath()).append(path);
 	        /*
 	         * security check, dont want to return a resource BELOW the workspace
 	         * root
 	         */
-	        IPath workspaceRoot = new Path(this.userDirectory.getAbsolutePath());
+	        IPath workspaceRoot = new Path(userProject.getAbsolutePath());
 	        if (a.matchingFirstSegments(workspaceRoot) != workspaceRoot.segmentCount()) {
 	            return null;
 	        }
@@ -262,15 +295,15 @@ public class User {
 
 	        if (!f1.exists()) {
 
-	            IPath a2 = new Path(this.userDirectory.getAbsolutePath()).append(path + IDavinciServerConstants.WORKING_COPY_EXTENSION);
+	            IPath a2 = new Path(userProject.getAbsolutePath()).append(path + IDavinciServerConstants.WORKING_COPY_EXTENSION);
 	            File workingCopy = new File(a2.toOSString());
 	            if (!workingCopy.exists()) {
 	                return null;
 	            }
 	        }
 	        String[] segments = a.segments();
-	        IPath me = new Path(this.userDirectory.getAbsolutePath());
-	        IVResource parent = this.workspace;
+	        IPath me = new Path(userProject.getAbsolutePath());
+	        IVResource parent = this.getProject(project);
 	        for (int i = me.matchingFirstSegments(a); i < segments.length; i++) {
 	            int segsToEnd = segments.length - i - 1;
 	            String s = a.removeLastSegments(segsToEnd).toOSString();
@@ -278,14 +311,14 @@ public class User {
 	            parent = new VFile(f, parent, segments[i]);
 	        }
 	        
-	        if(parent==this.workspace)
-	            parent = new VFile(this.userDirectory, this.workspace);
+	        if(parent==this.getProject(project))
+	            parent = new VFile(userProject, getProject(project));
 	        
 	        return parent;
 
 	}
 
-	public IVResource createResource(String path) {
+	public IVResource createResource(String path, String project) {
 		/* serve working copy files if they exist */
 
 		String path1 = path;
@@ -295,7 +328,7 @@ public class User {
 			path1 = path.substring(1);
 		}
 
-		Link link = this.getLinks().hasLink(path1);
+		Link link = this.getLinks(project).hasLink(path1);
 		if (link != null) {
 			path = link.location + "/" + path1.substring(link.path.length());
 			path = path.replace('/', File.separatorChar);
@@ -310,28 +343,35 @@ public class User {
 		return userFile;
 	}
 
-	public File getSettingsDirectory() {
-		if (this.settingsDirectory == null) {
-			this.settingsDirectory = new File(this.userDirectory,IDavinciServerConstants.SETTINGS_DIRECTORY_NAME);
-		}
-
-		return this.settingsDirectory;
+	private File getProjectFile(String project){
+		return new File(this.userDirectory,project);
+	}
+	
+	private VProject getProject(String project){
+		return (VProject)this.workspace.get(project);
+	}
+	
+	public File getSettingsDirectory(String project) {
+		
+		File projectDirectory = getProjectFile(project);
+		File settings = new File(projectDirectory,IDavinciServerConstants.SETTINGS_DIRECTORY_NAME );
+		
+		return settings;
 	}
 
-	synchronized public Links getLinks() {
+	synchronized public Links getLinks(String project) {
 		if (this.links == null) {
-			this.links = new Links(this.getSettingsDirectory());
+			this.links = new Links(this.getSettingsDirectory(project));
 		}
 		return this.links;
 	}
 
-	public IVResource[] findFiles(String pathStr, boolean ignoreCase,
-			boolean workspaceOnly) {
+	public IVResource[] findFiles(String pathStr, boolean ignoreCase,boolean workspaceOnly, String project) {
 
-		return this.findFiles(pathStr, ".", ignoreCase, workspaceOnly);
+		return this.findFiles(pathStr, ".", ignoreCase, workspaceOnly, project);
 	}
 
-	public IVResource[] findFiles(String pathStr, String startFolder,	boolean ignoreCase, boolean workspaceOnly) {
+	public IVResource[] findFiles(String pathStr, String startFolder,	boolean ignoreCase, boolean workspaceOnly, String project) {
 		boolean isWildcard = pathStr.indexOf('*') >= 0;
 		IPath path = new Path(pathStr);
 		ArrayList results = new ArrayList();
@@ -354,9 +394,9 @@ public class User {
 			
 			File f1 = null; 
 		    if (startFolder == null || startFolder.equals(".")) {
-		          f1 = this.userDirectory;
+		          f1 = getProjectFile(project);
 		     } else {
-		         IVResource start = this.getUserFile(startFolder);
+		         IVResource start = this.getUserFile(startFolder, project);
 		         if(start!=null)
     		         try {
     		             
@@ -369,15 +409,13 @@ public class User {
     			Collection c = FileUtils.listFiles(f1, filter, TrueFileFilter.INSTANCE);
     			File[] found = (File[]) c.toArray(new File[c.size()]);
     			for (int i = 0; i < found.length; i++) {
-    					File workspaceFile = null;
-    					workspaceFile = this.userDirectory;
+    					File workspaceFile = this.getProjectFile(project);
     
     					IPath workspacePath = new Path(workspaceFile.getPath());
     					IPath foundPath = new Path(found[i].getPath());
     					IPath elementPath = foundPath.makeRelativeTo(workspacePath);
     
-    					IVResource[] wsFound = this.findFiles(
-    							elementPath.toString(), ignoreCase, true);
+    					IVResource[] wsFound = this.findFiles(elementPath.toString(), ignoreCase, true,project);
     					results.addAll(Arrays.asList(wsFound));
     
     			}
@@ -395,8 +433,7 @@ public class User {
 					IPath foundPath = new Path(found[p].getPath());
 					IPath elementPath = foundPath.makeRelativeTo(workspacePath);
 
-					IVResource[] wsFound = this.findFiles(
-							elementPath.toString(), ignoreCase, true);
+					IVResource[] wsFound = this.findFiles(elementPath.toString(), ignoreCase, true,project);
 					results.addAll(Arrays.asList(wsFound));
 
 				}
@@ -408,7 +445,7 @@ public class User {
 
 			}
 		} else {
-			IVResource file = this.getResource(pathStr);
+			IVResource file = this.getResource(pathStr,project);
 			if (file != null && file.exists()) {
 				results.add(file);
 			}
@@ -418,17 +455,17 @@ public class User {
 
 	}
 
-	public LibInfo[] getLibs(String base) {
-		return this.getLibInfo().allLibs();
+	public LibInfo[] getLibs(String project) {
+		return this.getLibInfo(project).allLibs();
 	}
 
-	public String getLibPath(String id, String version, String base) {
+	public String getLibPath(String id, String version, String project) {
 		/*
 		 * returns the virtual path of library in the users workspace given ID
 		 * and version for now its going to be the default, but this will allow
 		 * to remap/move etc..
 		 */
-		LibInfo[] mappedLibs = this.getLibs(base);
+		LibInfo[] mappedLibs = this.getLibs(project);
 		for (int i = 0; i < mappedLibs.length; i++) {
 			LibInfo library = mappedLibs[i];
 			if (library.getId().equals(id)

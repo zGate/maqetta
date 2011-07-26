@@ -259,40 +259,13 @@ public class VLibraryResource implements IVResource {
     }
 
     public IVResource[] findChildren(String childName) {
-        IVResource[] children = this.listFiles(childName, true);
-
-        return children;
-        
-        /*
-        Path path = new Path(childName);
-        IOFileFilter filter;
-        if (path.segment(0).equals("*")) {
-            filter = new NameFileFilter(path.lastSegment());
-        } else {
-            String lastSegment = path.lastSegment();
-            if (lastSegment.startsWith("*")) {
-                filter = new SuffixFileFilter(lastSegment.substring(1));
-            } else {
-                filter = null;
-            }
-        }
-        Vector results = new Vector();
-
-        for (int i = 0; i < children.length; i++) {
-            IVResource r1 = children[i];
-            File f1 = new File(r1.getName());
-            if (filter.accept(f1)) {
-                results.add(r1);
-            }
-
-            if (r1.isDirectory()) {
-                IVResource[] more = r1.findChildren(childName);
-                results.addAll(Arrays.asList(more));
-            }
-
-        }
-
-        return (IVResource[]) results.toArray(new IVResource[results.size()]);
-		*/
+        return this.listFiles(childName, true);
+      
     }
+	public VProject getProject() {
+		IVResource parent = this.parent;
+		while(parent!=null && !(parent instanceof VProject))
+				parent = parent.getParent();
+		return parent!=null?(VProject)parent:null;
+	}
 }

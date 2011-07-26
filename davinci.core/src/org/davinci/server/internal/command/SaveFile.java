@@ -16,7 +16,13 @@ public class SaveFile extends Command {
     public void handleCommand(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
         String path = req.getParameter("path");
         boolean isWorkingCopy = "true".equalsIgnoreCase(req.getParameter("isWorkingCopy"));
-        IVResource file = user.getResource(path);
+        
+        String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        
+        IVResource file = user.getResource(path,project);
 
         if (file.exists()) {
             OutputStream os = file.getOutputStreem();

@@ -15,7 +15,12 @@ public class CreateResource extends Command {
     public void handleCommand(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
         String path = req.getParameter("path");
         boolean isFolder = "true".equalsIgnoreCase(req.getParameter("isFolder"));
-        IVResource newFile = user.createResource(path);
+        String project = req.getParameter("project");
+        if(project==null){
+        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
+        }
+        
+        IVResource newFile = user.createResource(path,project);
         if (isFolder) {
             if (newFile.exists()) {
                 responseString = "Folder already exists";

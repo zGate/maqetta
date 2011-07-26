@@ -1,5 +1,7 @@
 package org.davinci.server.user;
 
+import java.io.File;
+
 public interface UserManager {
 
     public abstract boolean hasPermisions(User owner, User requester, String resource);
@@ -17,5 +19,6 @@ public interface UserManager {
     public User getSingleUser();
 
     public PersonManager getPersonManager();
-
+    
+ 
 }

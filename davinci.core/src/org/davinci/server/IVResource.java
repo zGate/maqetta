@@ -54,6 +54,8 @@ public interface IVResource {
 
     public boolean isFile();
 
+    public VProject getProject();
+    
     public boolean isDirty();
 
     public IVResource[] getParents();

@@ -18,16 +18,18 @@ public class VURL implements IVResource {
 	private URL     file = null;
     private boolean isWorkingCopy;
     private String  virtualPath;
-
-    public VURL(URL file) {
-        this.file = file;
-        this.virtualPath = file.getPath();
+    private VProject project;
+    
+    
+    public VURL(URL file, VProject project) {
+        this(file, file.getPath(),project);
         this.isWorkingCopy = false;
     }
 
-    public VURL(URL file, String virtualPath) {
+    public VURL(URL file, String virtualPath, VProject project) {
         this.file = file;
         this.virtualPath = virtualPath;
+        this.project = project;
     }
 
     public boolean exists() {
@@ -164,4 +166,7 @@ public class VURL implements IVResource {
         // TODO Auto-generated method stub
         return null;
     }
+	public VProject getProject() {
+		return this.project;
+	}
 }

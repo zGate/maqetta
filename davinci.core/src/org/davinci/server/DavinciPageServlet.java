@@ -50,6 +50,11 @@ public class DavinciPageServlet extends HttpServlet {
             initialize();
         String previewParam = req.getParameter(IDavinciServerConstants.PREVIEW_PARAM);
         
+        String project = req.getParameter(IDavinciServerConstants.PROJECT_PARAM);
+        if(project==null)
+        	project = IDavinciServerConstants.DEFAULT_PROJECT;
+        
+        
         User user = (User) req.getSession().getAttribute(IDavinciServerConstants.SESSION_USER);
         String pathInfo = req.getPathInfo();
         if (ServerManager.DEBUG_IO_TO_CONSOLE) {
@@ -76,7 +81,7 @@ public class DavinciPageServlet extends HttpServlet {
         } else if (req.getParameter(IDavinciServerConstants.PREVIEW_PARAM)!=null) {
             handlePreview(req,resp);
         }else if (pathInfo.startsWith(IDavinciServerConstants.USER_URL)) {
-            handleWSRequest(req, resp, user);
+            handleWSRequest(req, resp, user, project);
         }else {
             /* resource not found */
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -94,7 +99,7 @@ public class DavinciPageServlet extends HttpServlet {
             Bundle bundle = Activator.getActivator().getOtherBundle(name);
             if (bundle != null) {
                 String path = welcomeExtension.getAttribute(IDavinciServerConstants.EP_ATTR_WELCOME_PAGE_PATH);
-                VURL resourceURL = new VURL(bundle.getResource(path));
+                VURL resourceURL = new VURL(bundle.getResource(path), null);
                 this.writePage(req, resp, resourceURL, false);
             }
 
@@ -108,7 +113,7 @@ public class DavinciPageServlet extends HttpServlet {
         writeInternalPage(req, resp, "preview.html");
     }
 
-    private void handleWSRequest(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException, ServletException {
+    private void handleWSRequest(HttpServletRequest req, HttpServletResponse resp, User user, String project) throws IOException, ServletException {
 
         // System.out.println("enter ws request");
         String pathInfo = req.getPathInfo();
@@ -142,7 +147,7 @@ public class DavinciPageServlet extends HttpServlet {
             user = ServerManager.getServerManger().getUserManager().getUser(userName);
         }
 
-        if (handleLibraryRequest(req, resp, path, user)) {
+        if (handleLibraryRequest(req, resp, path, user, project)) {
             // System.out.println("was library");
             return;
         }
@@ -158,11 +163,11 @@ public class DavinciPageServlet extends HttpServlet {
             }
         }
 
-        IVResource userFile = user.getResource(path.toString());
+        IVResource userFile = user.getResource(path.toString(), project);
 
         if (userFile != null && !userFile.exists()) {
             if (path.getFileExtension() == null) {
-                userFile = user.getResource(path.addFileExtension("html").toString());
+                userFile = user.getResource(path.addFileExtension("html").toString(), project);
             }
             if (!userFile.exists()) {
                 if (ServerManager.DEBUG_IO_TO_CONSOLE) {
@@ -179,8 +184,8 @@ public class DavinciPageServlet extends HttpServlet {
 
     }
 
-    protected boolean handleLibraryRequest(HttpServletRequest req, HttpServletResponse resp, IPath path, User user) throws ServletException, IOException {
-        IVResource libraryURL = user.getResource(path.toString());
+    protected boolean handleLibraryRequest(HttpServletRequest req, HttpServletResponse resp, IPath path, User user, String project) throws ServletException, IOException {
+        IVResource libraryURL = user.getResource(path.toString(), project);
         if (libraryURL != null) {
             writePage(req, resp, libraryURL, false);
             return true;
@@ -310,7 +315,7 @@ public class DavinciPageServlet extends HttpServlet {
 
     protected void writeInternalPage(HttpServletRequest req, HttpServletResponse resp, String path) throws ServletException, IOException {
         URL url = Activator.getActivator().getBundle().getEntry("/WebContent/" + path);
-        VURL resourceURL = new VURL(url);
+        VURL resourceURL = new VURL(url, null);
 
         writePage(req, resp, resourceURL, false);
     }

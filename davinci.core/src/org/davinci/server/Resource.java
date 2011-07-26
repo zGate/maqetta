@@ -81,10 +81,10 @@ public class Resource {
                 }
                 jsonWriter.startObject().addField("name", ((IVResource) parents.get(j)).getName());
                 jsonWriter.addFieldName("members").startArray();
+                IVResource parent = ((IVResource) parents.get(j));
+                String parentPath = parent.getPath();
 
-                String parentPath = ((IVResource) parents.get(j)).getPath();
-
-                IVResource[] members = user.listFiles(parentPath);
+                IVResource[] members = user.listFiles(parentPath, parent.getProject().getName());
                 for (int k = 0; k < members.length; k++) {
                     if (Resource.isHidden(members[k])) {
                         continue;
