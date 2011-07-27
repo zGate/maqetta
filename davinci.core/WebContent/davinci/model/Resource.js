@@ -112,12 +112,21 @@ davinci.model.Resource.Resource.prototype.rename = function(newName, recurse){
 		  alert(response);
  }
  
+ davinci.model.Resource.Resource.prototype.getProject= function(){
+	 var parent = this.parent;
+	 while(parent.elementType!="Project"){
+		 parent = parent.parent;
+	 }
+	 return parent;
+ }
+ 
  /**  
   * @class davinci.model.Resource.Folder
     * @constructor 
     * @extends davinci.model.Resource.Resource
   */
 davinci.model.Resource.Folder= function(name,parent){
+	
  	this.inherits( davinci.model.Resource.Resource);  
  	this.elementType="Folder";
  	this.name=name;
@@ -158,10 +167,11 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 	  
   }
   
-  davinci.model.Resource.Folder.prototype.getChildren= function(onComplete,sync)
-  {
-	  if (!this._isLoaded)
-	  {
+  davinci.model.Resource.Folder.prototype.getChildren= function(onComplete,sync){
+	  debugger;
+	  var project = this.getProject();
+	  
+	  if (!this._isLoaded){
 		  if (this._loading)
 		  {
 			  this._loading.push(onComplete);
@@ -243,6 +253,101 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 		}
   }
 
+  
+  /**  
+   * @class davinci.model.Resource.Project
+     * @constructor 
+     * @extends davinci.model.Resource.Folder
+   */
+ davinci.model.Resource.Project= function(name, workspace){
+  	this.inherits( davinci.model.Resource.Folder);  
+  	this.elementType="Project";
+  	this.name=name;
+  	this.parent=workspace;
+ }
+ davinci.Inherits(davinci.model.Resource.Project, davinci.model.Resource.Folder);
+ 
+ davinci.model.Resource.Project.prototype.getChildren= function(onComplete,sync){
+	  if (!this._isLoaded){
+		  if (this._loading)
+		  {
+			  this._loading.push(onComplete);
+			  return;
+		  }
+		  this._loading=[];
+		  this._loading.push(onComplete);
+		  davinci.Runtime.serverJSONRequest({
+			   url:"./cmd/listFiles",
+		          content:{'path':".", 'project':this.name},
+		            sync:sync,
+		            
+					load : dojo.hitch(this, function(responseObject, ioArgs) {
+						this._addFiles(responseObject);
+						dojo.forEach(this._loading,function(item){
+							
+							 (item)(this.children);
+						},this);
+						delete this._loading;
+		            })
+	  	  });
+		  return;
+	  }
+     onComplete(this.children);
+ }
+ 
+ 
+ /**  
+  * @class davinci.model.Resource.Project
+    * @constructor 
+    * @extends davinci.model.Resource.Folder
+  */
+davinci.model.Resource.Workspace= function(){
+ 	this.inherits( davinci.model.Resource.Folder);  
+ 	this.elementType="Workspace";
+ 	this.name=name;
+}
+davinci.model.Resource.Workspace.prototype._addProjects= function(responseObject){
+	
+	  this.children=[];
+		for (var i=0;i<responseObject.length;i++){
+		  var child=new davinci.model.Resource.Project(responseObject[i].name,this);
+		  child.link=responseObject[i].link;
+          this.children.push(child);
+		}
+		this._isLoaded=true;
+	  
+}
+davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync){
+	  if (!this._isLoaded){
+		  if (this._loading)
+		  {
+			  this._loading.push(onComplete);
+			  return;
+		  }
+		  this._loading=[];
+		  this._loading.push(onComplete);
+		  davinci.Runtime.serverJSONRequest({
+			   url:"./cmd/listProjects",
+		            sync:sync,
+		            project:this.name,
+					load : dojo.hitch(this, function(responseObject, ioArgs) {
+						this._addFiles(responseObject);
+						dojo.forEach(this._loading,function(item){
+							
+							 (item)(this.children);
+						},this);
+						delete this._loading;
+		            })
+	  	  });
+		  return;
+	  }
+   onComplete(this.children);
+}
+
+davinci.Inherits(davinci.model.Resource.Workspace, davinci.model.Resource.Folder);
+
+ 
+  
   
   /**  
    * @class davinci.model.Resource.File
@@ -357,5 +462,5 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
    }
    
 
-davinci.model.Resource.root=new davinci.model.Resource.Folder(".",null);
+//davinci.model.Resource.root=new davinci.model.Resource.Folder(".",null);
 

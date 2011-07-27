@@ -1354,20 +1354,25 @@ dojo.mixin(davinci.Workbench, {
 		}
 	},
 
-	_initializeWorkbenchState: function()
-	{
-		var state= (this._state=davinci.Runtime.serverJSONRequest({
-			   url:"./cmd/getWorkbenchState", handleAs:"json",
-				   sync:true  }));
-		if (state&&state.editors)
-		{
+	_initializeWorkbenchState: function(){
+		
+		
+		var project = null;
+		
+		if(davinci.Runtime.singleProjectMode()){
+			project = davinci.Runtime.getProject();
+		}
+		
+		var state= (this._state=davinci.Runtime.serverJSONRequest({url:"./cmd/getWorkbenchState", content:{project:project}, handleAs:"json", sync:true  }));
+		
+		
+		if (state&&state.editors){
 			state.version = davinci.version;
 			for (var i=0;i<state.editors.length;i++)
 			{
 				var resource=davinci.resource.findResource(state.editors[i]);
 				var noSelect=state.editors[i]!=state.activeEditor;
-				if (resource)
-				{
+				if (resource){
 					var resourceInfo=resource.getFileInfo();
 					davinci.Workbench.openEditor({
 						fileName: resource,

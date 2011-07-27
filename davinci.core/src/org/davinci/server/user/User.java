@@ -72,7 +72,7 @@ public class User {
 	 */
 	
 	public VProject rebuildProject(String projectName) {
-		VProject project = new VProject();
+		VProject project = new VProject(this.workspace,projectName);
 		LibInfo libs[] = getLibs(projectName);
 		for (int i = 0; i < libs.length; i++) {
 			String defaultRoot = libs[i].getVirtualRoot();
@@ -125,6 +125,8 @@ public class User {
         File settingsDir = getSettingsDirectory(projectName);
         settingsDir.mkdir();
         initNewProject(getProjectFile(projectName));
+        VProject project = this.rebuildProject(projectName);
+        this.workspace.add(project);
         
 	}
 	
@@ -275,7 +277,7 @@ public class User {
 	 private IVResource getUserFile(String p1, String project) {
 	       
 	        String path = p1;
-	        while(path.charAt(0)=='.' || path.charAt(0)=='/' || path.charAt(0)=='\\')
+	        while(path.length()> 0 && (path.charAt(0)=='.' || path.charAt(0)=='/' || path.charAt(0)=='\\'))
             	path=path.substring(1);
 
 
@@ -352,10 +354,15 @@ public class User {
 	}
 	
 	public File getSettingsDirectory(String project) {
-		
-		File projectDirectory = getProjectFile(project);
-		File settings = new File(projectDirectory,IDavinciServerConstants.SETTINGS_DIRECTORY_NAME );
-		
+		File settings = null;
+		if(project!=null){
+			// get per project settings
+			File projectDirectory = getProjectFile(project);
+			settings = new File(projectDirectory,IDavinciServerConstants.SETTINGS_DIRECTORY_NAME );
+		}else{
+			// workbench global settings 
+			settings = new File(this.userDirectory,IDavinciServerConstants.SETTINGS_DIRECTORY_NAME );
+		}
 		return settings;
 	}
 
@@ -483,6 +490,11 @@ public class User {
 
 	public Person getPerson() {
 		return this.person;
+	}
+
+	public IVResource[] listProjects() {
+		
+		return this.workspace.listFiles();
 	}
 
 }

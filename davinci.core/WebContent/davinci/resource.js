@@ -83,8 +83,19 @@ dojo.mixin(davinci.resource, {
 	},
 	getRoot: function(onComplete){
 		
-		if (!davinci.resource.root){
-			davinci.resource.root=new davinci.model.Resource.Folder(".",null);
+		if(!davinci.resource.workspace){
+			davinci.resource.workspace = new davinci.model.Resource.Workspace();
+		}
+
+		
+		if(davinci.Runtime.singleProjectMode()){
+			if (!davinci.resource.root){
+				davinci.resource.root=new davinci.model.Resource.Project(davinci.Runtime.getProject(), davinci.resource.workspace);
+				davinci.resource.workspace.addChild(davinci.resource.root);
+			}	
+		}else{
+			// figure this out when more than one project on a workspace
+			
 		}
 		
 		if(onComplete){
@@ -123,7 +134,14 @@ dojo.mixin(davinci.resource, {
 	},
 	
 
-
+	listProject : function(){
+		// list all the projects in a users workspace
+		return ['default project','b','c','d'];
+		
+		
+	},
+	
+	
 	
 	
 	/**

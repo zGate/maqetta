@@ -79,6 +79,23 @@ dojo.mixin(davinci.Runtime,	{
 		}
 	},
 	
+	
+	getProject : function(){
+		/* if in single project mode, return the project for this instance */
+		return "Default Project";
+	},
+	
+	/*
+	 * check to see if the workbench is in single project mode
+	 * 
+	 * @returns boolean
+	 */
+	singleProjectMode : function(){
+		
+		/* true for now, but if we support multiple projects in the explorer this might change */
+		return true;
+	},
+	
 	run : function() {
 		// add class to root HTML element to indicate if mac or windows
 		// this is because of different alignment on mac/chrome vs win/chrome
