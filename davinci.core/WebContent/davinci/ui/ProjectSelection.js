@@ -72,8 +72,15 @@ dojo.declare("davinci.ui.ProjectSelection",   dijit._Widget, {
 	},
 	
 	_populateProjects : function(){
-		var projects = davinci.resource.listProjects();
-		this._store.setValues(projects);
+		var workspace = davinci.resource.getWorkspace();
+		var store = this._store;
+		var combo = this.combo;
+		workspace.getChildren(function(projects){
+			store.setValues(projects);
+			var activeProject = davinci.Runtime.getProject();
+			combo.attr('value', activeProject);
+		});
+
 	}
 	
 });

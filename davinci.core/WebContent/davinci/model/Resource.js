@@ -113,7 +113,7 @@ davinci.model.Resource.Resource.prototype.rename = function(newName, recurse){
  }
  
  davinci.model.Resource.Resource.prototype.getProject= function(){
-	 var parent = this.parent;
+	 var parent = this;
 	 while(parent.elementType!="Project"){
 		 parent = parent.parent;
 	 }
@@ -168,9 +168,7 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
   }
   
   davinci.model.Resource.Folder.prototype.getChildren= function(onComplete,sync){
-	  debugger;
 	  var project = this.getProject();
-	  
 	  if (!this._isLoaded){
 		  if (this._loading)
 		  {
@@ -181,7 +179,7 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 		  this._loading.push(onComplete);
 		  davinci.Runtime.serverJSONRequest({
 			   url:"./cmd/listFiles",
-		          content:{'path':this.getPath()},
+		          content:{'path':this.getPath(), 'project':project.name},
 		            sync:sync,
 					load : dojo.hitch(this, function(responseObject, ioArgs) {
 						this._addFiles(responseObject);
@@ -267,35 +265,9 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
  }
  davinci.Inherits(davinci.model.Resource.Project, davinci.model.Resource.Folder);
  
- davinci.model.Resource.Project.prototype.getChildren= function(onComplete,sync){
-	  if (!this._isLoaded){
-		  if (this._loading)
-		  {
-			  this._loading.push(onComplete);
-			  return;
-		  }
-		  this._loading=[];
-		  this._loading.push(onComplete);
-		  davinci.Runtime.serverJSONRequest({
-			   url:"./cmd/listFiles",
-		          content:{'path':".", 'project':this.name},
-		            sync:sync,
-		            
-					load : dojo.hitch(this, function(responseObject, ioArgs) {
-						this._addFiles(responseObject);
-						dojo.forEach(this._loading,function(item){
-							
-							 (item)(this.children);
-						},this);
-						delete this._loading;
-		            })
-	  	  });
-		  return;
-	  }
-     onComplete(this.children);
+ davinci.model.Resource.Project.prototype.getPath= function(){
+	 return ".";
  }
- 
- 
  /**  
   * @class davinci.model.Resource.Project
     * @constructor 
@@ -306,6 +278,8 @@ davinci.model.Resource.Workspace= function(){
  	this.elementType="Workspace";
  	this.name=name;
 }
+davinci.Inherits(davinci.model.Resource.Workspace, davinci.model.Resource.Folder);
+
 davinci.model.Resource.Workspace.prototype._addProjects= function(responseObject){
 	
 	  this.children=[];
@@ -344,7 +318,7 @@ davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync
    onComplete(this.children);
 }
 
-davinci.Inherits(davinci.model.Resource.Workspace, davinci.model.Resource.Folder);
+
 
  
   

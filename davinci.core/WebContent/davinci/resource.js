@@ -134,9 +134,9 @@ dojo.mixin(davinci.resource, {
 	},
 	
 
-	listProject : function(){
+	getWorkspace : function(){
 		// list all the projects in a users workspace
-		return ['default project','b','c','d'];
+		return davinci.resource.workspace;
 		
 		
 	},
