@@ -15,8 +15,8 @@ public class GetLibRoots extends Command {
 
         String id = req.getParameter("libId");
         String version = req.getParameter("version");
-        String base = req.getParameter("base");
-
+        String base = req.getParameter("project");
+        
         String libRoot = user.getLibPath(id, version, base);
         if (libRoot != null) {
             responseString = "[{libRoot:{'root':'" + libRoot + "'}}]";

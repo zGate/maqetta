@@ -209,12 +209,19 @@ dojo.declare("davinci.ve.Context", null, {
 		return this._srcDocument.fileName;
 	},
 
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.  
+		// eventually needs to be the actual project determined by the resource (probably passed in)
+		
+		return davinci.Runtime.getProject();
+	},
+	
 	getBaseResource: function(options){
-		return davinci.resource.findResource(this.getDocumentLocation());
+		return davinci.resource.findResource(this.getProject(), this.getDocumentLocation());
 	},
 
 	getLibraryBase : function(id, version){
-		return davinci.library.getLibRoot(id,version) || "";
+		return davinci.library.getLibRoot(id,version, this.getProject()) || "";
 	},
 
 	loadRequires: function(type, updateSrc, doUpdateModelDojoRequires, relativePrefix) {
@@ -445,7 +452,8 @@ dojo.declare("davinci.ve.Context", null, {
 					imports.push(style[z].children[i]);
 			}
 		}
-		var allThemes = davinci.library.getThemes();
+		var project = model.getProject();
+		var allThemes = davinci.library.getThemes(project);
 		var themeHash = {};
 		for(var i=0;i<allThemes.length;i++){
 			var themePath = new davinci.model.Path(allThemes[i]['file'].getPath());

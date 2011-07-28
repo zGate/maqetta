@@ -9,9 +9,9 @@ dojo.provide("davinci.library");
  * 
  */
 
-davinci.library.getThemes=function(){
+davinci.library.getThemes=function(project){
 	
-	var allThemes = davinci.resource.findResource("*.theme", true, "./themes");
+	var allThemes = davinci.resource.findResource(project, "*.theme", true, "./themes");
 	var results = [];
 	for (var i = 0; i < allThemes.length; i++){
 		var contents = allThemes[i].getText();
@@ -36,7 +36,7 @@ davinci.library.getMetaData=function(theme){
 	var metaResources = [];
 	for(var i = 0;i<theme.meta.length;i++){
 		var absoluteLocation = parent.append(theme.meta[i]);
-		var resource=  davinci.resource.findResource(absoluteLocation.toString());
+		var resource=  davinci.resource.findResource(theme.file.getProject(), absoluteLocation.toString());
 		metaResources.push(resource);
 	}
 			
@@ -77,11 +77,11 @@ davinci.library.getLibMetadata = function(id, version) {
 	// return (davinci.Runtime.serverJSONRequest({url:"./cmd/getLibMetadata", handleAs:"json", content:{'id': id, 'version':version},sync:true }));
 };
 
-davinci.library.getUserLibs=function(base){
+davinci.library.getUserLibs=function(project){
 	// not sure if we want to only allow the logged in user to view his/her
 	// installed libs, or to include user name in request of targe user.
-
-	return davinci.Runtime.serverJSONRequest({url:"./cmd/getUserLibs", handleAs:"json", content:{'base':base },sync:true  })[0]['userLibs'];
+	debugger;
+	return davinci.Runtime.serverJSONRequest({url:"./cmd/getUserLibs", handleAs:"json", content:{'project':project },sync:true  })[0]['userLibs'];
 	
 
 }
@@ -93,12 +93,15 @@ dojo.subscribe("/davinci/ui/libraryChanged", this, function() {
     davinci.library._libRootCache = {};
 });
 
-davinci.library.getLibRoot = function(id, version, base) {
+davinci.library.getLibRoot = function(id, version, project) {
     // check cache
+	if(project==null) debugger;
+	
     var cache = davinci.library._libRootCache;
-    if (cache[id] && cache[id][version]) {
-        return cache[id][version];
+    if (cache[project] && cache[project][id] && cache[project][id][version]) {
+        return cache[project][id][version];
     }
+    
     // send server request
     var response = davinci.Runtime.serverJSONRequest({
         url : "./cmd/getLibRoots",
@@ -106,16 +109,21 @@ davinci.library.getLibRoot = function(id, version, base) {
         content : {
             'libId' : id,
             'version' : version,
-            'base':base
+            'project':project
         },
         sync : true
     });
     var value = response ? response[0]['libRoot']['root'] : null;
     // cache the response value
-    if (!cache[id]) {
-        cache[id] = {};
+
+    if(!cache[project])
+    	cache[project] = {};
+    
+    if (!cache[project][id]) {
+        cache[project][id] = {};
     }
-    cache[id][version] = value;
+    
+    cache[project][id][version] = value;
     return value;
 };
 

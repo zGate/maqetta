@@ -105,6 +105,7 @@ davinci.html.CSSElement.prototype._convertNode = function(domNode){
  	this.inherits(davinci.html.CSSElement);  
  	this.elementType="CSSFile";
  	dojo.mixin(this, args);
+ 	
  	if(!this.options)
  		this.options =  {xmode:'style', css:true, expandShorthand:false};
  	var txt = null;
@@ -142,8 +143,11 @@ davinci.html.CSSElement.prototype._convertNode = function(domNode){
  }
  
 davinci.html.CSSFile.prototype.getResource = function (isWorkingCopy) {
+ 	/* FIXME: this is OK for single user mode, but all CSS real files should have a resource or project passed in */
+ 	if(!this.project)
+ 		this.project = davinci.Runtime.getProject();
 	
-	return davinci.resource.findResource(this.url);
+	return davinci.resource.findResource(this.project, this.url);
 }
 
 davinci.html.CSSFile.prototype.addRule = function (ruleText) {

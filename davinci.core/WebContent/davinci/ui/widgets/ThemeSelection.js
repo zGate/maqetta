@@ -14,7 +14,12 @@ dojo.declare("davinci.ui.widgets.ThemeSelection", [dijit._Widget], {
 	buildRendering: function(){
 
 		this._themeData = [];
-		var themes = davinci.resource.findResource("*.theme",true,"./themes",this.workspaceOnly);
+		
+		
+		//* get the project selected in the UI */
+		var project = davinci.runtime.getProject();
+		
+		var themes = davinci.resource.findResource(project, "*.theme",true,"./themes",this.workspaceOnly);
 		this._themeCount = themes.length;
 		var div = dojo.doc.createElement("div");
 		this._select = dojo.doc.createElement("select");

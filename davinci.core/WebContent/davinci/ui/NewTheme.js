@@ -74,7 +74,9 @@ dojo.declare("davinci.ui.NewTheme",   [dijit._Widget, dijit._Templated], {
 		var base = selector;
 	
 		var newBase = this._getThemeLocation();
-		var r1=  davinci.resource.findResource(base);
+		var project = davinci.Runtime.getProject();
+		
+		var r1=  davinci.resource.findResource(project, base);
 		if(r1)
 			alert("Theme already Exists!");
 		else

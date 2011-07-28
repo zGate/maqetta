@@ -6,17 +6,20 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 	
 	var fileBase = originalTheme.file.parent;
 	var themeRootPath = new davinci.model.Path(directory).removeLastSegments(0);
-	var resource = davinci.resource.findResource(themeRootPath.toString());
+	
+	var project = originalTheme.resource.getProject();
+	
+	var resource = davinci.resource.findResource(project, themeRootPath.toString());
 	if(resource.libraryId)
 		resource.createResource();
 	davinci.resource.copy(fileBase, directory, true);
-	var themeRoot = davinci.resource.findResource(directory);
+	var themeRoot = davinci.resource.findResource(project, directory);
 	var fileName = originalTheme.file.getName();
 	/* remove the copied theme */
 	var sameName = (name==originalTheme.name);
 	var themeFile = null;
 	if(!sameName){
-		var badTheme = davinci.resource.findResource(directory + "/" + fileName);
+		var badTheme = davinci.resource.findResource(project, directory + "/" + fileName);
 		badTheme.deleteResource();
 	}
 	
@@ -28,7 +31,7 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 	if(!sameName)
 		themeFile = themeRoot.createResource(lastSeg + ".theme");
 	else
-		themeFile = davinci.resource.findResource(directory + "/" + fileName);
+		themeFile = davinci.resource.findResource(project, directory + "/" + fileName);
 	
 	var themeJson = {};
 	themeJson['className'] = selector;
@@ -47,7 +50,7 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 	for(var i=0;i<themeJson['files'].length;i++){
 		var fileUrl = directoryPath.append(themeJson['files'][i]);
 		
-		var resource = davinci.resource.findResource(fileUrl);
+		var resource = davinci.resource.findResource(project, fileUrl);
 		if(!sameName && renameFiles && resource.getName().indexOf(oldClass) > -1){
 			var newName = resource.getName().replace(oldClass, selector);
 			resource.rename(newName);
@@ -58,7 +61,7 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 		    		   includeImports : true,
 					   loader:function(url){
 						
-							var r1=  davinci.resource.findResource(url);
+							var r1=  davinci.resource.findResource(project, url);
 							return r1.getText();
 						}
 		});
@@ -81,7 +84,7 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 	
 	for(var i=0;i<themeJson['meta'].length;i++){
 		var fileUrl = directoryPath.append(themeJson['meta'][i]);
-		var file = davinci.resource.findResource(fileUrl.toString());
+		var file = davinci.resource.findResource(project, fileUrl.toString());
 		var contents = file.getText();
 		var newContents = contents.replace(new RegExp(oldClass, "g"), selector);
 		file.setContents(newContents);
@@ -90,7 +93,7 @@ davinci.theme.CloneTheme = function(name, version, selector, directory, original
 	/* rewrite theme editor HTML */
 	for(var i=0;i<themeJson['themeEditorHtmls'].length;i++){
 		var fileUrl = directoryPath.append(themeJson['themeEditorHtmls'][i]);
-		var file = davinci.resource.findResource(fileUrl.toString());
+		var file = davinci.resource.findResource(project, fileUrl.toString());
 		var contents = file.getText();
 		var htmlFile = new davinci.html.HTMLFile(fileUrl);
 		htmlFile.setText(contents,true);

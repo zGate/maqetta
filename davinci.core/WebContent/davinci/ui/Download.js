@@ -92,7 +92,7 @@ dojo.declare("davinci.ui.Download",   [dijit._Widget, dijit._Templated], {
 		var list = [];
 		var userLibs = [];
 		for(var i = 0;i<folder.children.length;i++){
-			list.push(folder.children[i].getPath());
+			list.push(folder.children[i]);
 		}
 
 		var allLibs = this._getLibs();
@@ -112,13 +112,13 @@ dojo.declare("davinci.ui.Download",   [dijit._Widget, dijit._Templated], {
 			var allResources = null
 			
 			
-			var resource = davinci.resource.findResource(resources['userFiles'][i]);
+			var resource = resources['userFiles'][i];
 			
 			if(resource.extension!="html")
 				continue;
 			
 			if(resource.elementType=="Folder"){
-				allResources = davinci.resource.findResource("*.html", true, resource, true);
+				allResources = davinci.resource.findResource(resource.getProject(), "*.html", true, resource.getPath(), true);
 			}else{
 				allResources = [resource];
 			}
@@ -137,8 +137,10 @@ dojo.declare("davinci.ui.Download",   [dijit._Widget, dijit._Templated], {
 				
 				
 				
-				var files = downloadFiles;
-				var fn = fileName
+				var files = [];
+				for(var i=0;i<downloadFiles.length;i++)
+					files.push(downloadFiles[i].getPath());
+				var fn = fileName;
 				
 				davinci.resource.download(files, fn, libs);		
 				/*

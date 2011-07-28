@@ -14,8 +14,9 @@ dojo.declare("davinci.ve.ThemeModifier", null, {
 			var cssURL= this._themePath.getParentPath().append(this.themeCssfiles[i]).toString();
 			this.cssFiles.push(davinci.model.Factory.getInstance().getModel({url:cssURL,
 			    includeImports : true,
+			    project: this.getProject(),
 			    loader:function(url){
-					var resource=  davinci.resource.findResource(url);
+					var resource=  davinci.resource.findResource(this.getProject(), url);
 					return resource.getText();
 				}
 			}));
@@ -24,12 +25,16 @@ dojo.declare("davinci.ve.ThemeModifier", null, {
 		
 		
 	},
-	
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
 
 	_getThemeResource : function (fileName)
 	{
 		var absoluteLocation = this._themePath.getParentPath().append(fileName).toString();
-		var resource=  davinci.resource.findResource(absoluteLocation);
+		var resource=  davinci.resource.findResource(this.getProject(), absoluteLocation);
 		return resource;
 	},
 	

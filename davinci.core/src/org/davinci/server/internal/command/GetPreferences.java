@@ -16,15 +16,10 @@ import org.davinci.server.user.User;
 
 public class GetPreferences extends Command {
 
-    @Override
     public void handleCommand(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
         String path = req.getParameter("id");
-        String project = req.getParameter("project");
-        if(project==null){
-        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
-        }
-        
-        File userSettings = user.getSettingsDirectory(project);
+
+        File userSettings = user.getGlobalSettings();
         File settingsFile = new File(userSettings, path + IDavinciServerConstants.SETTINGS_EXTENSION);
         InputStream inputStream;
         if (settingsFile.exists()) {

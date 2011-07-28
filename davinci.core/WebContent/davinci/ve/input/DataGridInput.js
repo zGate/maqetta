@@ -125,6 +125,11 @@ dojo.declare("davinci.ve.input.DataGridInput", davinci.ve.input.SmartInput, {
 		textArea.attr('value', String(value));
 	},
 	
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
 	
 //    die: function() {
 //        this._inline.destroyDescendants();
@@ -280,7 +285,7 @@ dojo.declare("davinci.ve.input.DataGridInput", davinci.ve.input.SmartInput, {
     	if (patt.test(this._url)){ // absolute url
     		url = this._url;
     	} else {
-    		var file = davinci.resource.findResource(this._url); // relative so we have to get the absolute for the update of the store
+    		var file = davinci.resource.findResource(this.getProject(), this._url); // relative so we have to get the absolute for the update of the store
     		if (!file){
     			alert('File: ' + this._url + ' does not exsist.');
     			return;

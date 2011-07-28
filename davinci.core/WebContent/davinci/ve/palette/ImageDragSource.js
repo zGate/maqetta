@@ -56,7 +56,7 @@ dojo.declare("davinci.ve.palette.ImageDragSource", null, {
 			createData.fileDragCreate = true; 
 			if (metadata && metadata.tool) {
 //					dojo["require"](data.tool);
-				dojo._loadUri(davinci.resource.findResource(
+				dojo._loadUri(davinci.resource.findResource(this.getProject(),
 						'./' + metadata.tool.replace(/\./g, "/") + ".js").getURL());
 				var ctor = dojo.getObject(metadata.tool);
 				tool = new ctor(createData);
@@ -74,6 +74,11 @@ dojo.declare("davinci.ve.palette.ImageDragSource", null, {
 		}
 	},
 
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
 	createDragClone: function()
 	{
 		return dojo.create("img", {src: this.data.getURL()});

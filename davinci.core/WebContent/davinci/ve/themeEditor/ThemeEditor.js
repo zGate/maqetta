@@ -483,7 +483,11 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 		return this.theme;
 	},
 	
-
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
 	
 	setContent : function (filename, content) {
 
@@ -492,7 +496,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 //			this._URLResolver = new davinci.ve.utils.URLResolver(filename);
 			
 			this.theme = dojo.isString(content)? dojo.fromJson(content) : content;
-			this.theme.file = davinci.resource.findResource(filename);
+			this.theme.file = davinci.resource.findResource(this.getProject(), filename);
 			//dojo.connect(this._visualEditor, "onSelectionChange", this,"onSelectionChange");
 			this.themeCssfiles = [];
 			for(var i = 0;i<this.theme.files.length;i++){
@@ -569,7 +573,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 	getFileEditors : function(){
 
 
-		function getVisitor(dirtyResources, urlResolver, results) {
+		function getVisitor(dirtyResources, urlResolver, results,project) {
 			return {
 				lookFor : dirtyResources,
 				urlResolver : urlResolver,
@@ -581,7 +585,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 					if(node.elementType=="CSSFile"){
 						for(var aa in this.lookFor){
 							if(aa==node.url){
-								var resource=  davinci.resource.findResource(aa);
+								var resource=  davinci.resource.findResource(project, aa);
 							
 								this.result.push(this._getObject(resource, node.getText({noComments:false}), this.lookFor[aa]  ));
 								//delete this.lookFor[aa]; we dont want to delete on autosave
@@ -599,7 +603,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 		};
 		var results = [];
 		var cssFiles = this._getCssFiles();
-		var visitor = getVisitor(this._dirtyResource, this._URLResolver, results);
+		var visitor = getVisitor(this._dirtyResource, this._URLResolver, results, this.getProject());
 		if (cssFiles){
 			for(var i=0;i<cssFiles.length;i++){
 				cssFiles[i].visit(visitor);
@@ -613,7 +617,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 		
 	},
 	save : function (isWorkingCopy){
-		function getVisitor(dirtyResources, urlResolver, isWorkingCopy) {
+		function getVisitor(dirtyResources, urlResolver, isWorkingCopy, project) {
 			return {
 				lookFor : dirtyResources,
 				urlResolver : urlResolver,
@@ -622,7 +626,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 					if(node.elementType=="CSSFile"){
 						for(var aa in this.lookFor){
 							if(aa==node.url){
-								var resource=  davinci.resource.findResource(aa);
+								var resource=  davinci.resource.findResource(project, aa);
 								resource.setContents(node.getText({noComments:false}),this.isWorkingCopy);
 								if (!this.isWorkingCopy) // only delete the dirty resource if we are save real copy not working
 									delete this.lookFor[aa];
@@ -638,7 +642,7 @@ dojo.declare("davinci.ve.themeEditor.ThemeEditor", [davinci.ui.ModelEditor,davin
 			
 		};
 		var cssFiles = this._getCssFiles();
-		var visitor = getVisitor(this._dirtyResource, this._URLResolver, isWorkingCopy);
+		var visitor = getVisitor(this._dirtyResource, this._URLResolver, isWorkingCopy, this.getProject());
 		if (cssFiles){
 			for(var i=0;i<cssFiles.length;i++){
 				cssFiles[i].visit(visitor);

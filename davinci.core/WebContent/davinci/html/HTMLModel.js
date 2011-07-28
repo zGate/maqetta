@@ -95,9 +95,9 @@ davinci.html.HTMLItem.prototype._addWS = function(lines,indent)
     * @constructor
     * @extends davinci.html.HTMLItem
   */
- davinci.html.HTMLFile= function(fileName)
- {
+ davinci.html.HTMLFile= function(fileName, project){
 	this.fileName = fileName;
+	this.project = project || davinci.Runtime.getProject();
  	this.inherits( davinci.html.HTMLItem);
  	this.elementType="HTMLFile";
     this._loadedCSS={};
@@ -105,7 +105,7 @@ davinci.html.HTMLItem.prototype._addWS = function(lines,indent)
  davinci.Inherits(davinci.html.HTMLFile,davinci.html.HTMLItem);
 
  davinci.html.HTMLFile.prototype.save = function (isWorkingCopy) {
-	 var file = davinci.resource.findResource(this.fileName);
+	 var file = davinci.resource.findResource(this.project, this.fileName);
 	 if(file){
 		var text = this.getText();
 		file.setContents(text,isWorkingCopy);

@@ -15,15 +15,9 @@ import org.davinci.server.user.User;
 
 public class SetWorkbenchState extends Command {
 
-    @Override
     public void handleCommand(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
-    	String project = req.getParameter("project");
-        if(project==null){
-        	System.err.println("Error: NO PROJECT parameter for " + this.getClass().getCanonicalName());
-        }
-        
-        File settingsDir = user.getSettingsDirectory(project);
-        File settingsFile = new File(settingsDir, IDavinciServerConstants.WORKBENCH_STATE_FILE);
+    	/* global settings */
+        File settingsFile = new File(user.getGlobalSettings(), IDavinciServerConstants.WORKBENCH_STATE_FILE);
         if (!settingsFile.exists()) {
             settingsFile.createNewFile();
         }

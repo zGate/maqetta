@@ -143,7 +143,11 @@ dojo.declare("davinci.ve.palette.PaletteItem", dijit._Widget,{
 			this.flat(this.domNode);
 		});
 	},
-	
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
 	itemKeyDownHandler: function(e){
 		if(e.keyCode != dojo.keys.ENTER){return;}
 		if(this.palette.selectedItem){
@@ -156,7 +160,7 @@ dojo.declare("davinci.ve.palette.PaletteItem", dijit._Widget,{
 			// prime the metadata cache to make sure the loader is set up properly
 			davinci.ve.metadata.query(this.type);
 //			dojo["require"](this.tool);
-            dojo._loadUri(davinci.resource.findResource(
+            dojo._loadUri(davinci.resource.findResource(this.getProject(),
                     './' + this.tool.replace(/\./g, "/") + ".js").getURL());
 			var ctor = dojo.getObject(this.tool);
 			tool = new ctor(this.data);

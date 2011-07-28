@@ -41,7 +41,7 @@ public class User {
 	private File settingsDirectory;
 	private Links links;
 	private Person person;
-	private IVResource workspace;
+	private VWorkspace workspace;
 	private Hashtable libSettings;
 
 	public User(Person person, IVResource userDirectory) throws URISyntaxException {
@@ -205,9 +205,9 @@ public class User {
 
 	}
 
-	private void findLibFiles(IPath path, ArrayList results) {
+	private void findLibFiles(IPath path, String project, ArrayList results) {
 	
-		IVResource[] result = this.workspace.find(path.toString());
+		IVResource[] result = this.workspace.find(project, path.toString());
 
 		for (int i = 0; i < result.length; i++) {
 			results.add(result[i]);
@@ -448,7 +448,7 @@ public class User {
 			}
 
 			if (!workspaceOnly) {
-				this.findLibFiles(path, results);
+				this.findLibFiles(path, project, results);
 
 			}
 		} else {
@@ -484,6 +484,10 @@ public class User {
 		return null;
 	}
 
+	public File getGlobalSettings(){
+		return   new File(this.getUserDirectory(), IDavinciServerConstants.SETTINGS_DIRECTORY_NAME);
+	}
+	
 	public String getUserName() {
 		return this.person.getUserName();
 	}

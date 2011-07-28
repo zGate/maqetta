@@ -74,6 +74,31 @@ davinci.model.Model.prototype.findChildAtPosition = function (position){
 	return null;
 }
 
+
+/* use this for any model elements real resource 
+ * instead of accessing the 'resource' field directly. 
+ * 
+ * this will help to track resource calls  && 
+ * duplicate resource finding for refactorings/etc...
+ */
+
+davinci.model.Model.prototype.getResource = function(){
+	return this.resource;
+}
+ 
+davinci.model.Model.prototype.setResource = function(value){
+		this.resource = value;
+}
+
+davinci.model.Model.prototype.getProject = function(){
+	return this.project;
+}
+ 
+davinci.model.Model.prototype.setProject = function(value){
+		this.project = value;;
+}
+
+
 davinci.model.Model.prototype.removeChild = function(child){
 	 for (var i=0;i<this.children.length;i++)
 		 if (this.children[i]==child)

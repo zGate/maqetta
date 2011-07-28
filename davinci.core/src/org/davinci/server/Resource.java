@@ -24,8 +24,12 @@ public class Resource {
     public static boolean isHidden(IVResource file) {
         for (int i = 0; i < Resource.resourceFilter.size(); i++) {
             IVResourceFilter filter = (IVResourceFilter) Resource.resourceFilter.get(i);
-            if (filter.isHidden(file)) {
-                return true;
+            try{
+	            if (filter.isHidden(file)) {
+	                return true;
+	            }
+            }catch(Exception e){
+            	System.out.println("...");
             }
         }
 
@@ -76,12 +80,13 @@ public class Resource {
             String name = listFiles[i].getPath();
             jsonWriter.startObject().addField("file", name).addFieldName("parents").startArray();
             for (int j = 0; j < parents.size(); j++) {
-                if (Resource.isHidden((IVResource) parents.get(j))) {
+            	IVResource parent = (IVResource) parents.get(j);
+                if (Resource.isHidden(parent) || parent instanceof VWorkspace) {
                     continue;
                 }
-                jsonWriter.startObject().addField("name", ((IVResource) parents.get(j)).getName());
+                jsonWriter.startObject().addField("name",parent.getName());
                 jsonWriter.addFieldName("members").startArray();
-                IVResource parent = ((IVResource) parents.get(j));
+                
                 String parentPath = parent.getPath();
 
                 IVResource[] members = user.listFiles(parentPath, parent.getProject().getName());

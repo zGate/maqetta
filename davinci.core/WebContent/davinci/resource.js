@@ -30,7 +30,8 @@ dojo.mixin(davinci.resource, {
 			}else{
 				/* find the resource parent */
 				var p1 = (new davinci.model.Path(changedResource)).removeLastSegments();
-				parent = davinci.resource.findResource(p1.toString()) || davinci.resource.getRoot();
+				var project = changedResource.getProject();
+				parent = davinci.resource.findResource(project, p1.toString() ) || davinci.resource.getRoot();
 				resourcePath = changedResource;
 			}
 			if(parent.elementType=="Folder" && type=='reload'){
@@ -145,18 +146,23 @@ dojo.mixin(davinci.resource, {
 	
 	
 	/**
+	 * @param proj Project to search
 	 * @param name  Path of resource to find.  May include wildcard.
 	 * @param ignoreCase
 	 * @param inFolder  String or Resource object in which to start search.
 	 * @returns  Resource
 	 */
-	findResource: function(name, ignoreCase, inFolder, workspaceOnly){
+	findResource: function(proj, name, ignoreCase, inFolder, workspaceOnly, project){
+		
 		ignoreCase=ignoreCase || !davinci.resource.__CASE_SENSITIVE;
+		
+		var project = proj.name || proj;
+		
 		var seg1=0,segments;
 		var resource=davinci.resource.root;
 		if (inFolder) {
 		    if (typeof inFolder == 'string') {
-		        inFolder = davinci.resource.findResource(inFolder, ignoreCase);
+		        inFolder = davinci.resource.findResource(project, inFolder, ignoreCase, null, workspaceOnly);
 		    }
 		    resource = inFolder;
 		}
@@ -206,7 +212,7 @@ dojo.mixin(davinci.resource, {
 		{			
 			var response = davinci.Runtime.serverJSONRequest({
 				  url:"./cmd/findResource", 
-			          content:{path: name, ignoreCase: ignoreCase, workspaceOnly: workspaceOnly, inFolder: inFolder!=null?inFolder.getPath():null}, sync:true  });
+			          content:{path: name, ignoreCase: ignoreCase, workspaceOnly: workspaceOnly, inFolder: inFolder!=null?inFolder.getPath():null, project:project}, sync:true  });
 			
 			if (response && response.length>0)
 			{

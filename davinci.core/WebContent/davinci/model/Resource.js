@@ -20,8 +20,7 @@ davinci.model.Resource.Resource= function(){
 	 return this.name;
 }
  
- davinci.model.Resource.Resource.prototype.getPath= function()
- {
+ davinci.model.Resource.Resource.prototype.getPath= function(){
 	 if (this.parent)
 		 return this.parent.getPath()+"/"+this.name;
 	 return this.name;
@@ -55,11 +54,12 @@ davinci.model.Resource.Resource.prototype.rename = function(newName, recurse){
 		
 		var path = new davinci.model.Path(this.getPath()).removeLastSegments();
 		var newPath = path.append(newName);
+		var project = this.getProject();
 		
 		var response = davinci.Runtime.serverJSONRequest({url:"./cmd/rename", 
 														  handleAs:"text", 
 														  sync:true,
-														  content:{'oldName':this.getPath(), 'newName' : newPath.toString()} 
+														  content:{'oldName':this.getPath(), 'newName' : newPath.toString(), 'project':project.name} 
 															});
 		this.name = newName;
 		dojo.publish("/davinci/resource/resourceChanged",["renamed",this]);
@@ -88,14 +88,15 @@ davinci.model.Resource.Resource.prototype.rename = function(newName, recurse){
  }
  
 
- davinci.model.Resource.Resource.prototype.deleteResource= function(localOnly)
- {
+ davinci.model.Resource.Resource.prototype.deleteResource= function(localOnly){
+	 
+	 var project = this.getProject();
 	 
 	 var response="OK";
 	 if (!localOnly) {
 		 response = davinci.Runtime.serverJSONRequest({
 		   url:"./cmd/deleteResource", handleAs:"text",
-	          content:{'path':this.getPath()},sync:true  });
+	          content:{'path':this.getPath()},sync:true, 'project':project.name  });
 	 }
 	  if (response=="OK")
 	  {
@@ -114,7 +115,7 @@ davinci.model.Resource.Resource.prototype.rename = function(newName, recurse){
  
  davinci.model.Resource.Resource.prototype.getProject= function(){
 	 var parent = this;
-	 while(parent.elementType!="Project"){
+	 while(parent!=null && parent.elementType!="Project"){
 		 parent = parent.parent;
 	 }
 	 return parent;
@@ -146,14 +147,15 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 	 if(name!=null){
 		 file = isFolder ?   new davinci.model.Resource.Folder(name,this) :  new davinci.model.Resource.File(name,this);
   	 }else{
-		 
 		 file = this;
 		 isFolder = this.elementType=="Folder";
 	 }
+	
+	 var project = this.getProject();
 	 
 	 var response= (!localOnly) ? davinci.Runtime.serverJSONRequest({
 		   url:"./cmd/createResource", handleAs:"text",
-	       content:{'path':file.getPath(), 'isFolder': isFolder},sync:true  }): "OK";
+	       content:{'path':file.getPath(), 'isFolder': isFolder, 'project': project},sync:true  }): "OK";
 	  if (response=="OK" && name!=null){
 		  this.children.push(file);
 		  dojo.publish("/davinci/resource/resourceChanged",["created",file]);
@@ -194,8 +196,7 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 	  }
       onComplete(this.children);
   }
-  davinci.model.Resource.Folder.prototype._addFiles= function(responseObject)
-  {
+  davinci.model.Resource.Folder.prototype._addFiles= function(responseObject){
 	
 	  this.children=[];
 		for (var i=0;i<responseObject.length;i++)
@@ -223,8 +224,7 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 		this._isLoaded=true;
 	  
   }
-  davinci.model.Resource.Folder.prototype.getMarkers= function(markerTypes,allChildren)
-  {
+  davinci.model.Resource.Folder.prototype.getMarkers= function(markerTypes,allChildren){
 	  var result=[];
 	  this.visit({visit:function (resource){
 		  if (resource.elementType=="File")
@@ -238,8 +238,7 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 	  return result;
   }
 
-  davinci.model.Resource.Folder.prototype._getChild= function(name)
-  {
+  davinci.model.Resource.Folder.prototype._getChild= function(name){
 	  if (!this.__CASE_SENSITIVE){
 		  name=name.toLowerCase();
 	  }
@@ -250,7 +249,6 @@ davinci.model.Resource.Folder.prototype.createResource= function(name, isFolder,
 		  }
 		}
   }
-
   
   /**  
    * @class davinci.model.Resource.Project
@@ -282,13 +280,13 @@ davinci.Inherits(davinci.model.Resource.Workspace, davinci.model.Resource.Folder
 
 davinci.model.Resource.Workspace.prototype._addProjects= function(responseObject){
 	
-	  this.children=[];
-		for (var i=0;i<responseObject.length;i++){
+	this.children=[];
+	for (var i=0;i<responseObject.length;i++){
 		  var child=new davinci.model.Resource.Project(responseObject[i].name,this);
 		  child.link=responseObject[i].link;
           this.children.push(child);
-		}
-		this._isLoaded=true;
+	}
+	this._isLoaded=true;
 	  
 }
 davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync){
@@ -317,10 +315,6 @@ davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync
 	  }
    onComplete(this.children);
 }
-
-
-
- 
   
   
   /**  
@@ -328,41 +322,36 @@ davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync
      * @constructor 
      * @extends davinci.model.Resource.Resource
    */
-  davinci.model.Resource.File= function(name,parent)
-  {
-  	this.inherits( davinci.model.Resource.Resource);  
-  	this.elementType="File";
-  	this.name=name;
-  	this.parent=parent;
-   this.markers=[];
-	this.extension=name.substr(name.lastIndexOf('.')+1);
+  davinci.model.Resource.File= function(name,parent){
+	  this.inherits( davinci.model.Resource.Resource);  
+	  this.elementType="File";
+	  this.name=name;
+	  this.parent=parent;
+	  this.markers=[];
+	  this.extension=name.substr(name.lastIndexOf('.')+1);
 
   }
    davinci.Inherits(davinci.model.Resource.File,davinci.model.Resource.Resource);
 
-   davinci.model.Resource.File.prototype.getExtension= function()
-   {
+   davinci.model.Resource.File.prototype.getExtension= function(){
    	return this.extension;
    }
 
    
-   davinci.model.Resource.File.prototype.clearMarkers = function()
-   {
+   davinci.model.Resource.File.prototype.clearMarkers = function(){
 	   this.markers=[];
    }
 
-   davinci.model.Resource.File.prototype.addMarker = function(type,line,text)
-   {
+   davinci.model.Resource.File.prototype.addMarker = function(type,line,text){
 	   var marker=new davinci.model.Resource.Marker(this,type,line,text);
 	   this.markers.push(marker);
    }
 
-   davinci.model.Resource.File.prototype.getMarkers = function(markerTypes)
-   {
+   davinci.model.Resource.File.prototype.getMarkers = function(markerTypes){
 	   var result=[];
+	   
 	   if (this.markers)
-		   for (var i=0;i<this.markers.length; i++)
-		   {
+		   for (var i=0;i<this.markers.length; i++){
 			   var marker=this.markers[i];
 			   if (!markerTypes)
 				   result.push(marker);
@@ -377,16 +366,15 @@ davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync
 	   return result;
    }
 
-   davinci.model.Resource.File.prototype.setContents = function(content, isWorkingCopy)
-   {
+   davinci.model.Resource.File.prototype.setContents = function(content, isWorkingCopy){
 	   var workingCopy=isWorkingCopy ? "true":"false";
 	   if (this.isNew && !isWorkingCopy){
 		   this.isNew=false;
 	   }
-		var path=encodeURIComponent(this.getPath());
-		davinci.Runtime.serverPut(
-				{
-					url: "./cmd/saveFile?path="+path+"&isWorkingCopy="+workingCopy,
+	   var path=encodeURIComponent(this.getPath());
+	   var project = this.getProject();
+	   davinci.Runtime.serverPut({
+		            url: "./cmd/saveFile?path="+path+"&isWorkingCopy="+workingCopy+"&project="+project.name,
 					putData: content,
 					handleAs:"text",
 					contentType:"text/html"
@@ -394,32 +382,24 @@ davinci.model.Resource.Workspace.prototype.getChildren= function(onComplete,sync
 		dojo.publish("/davinci/resource/resourceChanged",["modified",this]);
    }
 
-   davinci.model.Resource.File.prototype.getText= function()
-   {
- 		  var contents=davinci.Runtime.serverJSONRequest({
- 			   url:"./cmd/loadFile", handleAs:"text",
- 		          content:{'path':this.getPath()}, sync:true
- 	  	  });
+   davinci.model.Resource.File.prototype.getText= function(){
+	   	  var project = this.getProject();
+ 		  var contents=davinci.Runtime.serverJSONRequest({url:"./cmd/loadFile", handleAs:"text",content:{'path':this.getPath(), 'project':project.name}, sync:true});
  		  return contents;
    }
 
 
-   davinci.model.Resource.File.prototype.removeWorkingCopy= function()
-   {
- 		 davinci.Runtime.serverJSONRequest({
- 			   url:"./cmd/removeWorkingCopy", handleAs:"text",
- 		          content:{'path':this.getPath()}, sync:true
- 	  	  });
+   davinci.model.Resource.File.prototype.removeWorkingCopy= function(){
+	   	 var project = this.getProject();
+ 		 davinci.Runtime.serverJSONRequest({url:"./cmd/removeWorkingCopy", handleAs:"text", content:{'path':this.getPath(), 'project': project.name}, sync:true});
  		 if (this.isNew)
  			 this.deleteResource(true);
    }
 
-   davinci.model.Resource.File.prototype.getFileInfo= function()
-   {
- 		  var fileInfo=davinci.Runtime.serverJSONRequest({
- 			   url:"./cmd/getFileInfo", 
- 		          content:{'path':this.getPath()}, sync:true
- 	  	  });
+   davinci.model.Resource.File.prototype.getFileInfo= function(){
+	   var project = this.getProject();
+	   
+ 		var fileInfo=davinci.Runtime.serverJSONRequest({url:"./cmd/getFileInfo", content:{'path':this.getPath(), 'project':project.name}, sync:true });
  		  return fileInfo;
    }
 

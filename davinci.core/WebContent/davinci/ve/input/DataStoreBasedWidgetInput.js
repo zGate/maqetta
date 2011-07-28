@@ -226,6 +226,12 @@ dojo.declare("davinci.ve.input.DataStoreBasedWidgetInput", davinci.ve.input.Smar
 		}	
 	},*/
 	
+	getProject : function(){
+		// return the project associated with the file being edited..  stubbing out for now since each instance is in single project mode.
+		
+		return davinci.Runtime.getProject();
+	},
+	
 	updateWidgetForUrlStore: function(){
 		
     	var textArea = dijit.byId("davinciIleb");
@@ -235,7 +241,7 @@ dojo.declare("davinci.ve.input.DataStoreBasedWidgetInput", davinci.ve.input.Smar
     	if (patt.test(this._url)){ // absolute url
     		url = this._url;
     	} else {
-    		var file = davinci.resource.findResource(this._url); // relative so we have to get the absolute for the update of the store
+    		var file = davinci.resource.findResource(this.getProject(), this._url); // relative so we have to get the absolute for the update of the store
     		if (!file){
     			alert('File: ' + this._url + ' does not exsist.');
     			return;

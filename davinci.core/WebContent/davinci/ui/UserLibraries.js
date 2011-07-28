@@ -29,6 +29,15 @@ dojo.declare("davinci.ui.UserLibraries",   [dijit._Widget, dijit._Templated], {
 		this._allLibs = davinci.library.getInstalledLibs();
 		this._userLibs = davinci.library.getUserLibs();
 		var uiArray = [];
+		this.project = null;
+		
+		var selection = davinci.Runtime.getSelection();
+		
+		if(selection!=null)
+			this.project = selection.getProject();
+		else
+			this.project = davinci.Runtime.getProject();
+		
 		
 		uiArray.push("<table cellspacing='0' cellpadding='0' width='100%'><tr><td class='header'></td><td class='header'>Library</td><td class='header'>Version</td><td class='header'>Workspace Location</td></tr>");
 		uiArray.push("<tr></tr>");
@@ -100,7 +109,7 @@ dojo.declare("davinci.ui.UserLibraries",   [dijit._Widget, dijit._Templated], {
 			dojo.publish("/davinci/ui/libraryChanged");
 		}
 		
-		var pages = davinci.resource.findResource("*.html", true, null, true);
+		var pages = davinci.resource.findResource(this.project, "*.html", true, null, true);
 		
 		var pageBuilder = new davinci.ve.RebuildPage();
 		for(var i=0;i<pages.length;i++){

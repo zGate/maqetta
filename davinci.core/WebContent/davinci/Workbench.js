@@ -1361,6 +1361,8 @@ dojo.mixin(davinci.Workbench, {
 		
 		if(davinci.Runtime.singleProjectMode()){
 			project = davinci.Runtime.getProject();
+		}else{
+			// which project?
 		}
 		
 		var state= (this._state=davinci.Runtime.serverJSONRequest({url:"./cmd/getWorkbenchState", content:{project:project}, handleAs:"json", sync:true  }));
@@ -1370,7 +1372,7 @@ dojo.mixin(davinci.Workbench, {
 			state.version = davinci.version;
 			for (var i=0;i<state.editors.length;i++)
 			{
-				var resource=davinci.resource.findResource(state.editors[i]);
+				var resource=davinci.resource.findResource(project, state.editors[i]);
 				var noSelect=state.editors[i]!=state.activeEditor;
 				if (resource){
 					var resourceInfo=resource.getFileInfo();

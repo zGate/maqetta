@@ -23,6 +23,13 @@ dojo.mixin(davinci.ui.Resource, {
 		var hideFileNameInput;
 		var folder=davinci.resource.getRoot();
 		var resource=davinci.ui.Resource.getSelectedResource();
+		var project = null;
+		
+		if(resource)
+			project = resource.getProject();
+		else
+			project = davinci.Runtime.getProject();
+		
 		if (resource){
 			folder=(resource.elementType=='Folder'?resource:resource.parent);
 		}
@@ -54,7 +61,7 @@ dojo.mixin(davinci.ui.Resource, {
 			doItLabel = "Save";
 			doItAction = "davinci.ui.Resource.saveAs({checkForExtension:true})";
 			var editor = davinci.Workbench.getOpenEditor();
-			var file= editor.resourceFile || davinci.resource.findResource( editor.fileName);
+			var file= editor.resourceFile || davinci.resource.findResource( project, editor.fileName);
 			folder=file.getParentFolder();
 			var oldFileName = proposedFileName = file.getName();
 			if(!oldFileName || !oldFileName===""){
@@ -168,6 +175,8 @@ dojo.mixin(davinci.ui.Resource, {
 		if(!extension){
 			extension="";
 		}
+		var project = davinci.Runtime.getProject();
+		
 		do{
 			count++;
 			if(fileOrFolder==='newfolder'){
@@ -176,7 +185,7 @@ dojo.mixin(davinci.ui.Resource, {
 				proposedName='file'+count+extension;
 			}
 			var fullname=fileDialogParentFolder.getPath()+'/'+proposedName;
-			existing=davinci.resource.findResource(fullname);
+			existing=davinci.resource.findResource(project, fullname);
 		}while(existing);
 		return proposedName;
 	},
@@ -192,7 +201,14 @@ dojo.mixin(davinci.ui.Resource, {
 			alert("You must enter a file name.");
 			return false;
 		}
-		var existing=davinci.resource.findResource(fullName);
+		
+		var project = null;
+		if(resource)
+			project = resource.getProject();
+		else
+			project = davinci.Runtime.getProject();
+		
+		var existing=davinci.resource.findResource(project, fullName);
 		if(existing){
 			// Check if existing file is a folder
 			if(existing.elementType=='Folder' && !args.selectFolderOK){
@@ -239,12 +255,20 @@ dojo.mixin(davinci.ui.Resource, {
 		var fullName=folder.getPath()+'/'+fileName;
 		var oldEditor = davinci.Workbench.getOpenEditor();
 		var oldFileName = oldEditor.fileName;
-		var oldResource = davinci.resource.findResource(oldFileName);
+		
+		var project = null;
+		
+		if(resource!=null)
+			project = resource.getProject();
+		else
+			project = davinci.Runtime.getProject();
+		
+		var oldResource = davinci.resource.findResource(project, oldFileName);
 		var oldContent = oldEditor.model.getText();
 		//dialog.close();
 		dialog.destroyRecursive();
 		// If resource exists, delete it because we will soon make a new version of that resource
-		var existing=davinci.resource.findResource(fullName);
+		var existing=davinci.resource.findResource(project, fullName);
 		oldEditor.editorContainer.forceClose(oldEditor);
 		if(existing){
 			existing.removeWorkingCopy();

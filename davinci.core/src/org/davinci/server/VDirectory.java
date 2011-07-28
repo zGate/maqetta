@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.Path;
 public class VDirectory implements IVResource {
 
     protected Vector     children;
-    private IVResource parent;
-    private String     name;
+    protected IVResource parent;
+    protected String     name;
 
     public VDirectory(IVResource parent, String name) {
         this.parent = parent;
@@ -240,7 +240,7 @@ public class VDirectory implements IVResource {
     }
 
 	public VProject getProject() {
-		IVResource parent = this.parent;
+		IVResource parent = this;
 		while(parent!=null && !(parent instanceof VProject))
 				parent = parent.getParent();
 		return parent!=null?(VProject)parent:null;
